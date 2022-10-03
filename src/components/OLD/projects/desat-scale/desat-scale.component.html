@@ -1,0 +1,18 @@
+<div class="main-content flex flex-dir-column">
+    <canvas #mainCanvas id="mainCanvas" class="main-canvas"></canvas>
+
+    <div class="sliders flex flex-dir-column">
+        <div class="flex flex-justify-space-between">
+            <label #redInputLabel for="redInput">Red:</label>
+            <input #redInput type="range" id="redInput" min="0" max="255" value="255" (input)="inputProcess(0, redInput.value)">
+        </div>
+        <div class="flex flex-justify-space-between">
+            <label #greenInputLabel for="greenInput">Green:</label>
+            <input #greenInput type="range" id="greenInput" min="0" max="255" value="128" (input)="inputProcess(1, greenInput.value)">
+        </div>
+        <div class="flex flex-justify-space-between">
+            <label #blueInputLabel for="blueInput">Blue:</label>
+            <input #blueInput type="range" id="blueInput" min="0" max="255" value="0" (input)="inputProcess(2, blueInput.value)">
+        </div>
+    </div>
+</div>

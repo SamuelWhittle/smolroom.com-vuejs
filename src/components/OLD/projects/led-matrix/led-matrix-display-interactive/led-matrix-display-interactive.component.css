@@ -1,0 +1,38 @@
+* {
+    user-select: none;   
+}
+
+.div-grid {
+    height: 100%;
+    max-width: 100%;
+    margin: auto;
+    background: #16161d;
+    aspect-ratio: 1/1;
+
+    display: grid;
+    grid-template-columns: repeat(30, 1fr);
+    grid-template-rows: repeat(30, 1fr);
+
+    pointer-events: none;
+}
+
+.div-grid > div {
+    border: 1px solid #16161d;
+    /*border-radius: 0.3rem;*/
+
+    pointer-events: auto;
+}
+
+.controls {
+    z-index: -1;
+    grid-row: 1 / span 30;
+    grid-column: 1 / span 30;
+    transition: 250ms ease-in-out;
+    opacity: 0%;
+    text-align: center;
+}
+
+.controls[data-visible="true"] {
+    z-index: 1;
+    opacity: 90%;
+}

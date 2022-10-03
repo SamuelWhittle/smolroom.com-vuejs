@@ -1,0 +1,17 @@
+.main-header {
+    display: block;
+}
+
+.low-profile-header {
+    display: none;
+}
+
+@media (max-width: 50rem) {
+    .main-header {
+        display: none;
+    }
+
+    .low-profile-header {
+        display: block;
+    }
+}

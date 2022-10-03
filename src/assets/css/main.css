@@ -1,0 +1,113 @@
+:root {
+}
+
+/* General Page Setup */
+* {
+    padding: 0;
+    margin: 0;
+}
+
+*, *:before, *:after {
+    box-sizing: border-box;
+
+    overscroll-behavior: none;
+}
+
+/*html {
+    max-height: 100vh;
+    max-height: calc(var(--vh, 1vh) * 100);
+    box-sizing: border-box;
+}
+
+body {
+    overflow-x: hidden;
+}
+
+/* Flex Box */
+
+.flex {
+    display: flex;
+    gap: var(--gap, 1rem);
+}
+
+.flex-justify-center {
+    justify-content: center;
+}
+
+.flex-justify-space-between {
+    justify-content: space-between;
+}
+
+.flex-justify-space-evenly {
+    justify-content: space-evenly;
+}
+
+.flex-justify-space-around {
+    justify-content: space-around;
+}
+
+.flex-dir-column {
+    flex-direction: column;
+}
+
+/* General Properties */
+
+.general-reset {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.visually-hidden:not(:focus):not(:active) {
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    height: 1px;
+    overflow: hidden;
+    position: absolute;
+    white-space: nowrap;
+    width: 1px;
+}
+
+.easy-on-the-eyes {
+    background: #16161d;
+    color: #FFFFFF;
+}
+
+/* Text Properties */
+
+.ff-sans-cond {
+    font-family: sans-serif;
+}
+
+.uppercase {
+    text-transform: uppercase;
+}
+
+.text-white {
+    color: #FFFFFF;
+}
+
+.letter-spacing-2 {
+    letter-spacing: 2px;
+}
+
+/* Image Properties */
+
+.object-fit-fill {
+    /* adjusts image aspect ratio to match parent */
+    object-fit: fill;
+}
+
+.object-fit-contain {
+    /* Fits largest possible original aspect ratio image inside the parent */
+    object-fit: contain;
+}
+
+.object-fit-cover {
+    /* maintains original aspect ratio, scales image to match largest parent dimension */
+    object-fit: cover;
+}
+
+.object-fit-none {
+    object-fit: none;
+}

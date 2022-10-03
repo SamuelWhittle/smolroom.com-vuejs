@@ -1,0 +1,22 @@
+* {
+    user-select: none;   
+}
+
+.div-grid {
+    height: 100%;
+    background: #16161d;
+    aspect-ratio: 1/1;
+
+    display: grid;
+    grid-template-columns: repeat(30, 1fr);
+    grid-template-rows: repeat(30, 1fr);
+
+    pointer-events: none;
+}
+
+.div-grid > div {
+    border: 1px solid #16161d;
+    /*border-radius: 0.3rem;*/
+
+    pointer-events: auto;
+}

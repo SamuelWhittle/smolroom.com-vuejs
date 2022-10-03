@@ -1,0 +1,13 @@
+<app-main-header class="main-header"></app-main-header>
+<app-low-profile-header class="low-profile-header"></app-low-profile-header>
+
+<div class="main-content flex flex-justify-center">
+    <div class="main-content-item" *ngFor="let project of projectList">
+        <a routerLink="/{{project.name}}" [ngSwitch]='project.previewType'>
+            <img *ngSwitchCase="'imgTemplate'" src="assets/images/{{project.name}}.png" alt="{{project.name}}">
+            <led-matrix-display-only *ngSwitchCase="'ledMatrixTemplate'"></led-matrix-display-only>
+
+            <img *ngSwitchDefault src="assets/images/{{project.name}}.png" alt="{{project.name}}">
+        </a>
+    </div>
+</div>

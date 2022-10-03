@@ -1,0 +1,19 @@
+/* Main Content */
+.main-content {
+    margin-inline: auto;
+}
+
+.main-canvas {
+    display: block;
+
+    width: 260px;
+    height: 460px;
+
+    margin-inline: auto;
+}
+
+.sliders {
+    margin-inline: auto;
+}
+
+/* End Main Content */

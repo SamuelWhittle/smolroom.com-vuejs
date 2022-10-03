@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+import HomeView from '@/components/views/HomeView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -10,13 +10,40 @@ const router = createRouter({
       component: HomeView
     },
     {
+      path: '/projects',
+      name: 'projects',
+      component: HomeView
+    },
+    {
       path: '/about',
       name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import('../views/AboutView.vue')
-    }
+      component: HomeView
+    },
+    {
+      path: '/desat-scale',
+      name: 'desaturation scale',
+      component: HomeView
+    },
+    {
+      path: '/perlin-noise1',
+      name: 'perlin noise example 1',
+      component: HomeView
+    },
+    {
+      path: '/perlin-noise',
+      name: 'perlin noise example 0',
+      component: HomeView
+    },
+    {
+      path: '/circumcenter',
+      name: 'curcumcenter',
+      component: HomeView
+    },
+    {
+      path: '/led-matrix',
+      name: 'led matrix control',
+      component: HomeView
+    },
   ]
 })
 

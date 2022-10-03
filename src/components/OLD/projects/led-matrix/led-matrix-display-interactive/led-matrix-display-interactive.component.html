@@ -1,0 +1,35 @@
+<div #divGrid long-press
+    class='div-grid' 
+    (mousedown)='mousedown($event)' 
+    (mousemove)='mousemove($event)' 
+    (touchstart)='processTouchstart($event)' 
+    (touchmove)='processTouchmove($event)'
+    (touchcancel)='processTouchend($event)'
+    (touchend)='processTouchend($event)'
+    (contextmenu)='contextmenu($event)'
+    (onLongPress)='toggleControls()'>
+    <div #controls class="controls flex flex-dir-column flex-justify-center easy-on-the-eyes" data-visible="true">
+        <p>Press Esc or long press on grid to toggle this menu.</p>
+        <div class="controls-general flex flex-justify-center">
+            <span class="users">{{ users }}</span> online
+            <button #offButton type="button" id="offButton" (click)="offButtonClick()">Off</button>
+            <input #colorPicker type="color" id="colorPicker" value="#FF8800" style="width:25%;" (change)='colorPickerNewColor($event)'>
+        </div>
+        <div class="controls-image flex flex-justify-center">
+            <form id="upload">
+                <label for="img">Select image:</label>
+                <input #imageInput type="file" id="input" accept="image/*" (change)='handleImgSubmit($event)'>
+                <button #sendPictureButton type="button" id="sendPicture" (click)='sendFrameBuffer()'>Send Picture!</button>
+            </form>
+        </div>
+        <div class="controls-noise flex flex-justify-center">
+            <button #sendNoiseButton type="button" id="sendNoiseButton" (click)='sendNoise()'>Send Noise Loop</button>
+        </div>
+    </div>
+    <div #colorDiv 
+        *ngFor="let color of colors" 
+        [style]="'background: ' + color.getRGBString()"
+        [id]="color.id"
+        (contextmenu)='contextmenu($event)'>
+    </div>
+</div>

@@ -1,0 +1,32 @@
+<div id="primary-header" class="primary-header flex flex-justify-space-between">
+    <div class="logo ff-sans-cond uppercase text-white letter-spacing-2">
+        <p><strong>SmolRoom</strong></p>
+    </div>
+
+    <app-hamburger-button (hamburgerEvent)="toggleMenu($event)" class="mobile-nav-toggle"></app-hamburger-button>
+
+    <nav>
+        <ul #primaryNavigation id="primary-navigation" data-visible="false" class="primary-navigation flex">
+            <li>
+                <a routerLink="/home-page" routerLinkActive="active" class="ff-sans-cond uppercase text-white letter-spacing-2" href="/">
+                    <span aria-hidden="true">00</span>Home
+                </a>
+            </li>
+            <li>
+                <a routerLink="/projects-page" routerLinkActive="active" class="ff-sans-cond uppercase text-white letter-spacing-2" href="./projects/">
+                    <span aria-hidden="true">01</span>Projects
+                </a>
+            </li>
+            <!--<li>
+                <a class="ff-sans-cond uppercase text-white letter-spacing-2" href="https://github.com/SamuelWhittle">
+                    <span aria-hidden="true">02</span>Github
+                </a>
+            </li>-->
+            <li>
+                <a routerLink="/about" routerLinkActive="active" class="ff-sans-cond uppercase text-white letter-spacing-2" href="https://github.com/SamuelWhittle">
+                    <span aria-hidden="true">03</span>About
+                </a>
+            </li>
+        </ul>
+    </nav>
+</div>

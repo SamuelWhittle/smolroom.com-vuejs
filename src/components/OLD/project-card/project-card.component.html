@@ -1,0 +1,12 @@
+<div class="grid">
+    <a class="preview" routerLink="/{{projectInfo.name}}" [ngSwitch]='projectInfo.previewType'>
+        <img *ngSwitchCase="'imgTemplate'" src="assets/images/{{projectInfo.name}}.png" alt="{{projectInfo.name}}">
+        <led-matrix-display-only *ngSwitchCase="'ledMatrixTemplate'"></led-matrix-display-only>
+
+        <img *ngSwitchDefault src="assets/images/{{projectInfo.name}}.png" alt="{{projectInfo.name}}">
+    </a>
+    <a class="title">
+        <h1 class="easy-on-the-eyes">{{projectInfo.title}}</h1>
+    </a>
+    <p class="description easy-on-the-eyes">{{projectInfo.description}}</p>
+</div>

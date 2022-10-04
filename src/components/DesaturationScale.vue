@@ -41,7 +41,6 @@
                     (heightIndex+1)*this.gridThickness );
             })
         });
-        
       }
     },
     computed: {

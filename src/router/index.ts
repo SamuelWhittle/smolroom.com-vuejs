@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '@/components/views/HomeView.vue'
 
+import DesaturationScale from '@/components/DesaturationScale.vue'
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -22,7 +24,7 @@ const router = createRouter({
     {
       path: '/desat-scale',
       name: 'desaturation scale',
-      component: HomeView
+      component: DesaturationScale
     },
     {
       path: '/perlin-noise1',

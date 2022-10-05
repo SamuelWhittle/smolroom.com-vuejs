@@ -31,6 +31,7 @@
         this.drawScale(new DesaturationScale(this.color, this.gridWidth, this.gridHeight));
       },
       drawScale(desatScale) {
+        this.ctx.beginPath();
         desatScale.colorArray.forEach((column, widthIndex) => {
             column.forEach((color, heightIndex) => {
                 this.ctx.fillStyle = color.getRGBString();
@@ -41,6 +42,7 @@
                     (heightIndex+1)*this.gridThickness );
             })
         });
+        this.ctx.closePath();
       }
     },
     computed: {

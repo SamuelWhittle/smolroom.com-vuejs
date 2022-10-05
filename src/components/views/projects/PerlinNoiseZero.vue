@@ -6,28 +6,29 @@
   export default {
     data() {
       return {
-        canvas: null,
-        ctx: null,
-        seed: null,
-        noise: null,
         time: 0,
         scale: 25,
       }
     },
     mounted() {
+      this.canvas = null;
+      this.ctx = null;
+      this.seed = null;
+      this.noise = null;
+
       this.canvas = document.getElementById('mainCanvas');
       this.ctx = this.canvas.getContext('2d');
 
-      this.adjustCanvasSize();
+      this.adjustCanvasResolution();
       this.main();
 
       window.addEventListener('resize', () => {
-        this.adjustCanvasSize();
+        this.adjustCanvasResolution();
         this.main();
       });
     },
     methods: {
-      adjustCanvasSize() {
+      adjustCanvasResolution() {
         this.canvas.width = this.$refs.canvasContainer.clientWidth;
         this.canvas.height = this.$refs.canvasContainer.clientHeight;
       },

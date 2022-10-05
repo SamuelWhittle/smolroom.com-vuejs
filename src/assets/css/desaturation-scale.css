@@ -3,17 +3,33 @@
     margin-inline: auto;
 }
 
+.canvas-container {
+    margin: auto;
+
+    height: 70vh;
+    max-width: 100%;
+
+    aspect-ratio: 13/23;
+    border: 1px solid black;
+}
+
 .main-canvas {
-    display: block;
-
-    width: 260px;
-    height: 460px;
-
-    margin-inline: auto;
+    width: 100%;
+    height: 100%;
 }
 
 .sliders {
     margin-inline: auto;
+}
+
+@media (max-width: 33rem) {
+    .canvas-container {
+        height: auto;
+        width: 100%;
+
+        aspect-ratio: 13/23;
+        border: 1px solid black;
+    }
 }
 
 /* End Main Content */

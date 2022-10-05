@@ -7,16 +7,17 @@
   export default {
     data() {
       return {
-        canvas: null,
-        ctx: null,
-        scale: null,
         color: new Color(255, 128, 0),
-        gridWidth: 13,
-        gridHeight: 23,
-        gridThickness: 20,
       }
     },
     mounted() {
+      this.canvas = null;
+      this.ctx = null;
+      this.gridWidth = 13;
+      this.gridHeight = 23;
+      this.gridThickness = 20;
+      this.scale = null;
+
       this.canvas = document.getElementById('mainCanvas');
       this.ctx = this.canvas.getContext('2d');
 
@@ -57,7 +58,9 @@
 
 <template>
 <div class="main-content flex flex-dir-column">
+  <div class="canvas-container" ref="canvasContainer">
     <canvas id="mainCanvas" class="main-canvas"></canvas>
+  </div>
 
     <div class="sliders flex flex-dir-column">
         <div class="flex flex-justify-space-between">

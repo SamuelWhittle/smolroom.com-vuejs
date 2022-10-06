@@ -1,6 +1,8 @@
-<script lang="ts">
+<script setup>
   import { PROJECTLIST } from '@/assets/lists/ProjectList';
+</script>
 
+<script>
   export default {
     data() {
       return {
@@ -8,8 +10,8 @@
       }
     },
     methods: {
-      getImageUrl(name: string) {
-        return new URL(`../assets/images/${name}.png`, import.meta.url).href;
+      getImageUrl(name) {
+        return new URL(`../../assets/images/${name}.png`, import.meta.url).href;
       }
     }
   }

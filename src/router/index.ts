@@ -2,10 +2,10 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 import HomeView from '@/views/HomeView.vue'
 
-import DesaturationScale from '@/views/projects/DesaturationScale.vue'
-import PerlinNoiseZero from '@/views/projects/PerlinNoiseZero.vue'
-import Circumcenter from '@/views/projects/Circumcenter.vue'
-import PerlinNoiseOne from '@/views/projects/PerlinNoiseOne.vue'
+import DesaturationScaleControl from '@/views/projects/DesaturationScaleControl.vue'
+import PerlinNoiseZeroControl from '@/views/projects/PerlinNoiseZeroControl.vue'
+import CircumcenterControl from '@/views/projects/CircumcenterControl.vue'
+import PerlinNoiseOne from '@/components/projects/PerlinNoiseOne.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -28,12 +28,12 @@ const router = createRouter({
     {
       path: '/desat_scale',
       name: 'Desaturation Scale',
-      component: DesaturationScale
+      component: DesaturationScaleControl
     },
     {
       path: '/perlin_noise_zero',
       name: 'Perlin Noise Example 0',
-      component: PerlinNoiseZero
+      component: PerlinNoiseZeroControl
     },
     {
       path: '/perlin_noise_one',
@@ -43,7 +43,7 @@ const router = createRouter({
     {
       path: '/circumcenter',
       name: 'Circumcenter',
-      component: Circumcenter
+      component: CircumcenterControl
     },
     {
       path: '/led_matrix',

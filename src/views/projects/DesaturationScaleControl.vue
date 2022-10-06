@@ -1,6 +1,5 @@
 <script setup>
-  import DesaturationScale from '@/components/DesaturationScale.vue';
-
+  import DesaturationScale from '@/components/projects/DesaturationScale.vue';
   import { Color } from '@/assets/classes/Color';
 </script>
 
@@ -50,4 +49,4 @@
 </div>
 </template>
 
-<style scoped src="@/assets/css/views/desaturation-scale.css"></style>
+<style scoped src="@/assets/css/views/desaturation-scale-control.css"></style>

@@ -20,7 +20,7 @@
       },
       startColor: {
         type: Color,
-        required: true,
+        default: new Color(255, 128, 0),
       }
     },
     watch: {
@@ -68,4 +68,4 @@
   <canvas id="mainCanvas" class="main-canvas"></canvas>
 </template>
 
-<style scoped src="@/assets/css/components/desaturation-scale.css"></style>
+<style scoped src="@/assets/css/components/canvas-component-base.css"></style>

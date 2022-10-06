@@ -1,3 +1,25 @@
+<script setup>
+  import HamburgerButton from '@/components/utils/HamburgerButton.vue';
+</script>
+
+<script>
+  export default {
+    data() {
+      return {
+        isVisible: false,
+      }
+    },
+    components: {
+      HamburgerButton,
+    },
+    methods: {
+      toggleMenu: function(state) {
+        this.isVisible = state;
+      }
+    }
+  }
+</script>
+
 <template>
   <div id="primary-header" class="primary-header flex flex-justify-space-between">
     <div class="logo ff-sans-cond uppercase text-white letter-spacing-2">
@@ -33,26 +55,4 @@
   </div>
 </template>
 
-<script>
-  import HamburgerButton from '@/components/HamburgerButton.vue';
-  export default {
-    data() {
-      return {
-        isVisible: false,
-      }
-    },
-    components: {
-      HamburgerButton,
-    },
-    methods: {
-      toggleMenu: function(state) {
-        this.isVisible = state;
-      }
-    }
-  }
-</script>
-
-<style scoped>
-  @import '@/assets/css/main.css';
-  @import '@/assets/css/components/main-header.css';
-</style>
+<style scoped src="@/assets/css/components/main-header.css"></style>

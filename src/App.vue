@@ -1,10 +1,18 @@
-<script setup lang="ts">
+<script setup>
   import { RouterLink, RouterView } from 'vue-router'
-  import BgCanvas from '@/components/BgCanvas.vue'
+  import BgCanvas from '@/components/utils/BgCanvas.vue'
+</script>
+
+<script>
+  export default {
+    components: {
+      BgCanvas,
+    }
+  }
 </script>
 
 <template>
-  <BgCanvas></BgCanvas>
+  <BgCanvas />
   <router-view></router-view>
 </template>
 

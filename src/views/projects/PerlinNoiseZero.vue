@@ -91,4 +91,4 @@
   </div>
 </template>
 
-<style scoped src="@/assets/css/perlin-noise-zero.css"></style>
+<style scoped src="@/assets/css/views/perlin-noise-zero.css"></style>

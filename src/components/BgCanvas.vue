@@ -63,4 +63,4 @@ export default {
 }
 </script>
 
-<style scoped src='@/assets/css/bg-canvas.css'></style>
+<style scoped src='@/assets/css/components/bg-canvas.css'></style>

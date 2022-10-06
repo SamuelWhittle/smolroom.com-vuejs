@@ -1,9 +1,18 @@
-<script setup lang="ts">
-import TheWelcome from '../components/TheWelcome.vue'
+<script>
+  import MainHeader from '@/components/MainHeader.vue'
+  import HomeContent from '@/components/HomeContent.vue';
+
+  export default {
+    components: {
+      MainHeader,
+      HomeContent,
+    }
+  }
 </script>
 
 <template>
-  <main>
-    <TheWelcome />
-  </main>
+  <MainHeader />
+  <HomeContent />
 </template>
+
+<style scoped></style>

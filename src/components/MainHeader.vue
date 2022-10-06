@@ -54,5 +54,5 @@
 
 <style scoped>
   @import '@/assets/css/main.css';
-  @import '@/assets/css/main-header.css';
+  @import '@/assets/css/components/main-header.css';
 </style>

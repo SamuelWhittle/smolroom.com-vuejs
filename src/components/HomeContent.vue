@@ -26,5 +26,5 @@
 </div>
 </template>
 
-<style scoped src="@/assets/css/home-content.css"></style>
+<style scoped src="@/assets/css/components/home-content.css"></style>
 

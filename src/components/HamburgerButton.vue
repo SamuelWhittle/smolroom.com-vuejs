@@ -24,4 +24,4 @@ export default {
   </button>
 </template>
 
-<style scoped src="@/assets/css/hamburger-button.css"></style>
+<style scoped src="@/assets/css/components/hamburger-button.css"></style>

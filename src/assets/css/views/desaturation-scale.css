@@ -4,12 +4,8 @@
 }
 
 .display-container {
-    margin: auto;
-
+    margin-inline: auto;
     height: 70vh;
-    max-width: 100%;
-
-    aspect-ratio: 13/23;
     border: 1px solid black;
 }
 
@@ -17,13 +13,10 @@
     margin-inline: auto;
 }
 
-@media (max-width: 33rem) {
+@media (max-width: 28rem) {
     .display-container {
         height: auto;
         width: 100%;
-
-        aspect-ratio: 13/23;
-        border: 1px solid black;
     }
 }
 

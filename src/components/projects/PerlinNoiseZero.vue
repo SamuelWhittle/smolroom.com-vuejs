@@ -55,6 +55,11 @@
           this.main();
         },
       },
+      seed: {
+        handler() {
+          this.main();
+        }
+      },
       time: {
         handler() {
           this.draw();
@@ -67,8 +72,6 @@
       },
     },
     mounted() {
-      this.canvas = null;
-      this.ctx = null;
       this.noise = null;
 
       this.canvas = document.getElementById('mainCanvas');

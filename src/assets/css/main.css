@@ -13,13 +13,14 @@
     overscroll-behavior: none;
 }
 
-/*html {
+html {
+    height: 100vh;
     max-height: 100vh;
     max-height: calc(var(--vh, 1vh) * 100);
-    box-sizing: border-box;
 }
 
 body {
+    height: 100%;
     overflow-x: hidden;
 }
 

@@ -135,4 +135,21 @@ export class Triangle {
     let interceptX = ((m1*x1)-(m2*x2)-y1+y2)/(m1-m2);
     return [interceptX, m1 * (interceptX-x1) + y1];
   }
+
+  getNearestPointIndex(mouseX: number, mouseY: number) {
+    // Get mouse position
+    //let mouseX = event.clientX;
+    //let mouseY = event.clientY;
+
+    // create array of distances from mouse to point
+    let distances = this.coords.map((point) => {
+      return this.getDistance(mouseX, mouseY, point[0], point[1]);
+    });
+
+    // get the smallest of the distances
+    let smallestDistance = Math.min(...distances);
+
+    // get the distances[] index of the smallest index
+    return distances.indexOf(smallestDistance);
+  }
 }

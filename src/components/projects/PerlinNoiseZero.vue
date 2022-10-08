@@ -5,14 +5,14 @@
 <script>
   export default {
     props: {
-      noiseWidth: {
+      /*noiseWidth: {
         type: Number,
         required: true,
       },
       noiseHeight: {
         type: Number,
         required: true,
-      },
+      },*/
       noiseDepth: {
         type: Number,
         default: 1000,
@@ -42,8 +42,14 @@
         required: true,
       }
     },
+    data() {
+      return {
+        noiseWidth: null,
+        noiseHeight: null,
+      }
+    },
     watch: {
-      noiseWidth: {
+      /*noiseWidth: {
         handler() {
           this.adjustCanvasResolution();
           this.main();
@@ -54,7 +60,7 @@
           this.adjustCanvasResolution();
           this.main();
         },
-      },
+      },*/
       seed: {
         handler() {
           this.main();
@@ -77,15 +83,18 @@
       this.canvas = document.getElementById('mainCanvas');
       this.ctx = this.canvas.getContext('2d');
 
-      this.adjustCanvasResolution();
       this.main();
+
+      this.parentResizeObserver = new ResizeObserver(() => {
+        this.canvas.width = this.$parent.$el.clientWidth;
+        this.canvas.height = this.$parent.$el.clientHeight;
+
+        this.main();
+      });
+
+      this.parentResizeObserver.observe(this.$parent.$el);
     },
     methods: {
-      adjustCanvasResolution() {
-        this.canvas.width = this.noiseWidth;
-        this.canvas.height = this.noiseHeight;
-      },
-
       draw() {
         this.ctx.fillStyle = "white";
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
@@ -106,7 +115,7 @@
       },
 
       main() {
-        this.noise = new PerlinNoise([this.noiseWidth, this.noiseHeight, this.noiseDepth], this.startingOctave, this.numOctaves, this.octaveScale, this.seed);
+        this.noise = new PerlinNoise([this.canvas.width, this.canvas.height, this.noiseDepth], this.startingOctave, this.numOctaves, this.octaveScale, this.seed);
 
         this.draw();
       },

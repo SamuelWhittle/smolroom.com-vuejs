@@ -5,33 +5,24 @@
 <script>
   export default {
     props: {
-      width: {
-        type: Number,
-        required: true,
-      },
-      height: {
-        type: Number,
-        required: true,
-      },
-      coordsArray: {
-        type: Array,
+      triangle: {
+        type: Triangle,
         required: true,
       },
     },
+    data() {
+      return {
+        width: null,
+        height: null
+      }
+    },
+    computed: {
+      getCoords() {
+        return this.triangle.coords;
+      },
+    },
     watch: {
-      width: {
-        handler() {
-          this.adjustCanvasResolution();
-          this.redrawCanvas();
-        }
-      },
-      height: {
-        handler() {
-          this.adjustCanvasResolution();
-          this.redrawCanvas();
-        }
-      },
-      coordsArray: {
+      getCoords: {
         handler() {
           this.redrawCanvas();
         },
@@ -41,26 +32,30 @@
     mounted() {
       this.canvas = document.getElementById('mainCanvas');
       this.ctx = this.canvas.getContext('2d');
-      this.triangle = new Triangle(this.coordsArray[0], this.coordsArray[1], this.coordsArray[2]);
 
-      this.adjustCanvasResolution();
       this.redrawCanvas();
+      
+      this.parentResizeObserver = new ResizeObserver(() => {
+        this.canvas.width = this.$parent.$el.clientWidth;
+        this.canvas.height = this.$parent.$el.clientHeight;
+
+        this.redrawCanvas();
+      });
+
+      this.parentResizeObserver.observe(this.$parent.$el);
     },
     methods: {
-      adjustCanvasResolution() {
-        this.canvas.width = this.width;
-        this.canvas.height = this.height;
-      },
       redrawCanvas() {
-        this.triangle.update(this.coordsArray[0], this.coordsArray[1], this.coordsArray[2]);
-
         // Make sure canvas resolution matches window inner resolution
         this.ctx.fillStyle = '#16161d';
-        this.ctx.fillRect(0, 0, this.width, this.height);
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
         // Draw the thing
-        this.triangle.drawCircumcenter(this.width, this.height, this.ctx);
+        this.triangle.drawCircumcenter(this.canvas.width, this.canvas.height, this.ctx);
       }
+    },
+    beforeDestroy() {
+      this.parentResizeObserver.disconnect();
     },
   }
 </script>

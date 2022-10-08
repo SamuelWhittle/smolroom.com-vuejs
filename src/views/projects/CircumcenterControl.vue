@@ -1,5 +1,7 @@
 <script setup>
   import Circumcenter from '@/components/projects/Circumcenter.vue';
+
+  import { Triangle } from '@/assets/classes/Triangle';
 </script>
 
 <script>
@@ -8,38 +10,19 @@
       return {
         displayWidth: null,
         displayHeight: null,
-        triangle: new Array(3).fill(new Array(2).fill(0)),
+        triangle: new Triangle(),
       }
     },
     mounted() {
-      this.resize();
+      this.triangle.coords[0] = [this.getRandomInt(this.$el.clientWidth - 10) + 5,this.getRandomInt(this.$el.clientHeight - 10) + 5];
+      this.triangle.coords[1] = [this.getRandomInt(this.$el.clientWidth - 10) + 5,this.getRandomInt(this.$el.clientHeight - 10) + 5];
+      this.triangle.coords[2] = [this.getRandomInt(this.$el.clientWidth - 10) + 5,this.getRandomInt(this.$el.clientHeight - 10) + 5];
 
-      this.triangle[0] = [this.getRandomInt(this.displayWidth - 10),this.getRandomInt(this.displayHeight - 10)];
-      this.triangle[1] = [this.getRandomInt(this.displayWidth - 10),this.getRandomInt(this.displayHeight - 10)];
-      this.triangle[2] = [this.getRandomInt(this.displayWidth - 10),this.getRandomInt(this.displayHeight - 10)];
-
-      window.addEventListener('resize', () => {
-        this.resize();
-      });
-
-      window.addEventListener('mousedown', () => {
-        this.mousedownHandle();
-      });
-
-      window.addEventListener('mousemove', () => {
-        this.mousemoveHandle();
-      });
+      this.mouseDown = false;
+      this.pointInHand = 0;
 
       window.addEventListener('mouseup', () => {
-        this.mouseupHandle();
-      });
-
-      window.addEventListener('touchstart', () => {
-        this.touchstartHandle();
-      });
-
-      window.addEventListener('touchmove', () => {
-        this.touchmoveHandle();
+        this.touchendHandle();
       });
 
       window.addEventListener('touchend', () => {
@@ -47,19 +30,54 @@
       });
     },
     methods: {
-      resize() {
-        this.displayWidth = this.$refs.canvasContainer.clientWidth;
-        this.displayHeight = this.$refs.canvasContainer.clientHeight;
-      },
       getRandomInt(max) {
         return Math.floor(Math.random() * max);
       },
-      mousedownHandle() {},
-      mousemoveHandle() {},
-      mouseupHandle() {},
-      touchstartHandle() {},
-      touchmoveHandle() {},
-      touchendHandle() {},
+      updateTriangle(x, y) {
+        this.triangle.coords[this.pointInHand][0] = x;
+        this.triangle.coords[this.pointInHand][1] = y;
+      },
+      mousedownHandle(event) {
+        if(event.buttons == 1) {
+            this.mouseDown = true;
+            this.pointInHand = this.triangle.getNearestPointIndex(event.clientX, event.clientY);
+            this.updateTriangle(event.clientX, event.clientY);
+        }
+      },
+      mousemoveHandle(event) {
+        if(this.mouseDown) {
+          this.updateTriangle(event.clientX, event.clientY);
+        }
+      },
+      touchstartHandle(event) {
+        event.preventDefault();
+
+        var touch = event.touches[0];
+
+        var mouseEvent = new MouseEvent('mousedown', {
+            clientX: touch.pageX,
+            clientY: touch.pageY,
+            buttons: 1
+        });
+
+        this.mousedownHandle(mouseEvent);
+      },
+      touchmoveHandle(event) {
+        event.preventDefault();
+
+        var touch = event.touches[0];
+
+        var mouseEvent = new MouseEvent('mousemove', {
+            clientX: touch.pageX,
+            clientY: touch.pageY,
+            buttons: 1
+        });
+
+        this.mousemoveHandle(mouseEvent);
+      },
+      touchendHandle() {
+        this.mouseDown = false;
+      }
     },
     components: {
       Circumcenter,
@@ -69,7 +87,12 @@
 
 <template>
   <div class="canvas-container" ref="canvasContainer">
-    <Circumcenter :coords-array="triangle" :width="Number(displayWidth)" :height="Number(displayHeight)"/>
+    <Circumcenter :triangle="triangle"
+    @mousedown="mousedownHandle"
+    @mousemove="mousemoveHandle"
+    @touchstart="touchstartHandle"
+    @touchmove="touchmoveHandle"
+    @touchend="touchendHandle"/>
   </div>
 </template>
 

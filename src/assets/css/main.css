@@ -17,6 +17,8 @@ html {
     height: 100vh;
     max-height: 100vh;
     max-height: calc(var(--vh, 1vh) * 100);
+
+    width: 100vw;
 }
 
 body {
@@ -72,6 +74,17 @@ body {
 .easy-on-the-eyes {
     background: #16161d;
     color: #FFFFFF;
+}
+
+/* Canvas Shit */
+
+.fullscreen-canvas-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    height: 100vh;
+    width: 100vw;
 }
 
 /* Text Properties */

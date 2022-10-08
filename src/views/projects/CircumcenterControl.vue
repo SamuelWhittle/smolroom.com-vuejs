@@ -86,7 +86,7 @@
 </script>
 
 <template>
-  <div class="canvas-container" ref="canvasContainer">
+  <div class="fullscreen-canvas-container" ref="canvasContainer">
     <Circumcenter :triangle="triangle"
     @mousedown="mousedownHandle"
     @mousemove="mousemoveHandle"
@@ -96,4 +96,4 @@
   </div>
 </template>
 
-<style scoped src="@/assets/css/views/circumcenter-control.css"></style>
+<style scoped></style>

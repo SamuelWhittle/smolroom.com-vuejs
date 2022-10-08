@@ -5,7 +5,7 @@ import HomeView from '@/views/HomeView.vue'
 import DesaturationScaleControl from '@/views/projects/DesaturationScaleControl.vue'
 import PerlinNoiseZeroControl from '@/views/projects/PerlinNoiseZeroControl.vue'
 import CircumcenterControl from '@/views/projects/CircumcenterControl.vue'
-import PerlinNoiseOne from '@/components/projects/PerlinNoiseOne.vue'
+import PerlinNoiseOneControl from '@/views/projects/PerlinNoiseOneControl.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -38,7 +38,7 @@ const router = createRouter({
     {
       path: '/perlin_noise_one',
       name: 'Perlin Noise Example 1',
-      component: PerlinNoiseOne
+      component: PerlinNoiseOneControl
     },
     {
       path: '/circumcenter',

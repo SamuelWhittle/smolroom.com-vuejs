@@ -5,14 +5,6 @@
 <script>
   export default {
     props: {
-      /*noiseWidth: {
-        type: Number,
-        required: true,
-      },
-      noiseHeight: {
-        type: Number,
-        required: true,
-      },*/
       noiseDepth: {
         type: Number,
         default: 1000,
@@ -31,7 +23,7 @@
       },
       seed: {
         type: Number,
-        default: Math.floor(Math.random() * 9999999999999999),
+        default: Math.floor(Math.random() * 900000009 * 11111111),
       },
       time: {
         type: Number,
@@ -49,18 +41,6 @@
       }
     },
     watch: {
-      /*noiseWidth: {
-        handler() {
-          this.adjustCanvasResolution();
-          this.main();
-        },
-      },
-      noiseHeight: {
-        handler() {
-          this.adjustCanvasResolution();
-          this.main();
-        },
-      },*/
       seed: {
         handler() {
           this.main();
@@ -93,6 +73,9 @@
       });
 
       this.parentResizeObserver.observe(this.$parent.$el);
+    },
+    beforeDestroy() {
+      this.parentResizeObserver.disconnect();
     },
     methods: {
       draw() {

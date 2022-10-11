@@ -37,7 +37,7 @@
         this.drawLines();
       });
 
-      this.parentResizeObserver.observe(this.$parent.$el);
+      this.parentResizeObserver.observe(this.$el.parentNode);
 
       if (this.fps > 0) {
         this.interval = setInterval(() => this.drawLines(), 1000/this.fps);
@@ -45,7 +45,7 @@
 
       this.drawLines();
     },
-    beforeDestroy() {
+    beforeUnmount() {
       this.parentResizeObserver.disconnect();
 
       clearInterval(this.interval);
@@ -112,8 +112,8 @@
         this.intensityNoise = new PerlinNoise([this.dims[0], this.dims[1], 1000], 10, 2, 1/2, 2);
       },
       adjustCanvasSize() {
-        this.canvas.width = this.$parent.$el.clientWidth;
-        this.canvas.height = this.$parent.$el.clientHeight;
+        this.canvas.width = this.$el.parentNode.clientWidth;
+        this.canvas.height = this.$el.parentNode.clientHeight;
       },
     },
   }

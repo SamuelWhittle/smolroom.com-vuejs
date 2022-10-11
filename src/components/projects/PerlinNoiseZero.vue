@@ -64,15 +64,15 @@
       this.main();
 
       this.parentResizeObserver = new ResizeObserver(() => {
-        this.canvas.width = this.$parent.$refs.canvasContainer.clientWidth;
-        this.canvas.height = this.$parent.$refs.canvasContainer.clientHeight;
+        this.canvas.width = this.$el.parentNode.clientWidth;
+        this.canvas.height = this.$el.parentNode.clientHeight;
 
         this.main();
       });
 
-      this.parentResizeObserver.observe(this.$parent.$refs.canvasContainer);
+      this.parentResizeObserver.observe(this.$el.parentNode);
     },
-    beforeDestroy() {
+    beforeUnmount() {
       this.parentResizeObserver.disconnect();
     },
     methods: {
@@ -105,7 +105,9 @@
 </script>
 
 <template>
-  <canvas id="mainCanvas" class="main-canvas"></canvas>
+  <div>
+    <canvas id="mainCanvas" class="main-canvas"></canvas>
+  </div>
 </template>
 
 <style scoped src="@/assets/css/components/canvas-component-base.css"></style>

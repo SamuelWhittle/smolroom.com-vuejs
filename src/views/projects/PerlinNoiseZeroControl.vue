@@ -18,6 +18,11 @@
         this.seed = Math.floor(Math.random() * 900000009 * 11111111);
       },
     },
+    provide() {
+      return {
+        
+      }
+    },
     components: {
       PerlinNoiseZero,
     }
@@ -26,7 +31,7 @@
 
 <template>
   <div class="flex flex-dir-column">
-    <div class="canvasContainer" ref="canvasContainer">
+    <div class="canvasContainer">
       <PerlinNoiseZero :seed="seed" :time="Number(time)" :scale="Number(scale)"/>
     </div>
 

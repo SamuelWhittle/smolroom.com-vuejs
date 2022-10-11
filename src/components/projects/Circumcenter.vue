@@ -34,13 +34,13 @@
       this.redrawCanvas();
       
       this.parentResizeObserver = new ResizeObserver(() => {
-        this.canvas.width = this.$parent.$el.clientWidth;
-        this.canvas.height = this.$parent.$el.clientHeight;
+        this.canvas.width = this.$el.parentNode.clientWidth;
+        this.canvas.height = this.$el.parentNode.clientHeight;
 
         this.redrawCanvas();
       });
 
-      this.parentResizeObserver.observe(this.$parent.$el);
+      this.parentResizeObserver.observe(this.$el.parentNode);
     },
     methods: {
       redrawCanvas() {

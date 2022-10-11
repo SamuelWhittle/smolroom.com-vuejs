@@ -5,7 +5,10 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "allowJs": true,
+    "target": "esnext",
+    "lib": ["esnext", "dom"]
   },
 
   "references": [

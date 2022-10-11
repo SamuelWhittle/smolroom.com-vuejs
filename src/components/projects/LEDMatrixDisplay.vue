@@ -45,8 +45,12 @@
     },
     watch: {
       connected: {
-        handler() {
-          this.client.startUpdateInterval(24);
+        handler(newVal) {
+          if (newVal) {
+            this.client.startUpdateInterval(24);
+          } else {
+            this.client.stopInterval(this.client.updateInterval);
+          }
         },
       },
     },
@@ -63,6 +67,9 @@
     },
     created() {
       this.client.init();
+    },
+    beforeUnmount() {
+      this.client.disconnect();
     },
     mounted() {
       if (this.interactive) {

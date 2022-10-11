@@ -66,7 +66,13 @@
     },
     mounted() {
       if (this.interactive) {
-        this.controlsVisible = this.getCookieValue('controlsVisible') == 'true';
+        this.controlsCookie = this.getCookieValue('controlsVisible');
+        if (this.controlsCookie === '') {
+          this.controlsVisible = true;
+        } else {
+          this.controlsVisible = (this.controlsCookie === 'true');
+        }
+
         // are they clicking?
         this.mouseIsDown = false;
         // Did they start long pressing whilst in the menu

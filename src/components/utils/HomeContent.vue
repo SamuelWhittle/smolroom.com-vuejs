@@ -22,7 +22,7 @@
     <div class="main-content-item" v-for="project in PROJECTLIST" :key="project.id">
         <router-link :to="{path:project.name}">
             <img v-if="project.previewType === 'imgTemplate'" :src="getImageUrl(project.name)" :alt="project.name">
-            <!--<led-matrix-display-only v-else-if"project.previewType === 'ledMatrixTemplate'"></led-matrix-display-only>-->
+            <h1 v-else-if="project.previewType === 'LEDMatrixDisplay'">TEST</h1>
         </router-link>
     </div>
 </div>

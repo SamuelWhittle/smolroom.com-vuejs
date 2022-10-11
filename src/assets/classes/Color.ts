@@ -55,12 +55,15 @@ export class Color {
     }
 
     // Convert 3 values (r, g, b) into "rgb(r, g, b)" where r g and b are all integers between 0 and 255
-    rgbReturn = (r, g, b) => `rgb(${Math.floor(r)},${Math.floor(g)},${Math.floor(b)})`;
+    rgbReturn = (r: number, g: number, b: number) => `rgb(${Math.floor(r)},${Math.floor(g)},${Math.floor(b)})`;
 
     // hsv2rgb and rgb2hsv functions from @Adam Price on stack overflow
     // requires 0<=h,s,v<=1
     HSVtoRGB(h: any, s: number, v: number) {
-        var r, g, b, i, f, p, q, t;
+        var r = 0;
+        var g = 0;
+        var b = 0;
+        var i, f, p, q, t;
         if (arguments.length === 1) {
             s = h.s, v = h.v, h = h.h;
         }
@@ -86,10 +89,10 @@ export class Color {
 
     // requires 0<=r,g,b<=255
     // returns 0<=h,s,v<=1
-    RGBtoHSV(r, g, b) {
-        if (arguments.length === 1) {
+    RGBtoHSV(r: number, g: number, b: number) {
+        /*if (arguments.length === 1) {
             g = r.g, b = r.b, r = r.r;
-        }
+        }*/
         var max = Math.max(r, g, b), min = Math.min(r, g, b),
             d = max - min,
             h,

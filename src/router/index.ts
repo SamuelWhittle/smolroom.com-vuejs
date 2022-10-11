@@ -6,6 +6,7 @@ import DesaturationScaleControl from '@/views/projects/DesaturationScaleControl.
 import PerlinNoiseZeroControl from '@/views/projects/PerlinNoiseZeroControl.vue'
 import CircumcenterControl from '@/views/projects/CircumcenterControl.vue'
 import PerlinNoiseOneControl from '@/views/projects/PerlinNoiseOneControl.vue'
+import LEDMatrixControl from '@/views/projects/LEDMatrixControl.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -48,7 +49,7 @@ const router = createRouter({
     {
       path: '/led_matrix',
       name: 'LED Matrix Control',
-      component: HomeView
+      component: LEDMatrixControl
     },
   ]
 })

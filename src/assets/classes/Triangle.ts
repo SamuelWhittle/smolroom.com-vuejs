@@ -95,7 +95,7 @@ export class Triangle {
       //const f = (x1) => (-1/m)*(x-x1)+y;
       ctx.moveTo(0, this.getYOnPointSlope(x, y, -1/m, 0));
       ctx.lineTo(canvasWidth, this.getYOnPointSlope(x, y, -1/m, canvasWidth));
-    } else if(m == 0 || m == -0) {
+    } else if(Math.abs(m) == 0) {
       ctx.moveTo(x, 0);
       ctx.lineTo(x, canvasHeight);
     } else {

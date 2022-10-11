@@ -11,7 +11,7 @@
 </script>
 
 <template>
-  <div class="fullscreen-canvas-container">
+  <div class="fullscreen">
     <perlin-noise-one :fps="Number(24)" :speed="Number(7)"/>
   </div>
 </template>

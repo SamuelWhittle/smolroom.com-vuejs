@@ -1,0 +1,48 @@
+* {
+    user-select: none;   
+}
+
+.grid {
+    height: 100%;
+    aspect-ratio: 1;
+
+    margin-inline: auto;
+
+    background: #16161d;
+
+    display: grid;
+    grid-template-columns: repeat(30, 1fr);
+    grid-template-rows: repeat(30, 1fr);
+
+    pointer-events: none;
+}
+
+.grid > div {
+    border: 1px solid #16161d;
+
+    aspect-ratio: 1;
+
+    pointer-events: auto;
+}
+
+.controls {
+    grid-column: 1 / span 30;
+    grid-row: 1 / span 30;
+
+    z-index: -1;
+    transition: 250ms ease-in-out;
+    opacity: 0%;
+    text-align: center;
+}
+
+.controls-visible {
+    z-index: 1;
+    opacity: 90%;
+}
+
+@media (max-width: 100vh) {
+    .grid {
+        height: auto;
+        width: 100%;
+    }
+}

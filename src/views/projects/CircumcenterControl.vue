@@ -86,7 +86,7 @@
 </script>
 
 <template>
-  <div class="fullscreen-canvas-container" ref="canvasContainer">
+  <div class="fullscreen" ref="canvasContainer">
     <Circumcenter :triangle="triangle"
     @mousedown="mousedownHandle"
     @mousemove="mousemoveHandle"

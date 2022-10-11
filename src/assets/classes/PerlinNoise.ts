@@ -16,7 +16,7 @@ export class PerlinNoise {
     public noiseDimensions: number[];
 
     public gridSteps: number[];
-    public gridSizes: number[];
+    public gridSizes: number[][];
 
     public lengthConstants: any[];
 
@@ -28,7 +28,7 @@ export class PerlinNoise {
     constructor(dims: number[], gridStep: number, numOctaves: number, octaveScale: number, seed?: any, interp?: Function) {
         //console.group("constructor");
         // interp function
-        this.interp = interp ?? ((start, end, position) => {
+        this.interp = interp ?? ((start: number, end: number, position: number) => {
             // smooth interp position adjustment
             position = position*position*(3-2*position);
             // return lerp given the start end and position
@@ -66,15 +66,14 @@ export class PerlinNoise {
         //console.log("grid steps array:", this.gridSteps);
 
         // array of grid dimensions, one set of dimensions for each octave's grid
-        this.gridSizes = new Array(this.numOctaves).fill(0);
+        
         //console.log(this.gridSizes);
 
         //Array containing all the grids of vectors
         //this.grids = new Array(this.numOctaves).fill().map((_, index) => {
-        this.gridSizes.forEach((size, index) => {
+        this.gridSizes = new Array(this.numOctaves).fill([]).map((_, index) => {
             //Get the current octave grid dimensions
-            var currentGridDimensions = this.getGridDimensions(this.noiseDimensions, this.gridSteps[index]);
-            this.gridSizes[index] = currentGridDimensions;
+            return this.getGridDimensions(this.noiseDimensions, this.gridSteps[index]);
         });
 
         // matrix of Length constants used in conjunction with an x,y,z,...,n position 
@@ -97,18 +96,18 @@ export class PerlinNoise {
     }
 
     // takes an x, presumably somewhere on a lerp, and makes it a smooth interpolation vs linear
-    smoothStep(x) {
+    smoothStep(x: number) {
         return x*x*(3-2*x);
     }
 
     // Linear Interpolation function with calculation inserted to produce a smooth interp
-    smoothInterp(start, stop, position){
+    smoothInterp(start: number, stop: number, position: number){
         var smoothPos = this.smoothStep(position);
         return start * (1 - smoothPos) + stop * smoothPos;
     }
 
     //Dot Product
-    dotProduct(vector1, vector2) {
+    dotProduct(vector1: number[], vector2: number[]) {
         //console.log("vector 1", vector1, "vector2", vector2)
         return vector1.map((val, index) => {
             return val*vector2[index];
@@ -119,7 +118,7 @@ export class PerlinNoise {
 
 
     //Given a set of coords, the grids, and the grid steps, calculate a point of noise
-    getNoisePixel(coords) {
+    getNoisePixel(coords: number[]) {
         //console.log("coords: ", coords);
         //console.log("gridSized:", this.gridSizes);
         //For each gridStep in GridSteps, get the gridStep and octave and do stuff with em
@@ -136,15 +135,15 @@ export class PerlinNoise {
             // add the local corner floors to the unit corners to get the local corners surrounding the point
             var localCorners = this.unitCorners
                 .map((unitCorner) => unitCorner
-                    .map((value, index) => value + localCornerFloors[index]));
+                    .map((value: number, index: number) => value + localCornerFloors[index]));
             //console.log("LocalCorners pre-modules:", localCorners);
 
             // get the pixel locations of the local corners given the grid locations of the local corners
             var localPixelCorners = localCorners
-                .map((corner) => corner.map((val) => val*gridStep));
+                .map((corner) => corner.map((val: number) => val*gridStep));
             //console.log("local pixel corners:", localPixelCorners);
 
-            localCorners = localCorners.map((corner) => corner.map((value, index) => value % this.gridSizes[octave][index]));
+            localCorners = localCorners.map((corner) => corner.map((value: number, index: number) => value % this.gridSizes[octave][index]));
             //console.log("localCorners post-modules:", localCorners);
 
             // get the vectors that correspond to the local corners after they've been adjusted for looping overflow
@@ -160,8 +159,8 @@ export class PerlinNoise {
             
             var localVectors = localPixelCorners
                 .map((corner) => corner
-                    .map((coordinate, index) => coords[index]-coordinate)
-                    .map((val) => val/gridStep));
+                    .map((coordinate: number, index: number) => coords[index]-coordinate)
+                    .map((val: number) => val/gridStep));
             //console.log("localVectors:", localVectors);
 
             var localGradients = localCornerVectors
@@ -192,12 +191,12 @@ export class PerlinNoise {
     }
 
     //inline function to create a binary array from a given number
-    numToBinArr(num){
-        return num.toString(2).padStart(this.noiseDimensions.length, '0').split('').map(val => Number(val)); 
+    numToBinArr(num: number){
+        return num.toString(2).padStart(this.noiseDimensions.length, '0').split('').map((val: string) => Number(val)); 
     }
 
     //create array of vectors, number of vector dims = numDims
-    createFullFlatGrid(emptyGridDimensions) {
+    createFullFlatGrid(emptyGridDimensions: number[]) {
         //Get the flat length of the provided array
         var flatLength = this.getFlatLength(emptyGridDimensions);
         //console.log(flatLength);
@@ -215,7 +214,7 @@ export class PerlinNoise {
     }
 
     // hash function for strings
-    hashString(str, seed) {
+    hashString(str: string, seed: number) {
         let checkedSeed = seed ?? 0
         let h1 = 0xdeadbeef ^ checkedSeed, h2 = 0x41c6ce57 ^ checkedSeed;
         for (let i = 0, ch; i < str.length; i++) {
@@ -229,7 +228,7 @@ export class PerlinNoise {
     };
 
     // given a single dimensional array, a number of dimensions, and a max vector length in any dimension, fill with random vectors
-    fillWithRandomVectors(arr, numDims) {
+    fillWithRandomVectors(arr: number[], numDims: number) {
         return arr.map(() => {
             var vector = new Array(numDims).fill(0);
             return vector.map(() => {
@@ -239,14 +238,14 @@ export class PerlinNoise {
     }
 
     // given array of dimensions of noise in pixels and a gridstep, returns array of dimensions of grid in gridStep
-    getGridDimensions(noiseDimensions, gridStep) {
+    getGridDimensions(noiseDimensions: number[], gridStep: number) {
         return noiseDimensions.map((currentValue) => {
             return Math.ceil(currentValue/gridStep) + 1;
         });
     }
 
     // given array of dimensions of noise in pixels, returns array of length constants used later to calculate 1d coords from nd coords
-    getLengthConstants(dimensions) {
+    getLengthConstants(dimensions: number[]) {
         var lengthConstants = new Array(dimensions.length);
         var total = 1;
 
@@ -260,7 +259,7 @@ export class PerlinNoise {
     }
 
     // given an array, return length of single dimensional array required to encompass all the same data
-    getFlatLength(dims) {
+    getFlatLength(dims: number[]) {
         var total = 1;
         for(var i = 0; i < dims.length; i++) {
             total *= dims[i];
@@ -271,13 +270,13 @@ export class PerlinNoise {
 
 
     // transform a number from one range to another range
-    map(num, oldMin, oldMax, min, max) {
+    map(num: number, oldMin: number, oldMax: number, min: number, max: number) {
         return (num-oldMin)/(oldMax-oldMin)*(max-min)+min;
     }
 }
 
 
 // transform a number from one range to another range
-export function map(num, oldMin, oldMax, min, max) {
+export function map(num: number, oldMin: number, oldMax: number, min: number, max: number) {
     return (num-oldMin)/(oldMax-oldMin)*(max-min)+min;
 }

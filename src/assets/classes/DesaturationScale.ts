@@ -27,14 +27,14 @@ export class DesaturationScale {
     }
 
     // Change Color
-    setOriginalColor(color) {
+    setOriginalColor(color: Color) {
         this.originalColor = color;
         this.originalNegative = color.getNegative();
         this.desaturate();
     }
 
     // lerp function given a percent between 0.0 and 1.0
-    lerp(start, stop, percent) {
+    lerp(start: number, stop: number, percent: number) {
         return (1 - percent) * start + (percent * stop);
     }
 

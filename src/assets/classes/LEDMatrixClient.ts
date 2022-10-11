@@ -1,82 +1,100 @@
-import { Injectable, Output, EventEmitter } from '@angular/core';
+import { Color } from '@/assets/classes/Color';
 
-import { PerlinNoise, map } from '../classes/PerlinNoise';
+export class LEDMatrixClient {
+    // The interval at which this script will get the colors from the server
+    private updateInterval: number = 0;
+    private noiseInterval: number = 0;
 
-import { Color } from '../classes/Color';
+    public colors: Color[];
+    public currentColor: Color = new Color(0x42, 0xb8, 0x83);
 
-@Injectable({
-    providedIn: null,
-})
-
-export class LEDMatrixService {
     // Comms channel lol
-    public websocket: WebSocket;
-
+    private websocket: WebSocket;
+     
+    public connected: boolean = false;
     // User counter
-    private users: string;
-
-    // holds the pixel data displayed on the canvas
-    private picture: number[];
-
+    public userCount: string = "?";
     // 3600 frame to buffer information for sending a frame to the server
-    private frameBuffer: number[] = new Array(3600).fill(0);
-
-    // larger array used to store multiple frames in a 2d array to be sent to the server
-    private videoCounter: number;
-    private numVideoFrames: number;
-    private videoBuffer: number[][];
-
-    // used for looping perlin noise
-    private noiseInterval: any;
-    private noise: PerlinNoise;
-
-    @Output() receivedState = new EventEmitter<number[]>();
-    @Output() receivedUsers = new EventEmitter<string>();
+    public frameBuffer: number[] = new Array(3600).fill(0);
 
     constructor() {
+        this.colors = new Array(900).fill(new Color()).map((_, index) => new Color(255, 128, 0, 0, `${index}`));
+
         this.websocket = new WebSocket("wss://smolroom.com:8001/");
+    }
+
+    init() {
+        this.websocket.onopen = () => {
+            //console.log("client connection open");
+            this.connected = true;
+        }
 
         // Process received websocket data
         this.websocket.onmessage = (event: any) => {
             try {
                 let data = JSON.parse(event.data);
+                //console.log('message received', data);
                 switch (data.type) {
                     case 'state':
-                        this.picture = data.picture;
-                        this.receivedState.next(this.picture);
+                        this.updateLocalColors(data.picture);
                         break;
                     case 'users':
-                        this.users = data.count.toString();
-                        this.receivedUsers.next(this.users);
+                        //this.users = data.count.toString();
+                        this.userCount = data.count.toString();
                         break;
                     default:
                         console.error("unsupported event", data);
                 }
             } catch (err) {
-                console.log("Error occurred processing message:");
-                console.log(err);
+                console.log("Error occurred processing message:", err);
                 console.log(event);
             }
         };
 
+        this.websocket.onclose = () => {
+            clearInterval(this.noiseInterval);
+            clearInterval(this.updateInterval);
+            this.connected = false;
+            //console.log('client connection closed');
+        }
     }
 
-    ngOnDestroy() {
+    disconnect() {
         clearInterval(this.noiseInterval);
+        clearInterval(this.updateInterval);
         this.websocket.close();
     }
-    
-    // sends getPicture to server which in turn send the current server picture state back
+
+    startUpdateInterval(fps: number) {
+        //console.log('startUpdateInterval', fps);
+        //clearInterval(this.updateInterval);
+        this.updateInterval = setInterval(() => {
+            this.getPicture();
+        }, 1000/fps);
+    }
+
+    stopInterval(interval: number) {
+        clearInterval(interval);
+    }
+
+    updateLocalColors(data: number[]) {
+        for (var i = 0; i < 3600; i ++) {
+            this.colors[Math.floor(i/4)].rgb[i%4] = data[i];
+        }
+    }
+
+    // sends getPicture to server which in turn will send the current server picture state back
     getPicture() {
-        this.websocket.send(JSON.stringify({"action": "getPicture"}));
+        this.websocket.send(JSON.stringify({action: "getPicture"}));
     }
 
     // send pixel to server
     setPixel(index: number, color: Color) {
+        //console.log("setPixel", index, color.rgb);
         this.websocket.send(JSON.stringify({
             action: 'pixel',
-            index: index,
-            color: color.rgb.concat(0)
+            index: Number(index),
+            color: color.rgb
         }));
     }
 
@@ -98,8 +116,7 @@ export class LEDMatrixService {
     }
 
     sendFrame(frame: number[]) {
-        //console.log(frameBuffer);
-        this.websocket.send(JSON.stringify({action: 'frame', frame: frame}));
+        this.websocket.send(JSON.stringify({action: 'frame', image: frame}));
         this.frameBuffer.fill(0);
     }
 
@@ -112,54 +129,10 @@ export class LEDMatrixService {
         this.sendFrame(this.frameBuffer);
     }
 
-    // Send the next frame from the videoBuffer to the server
-    sendNextFrameInVideoBuffer() {
-        this.sendFrame(this.videoBuffer[this.videoCounter]);
-        if(this.videoCounter < this.numVideoFrames) {
-            this.videoCounter++;
-        } else {
-            this.videoCounter = 0;
-        }
-    }
-
     // Send a specific frame from the videoBuffer to the server
-    sendFrameFromVideoBuffer(frameNum: number) {
+    /*sendFrameFromVideoBuffer(frameNum: number) {
         this.sendFrame(this.videoBuffer[frameNum]);
-    }
-
-    // send some noise until the button is clicked again
-    sendNoise() {
-        var firstOctave = 20;
-        var thirdDim = 160;
-        this.numVideoFrames = thirdDim + firstOctave;
-        this.noise = new PerlinNoise([30, 30, thirdDim], firstOctave, 3, 1/3);
-
-        this.videoBuffer = new Array(this.numVideoFrames);
-
-        for (let i = 0; i < this.videoBuffer.length; i++) {
-            this.videoBuffer[i] = new Array(3600).fill(0);
-        }
-
-        //console.log(videoBuffer);
-
-        for(var i = 0; i < this.numVideoFrames; i ++) {
-            for(var x = 0; x < 30; x++) {
-                for(var y = 0; y < 30; y++) {
-                    var noiseValue = map(this.noise.getNoisePixel([x, y, i]), -1, 1, 0, 1);
-
-                    var color = new Color().HSVtoRGB(noiseValue, 1, 0.2);
-
-                    this.videoBuffer[i][((x * 30 + y) * 4)] = color.r;
-                    this.videoBuffer[i][((x * 30 + y) * 4) + 1] = color.g;
-                    this.videoBuffer[i][((x * 30 + y) * 4) + 2] = color.b;
-                }
-            }
-        }
-
-        clearInterval(this.noiseInterval)
-        this.videoCounter = 0;
-        this.noiseInterval = setInterval(() => this.sendNextFrameInVideoBuffer(), 1000/24);
-    }
+    }*/
 
     // Ran when image is selected
     /*handleImgSubmit(event) {

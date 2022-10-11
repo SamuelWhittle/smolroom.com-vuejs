@@ -1,9 +1,7 @@
-<script setup>
+<script>
   import MainHeader from '@/components/utils/MainHeader.vue'
   import HomeContent from '@/components/utils/HomeContent.vue';
-</script>
 
-<script>
   export default {
     components: {
       MainHeader,

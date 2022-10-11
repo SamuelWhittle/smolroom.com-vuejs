@@ -1,8 +1,6 @@
-<script setup>
-  import { PerlinNoise, map } from '@/assets/classes/PerlinNoise';
-</script>
-
 <script>
+  import { PerlinNoise, map } from '@/assets/classes/PerlinNoise';
+
   export default {
     props: {
       canvasDivisor: {

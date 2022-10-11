@@ -1,9 +1,7 @@
-<script setup>
+<script>
   import { PROJECTLIST } from '@/assets/lists/ProjectList';
   import LEDMatrixDisplay from '@/components/projects/LEDMatrixDisplay.vue';
-</script>
 
-<script>
   export default {
     data() {
       return {

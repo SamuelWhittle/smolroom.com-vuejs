@@ -1,8 +1,6 @@
-<script setup>
-  import { Triangle } from '@/assets/classes/Triangle';
-</script>
-
 <script>
+  import { Triangle } from '@/assets/classes/Triangle';
+
   export default {
     props: {
       triangle: {

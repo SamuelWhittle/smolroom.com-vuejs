@@ -27,4 +27,5 @@ coverage
 *.sln
 *.sw?
 
-deploy.sh
+#Custom Deploy bs
+*.sh

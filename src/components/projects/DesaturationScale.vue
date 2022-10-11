@@ -1,9 +1,7 @@
-<script setup>
+<script>
   import { Color } from '@/assets/classes/Color';
   import { DesaturationScale } from '@/assets/classes/DesaturationScale';
-</script>
 
-<script>
   export default {
     props: {
       gridWidth: {

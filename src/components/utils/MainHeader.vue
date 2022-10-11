@@ -1,8 +1,6 @@
-<script setup>
-  import HamburgerButton from '@/components/utils/HamburgerButton.vue';
-</script>
-
 <script>
+  import HamburgerButton from '@/components/utils/HamburgerButton.vue';
+
   export default {
     data() {
       return {

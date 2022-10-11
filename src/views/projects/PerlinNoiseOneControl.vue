@@ -1,8 +1,6 @@
-<script setup>
-  import PerlinNoiseOne from '@/components/projects/PerlinNoiseOne.vue';
-</script>
-
 <script>
+  import PerlinNoiseOne from '@/components/projects/PerlinNoiseOne.vue';
+
   export default {
     components: {
       PerlinNoiseOne,

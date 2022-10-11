@@ -1,8 +1,6 @@
-<script setup>
-  import LEDMatrixDisplay from '@/components/projects/LEDMatrixDisplay.vue';
-</script>
-
 <script>
+  import LEDMatrixDisplay from '@/components/projects/LEDMatrixDisplay.vue';
+
   export default {
     components: {
       LEDMatrixDisplay,

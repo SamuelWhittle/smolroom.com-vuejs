@@ -1,10 +1,8 @@
-<script setup>
+<script>
   import Circumcenter from '@/components/projects/Circumcenter.vue';
 
   import { Triangle } from '@/assets/classes/Triangle';
-</script>
 
-<script>
   export default {
     data() {
       return {

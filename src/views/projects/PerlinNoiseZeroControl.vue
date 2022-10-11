@@ -1,8 +1,6 @@
-<script setup>
-  import PerlinNoiseZero from '@/components/projects/PerlinNoiseZero.vue';
-</script>
-
 <script>
+  import PerlinNoiseZero from '@/components/projects/PerlinNoiseZero.vue';
+
   export default {
     data() {
       return {

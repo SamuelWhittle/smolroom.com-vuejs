@@ -1,9 +1,3 @@
-<script setup>
-  import { LEDMatrixClient } from '@/assets/classes/LEDMatrixClient';
-  import { Color } from '@/assets/classes/Color';
-  import { PerlinNoise, map } from '@/assets/classes/PerlinNoise';
-</script>
-
 <template>
   <div class="grid" v-longpress="toggleControls" v-on="interactive ? { mousedown: mousedown, mousemove: mousemove, contextmenu: contextmenu,
     touchstart: processTouchstart, touchmove: processTouchmove } : {}">
@@ -30,6 +24,10 @@
 </template>
 
 <script>
+  import { LEDMatrixClient } from '@/assets/classes/LEDMatrixClient';
+  import { Color } from '@/assets/classes/Color';
+  import { PerlinNoise, map } from '@/assets/classes/PerlinNoise';
+
   export default {
     props: {
       interactive: {

@@ -1,9 +1,7 @@
-<script setup>
+<script>
   import DesaturationScale from '@/components/projects/DesaturationScale.vue';
   import { Color } from '@/assets/classes/Color';
-</script>
 
-<script>
   export default {
     data() {
       return {

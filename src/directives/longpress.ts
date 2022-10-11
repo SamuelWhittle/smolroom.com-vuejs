@@ -15,27 +15,30 @@ const directiveLongpress = (app: App<Element>) => {
 
       // Define variables
       let pressTimer: number = 0;
+      let pressing: boolean = false;
       let pressCoords: number[] = [];
 
       // Define funtion handlers
       // Create timeout ( run function after 1s )
       let start = (e: any) => {
-        console.log(e.button);
-
         if (e.type === 'click' && e.button !== 0) {
           return;
+        }
+
+        pressing = true;
+
+        if (e.type === "mousedown") {
+          pressCoords = [e.clientX, e.clientY];
+        } else if (e.type === "touchstart") {
+          pressCoords = [(e.touches[0].clientX), (e.touches[0].clientY)]
         }
 
         if (pressTimer === 0) {
           pressTimer = setTimeout((e: any) => {
             // Run function
             handler(e);
-          }, 1000)
+          }, 500)
         }
-      }
-
-      let checkMovement = (e: any) => {
-        console.log(e);
       }
 
       // Cancel Timeout
@@ -43,7 +46,23 @@ const directiveLongpress = (app: App<Element>) => {
         // Check if timer has a value or not
         if (pressTimer !== 0) {
           clearTimeout(pressTimer);
-          pressTimer = 0;
+          pressCoords = [0, 0];
+          pressing = false;
+        }
+        pressTimer = 0;
+      }
+
+      let checkMovement = (e: any) => {
+        if (pressing) {
+          if (e.type === "mousemove") {
+            if ((Math.abs(pressCoords[0] - e.clientX) > 10) || (Math.abs(pressCoords[1] - e.clientY) > 10)) {
+              cancel();
+            }
+          } else if (e.type === "touchmove") {
+            if ((Math.abs(pressCoords[0] - e.touches[0].clientX) > 10) || (Math.abs(pressCoords[1] - e.touches[0].clientY) > 10)) {
+              cancel();
+            }
+          }
         }
       }
 
@@ -57,7 +76,7 @@ const directiveLongpress = (app: App<Element>) => {
       el.addEventListener("touchstart", start);
       // Cancel timeouts if this events happen
       el.addEventListener("click", cancel);
-      el.addEventListener("mouseout", cancel);
+      el.addEventListener("mouseup", cancel);
       el.addEventListener("touchend", cancel);
       el.addEventListener("touchcancel", cancel);
       // Cancel timeouts if too much movement occurs

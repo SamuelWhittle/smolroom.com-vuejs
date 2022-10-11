@@ -1,5 +1,6 @@
 <script setup>
   import { PROJECTLIST } from '@/assets/lists/ProjectList';
+  import LEDMatrixDisplay from '@/components/projects/LEDMatrixDisplay.vue';
 </script>
 
 <script>
@@ -13,6 +14,9 @@
       getImageUrl(name) {
         return new URL(`../../assets/images/${name}.png`, import.meta.url).href;
       }
+    },
+    components: {
+      LEDMatrixDisplay,
     }
   }
 </script>
@@ -22,7 +26,7 @@
     <div class="main-content-item" v-for="project in PROJECTLIST" :key="project.id">
         <router-link :to="{path:project.name}">
             <img v-if="project.previewType === 'imgTemplate'" :src="getImageUrl(project.name)" :alt="project.name">
-            <h1 v-else-if="project.previewType === 'LEDMatrixDisplay'">TEST</h1>
+            <LEDMatrixDisplay v-else-if="project.previewType === 'LEDMatrixDisplay'" :interactive="false"/>
         </router-link>
     </div>
 </div>

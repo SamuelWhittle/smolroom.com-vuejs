@@ -5,7 +5,7 @@ import App from './App.vue'
 
 import './assets/css/main.css'
 
-import directiveLongpress from '@/assets/directives/longpress'
+import directiveLongpress from '@/directives/longpress'
 
 const app = createApp(App)
 

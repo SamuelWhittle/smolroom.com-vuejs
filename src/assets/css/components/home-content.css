@@ -5,6 +5,7 @@
 
 .main-content-item {
     height: 25rem;
+    min-width: 25rem;
 
     outline: 1px solid #404054;
     transition: outline 100ms ease-in-out;
@@ -44,6 +45,7 @@
 
     .main-content-item {
         height: auto;
+        min-width: auto;
         width: 100%;
         aspect-ratio: 1;
     }

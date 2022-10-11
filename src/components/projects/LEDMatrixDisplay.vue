@@ -6,7 +6,7 @@
 
 <template>
   <div class="grid" v-longpress="toggleControls" v-on="interactive ? { mousedown: mousedown, mousemove: mousemove, contextmenu: contextmenu,
-    touchstart: processTouchstart, touchmove: processTouchmove, 'v-longPress': toggleControls} : {}">
+    touchstart: processTouchstart, touchmove: processTouchmove } : {}">
     <div v-for="color in colors" :key="color.id" :id="color.id" :style="{ 'background-color': color.getRGBString() }"></div>
     <div class="controls flex flex-dir-column flex-justify-center easy-on-the-eyes" :class="{ 'controls-visible': controlsVisible }">
         <p>Press Esc or long press on grid to toggle this menu.</p>
@@ -66,7 +66,7 @@
     },
     mounted() {
       if (this.interactive) {
-        this.controlsVisible = true;
+        this.controlsVisible = this.getCookieValue('controlsVisible') == 'true';
         // are they clicking?
         this.mouseIsDown = false;
         // Did they start long pressing whilst in the menu
@@ -113,6 +113,9 @@
       }
     },
     methods: {
+      getCookieValue(name) {
+        return document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)')?.pop() || ''
+      },
       // Send the next frame from the videoBuffer to the server
       sendNextFrameInVideoBuffer() {
         this.client.sendFrame(this.videoBuffer[this.videoCounter]);
@@ -124,7 +127,6 @@
       },
       // send some noise until the button is clicked again
       sendNoise() {
-        console.log('sendNoise');
         this.videoBuffer = new Array(this.numVideoFrames);
 
         for (let i = 0; i < this.videoBuffer.length; i++) {
@@ -152,7 +154,10 @@
       },
       //Toggle controls visibility
       toggleControls() {
-        this.controlsVisible = !this.controlsVisible;
+        if (this.interactive) {
+          this.controlsVisible = !this.controlsVisible;
+          document.cookie = `controlsVisible=${this.controlsVisible}; SameSite=Strict`;
+        }
       },
       offButtonClick() {
         clearInterval(this.noiseInterval);

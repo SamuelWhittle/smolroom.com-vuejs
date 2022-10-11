@@ -64,13 +64,13 @@
       this.main();
 
       this.parentResizeObserver = new ResizeObserver(() => {
-        this.canvas.width = this.$parent.$el.clientWidth;
-        this.canvas.height = this.$parent.$el.clientHeight;
+        this.canvas.width = this.$parent.$refs.canvasContainer.clientWidth;
+        this.canvas.height = this.$parent.$refs.canvasContainer.clientHeight;
 
         this.main();
       });
 
-      this.parentResizeObserver.observe(this.$parent.$el);
+      this.parentResizeObserver.observe(this.$parent.$refs.canvasContainer);
     },
     beforeDestroy() {
       this.parentResizeObserver.disconnect();

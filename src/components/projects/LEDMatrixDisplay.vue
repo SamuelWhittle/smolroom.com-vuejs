@@ -44,11 +44,15 @@
     watch: {
       connected: {
         handler(newVal) {
-          if (newVal) {
+          if (newVal && !this.interactive) {
+            console.log("connected and not interactive");
             this.client.startUpdateInterval(24);
-          } else {
-            this.client.stopInterval(this.client.updateInterval);
-          }
+          } else if (newVal) {
+            console.log("connected and interactive");
+            this.client.getPicture();
+            this.initControls();
+          }  
+          this.client.stopInterval(this.client.updateInterval);
         },
       },
     },
@@ -69,8 +73,47 @@
     beforeUnmount() {
       this.client.disconnect();
     },
-    mounted() {
-      if (this.interactive) {
+    methods: {
+      getCookieValue(name) {
+        return document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)')?.pop() || ''
+      },
+      // Send the next frame from the videoBuffer to the server
+      sendNextFrameInVideoBuffer() {
+        this.client.sendFrame(this.videoBuffer[this.videoCounter]);
+        if(this.videoCounter < this.numVideoFrames) {
+            this.videoCounter++;
+        } else {
+            this.videoCounter = 0;
+        }
+      },
+      // send some noise until the button is clicked again
+      sendNoise() {
+        this.videoBuffer = new Array(this.numVideoFrames);
+
+        for (let i = 0; i < this.videoBuffer.length; i++) {
+            this.videoBuffer[i] = new Array(3600).fill(0);
+        }
+        //console.log(videoBuffer);
+
+        for(var i = 0; i < this.numVideoFrames; i ++) {
+            for(var x = 0; x < 30; x++) {
+                for(var y = 0; y < 30; y++) {
+                    var noiseValue = map(this.noise.getNoisePixel([x, y, i]), -1, 1, 0, 1);
+
+                    var color = new Color().HSVtoRGB(noiseValue, 1, 0.2);
+
+                    this.videoBuffer[i][((x * 30 + y) * 4)] = color.r;
+                    this.videoBuffer[i][((x * 30 + y) * 4) + 1] = color.g;
+                    this.videoBuffer[i][((x * 30 + y) * 4) + 2] = color.b;
+                }
+            }
+        }
+
+        clearInterval(this.noiseInterval);
+        this.videoCounter = 0;
+        this.noiseInterval = setInterval(() => this.sendNextFrameInVideoBuffer(), 1000/24);
+      },
+      initControls() {
         this.controlsCookie = this.getCookieValue('controlsVisible');
         if (this.controlsCookie === '') {
           this.controlsVisible = true;
@@ -121,47 +164,6 @@
               break;
           }
         });
-      }
-    },
-    methods: {
-      getCookieValue(name) {
-        return document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)')?.pop() || ''
-      },
-      // Send the next frame from the videoBuffer to the server
-      sendNextFrameInVideoBuffer() {
-        this.client.sendFrame(this.videoBuffer[this.videoCounter]);
-        if(this.videoCounter < this.numVideoFrames) {
-            this.videoCounter++;
-        } else {
-            this.videoCounter = 0;
-        }
-      },
-      // send some noise until the button is clicked again
-      sendNoise() {
-        this.videoBuffer = new Array(this.numVideoFrames);
-
-        for (let i = 0; i < this.videoBuffer.length; i++) {
-            this.videoBuffer[i] = new Array(3600).fill(0);
-        }
-        //console.log(videoBuffer);
-
-        for(var i = 0; i < this.numVideoFrames; i ++) {
-            for(var x = 0; x < 30; x++) {
-                for(var y = 0; y < 30; y++) {
-                    var noiseValue = map(this.noise.getNoisePixel([x, y, i]), -1, 1, 0, 1);
-
-                    var color = new Color().HSVtoRGB(noiseValue, 1, 0.2);
-
-                    this.videoBuffer[i][((x * 30 + y) * 4)] = color.r;
-                    this.videoBuffer[i][((x * 30 + y) * 4) + 1] = color.g;
-                    this.videoBuffer[i][((x * 30 + y) * 4) + 2] = color.b;
-                }
-            }
-        }
-
-        clearInterval(this.noiseInterval);
-        this.videoCounter = 0;
-        this.noiseInterval = setInterval(() => this.sendNextFrameInVideoBuffer(), 1000/24);
       },
       //Toggle controls visibility
       toggleControls() {
@@ -245,7 +247,7 @@
             buttons: 1
         });
 
-        this.mousemove(mouseEvent);
+        this.canvasDrag(mouseEvent);
       },
       // Block the default right click behavior
       contextmenu(event) {
@@ -254,9 +256,11 @@
       // get mouse location and change colors accordingly
       canvasDrag(event) {
         if(!this.pressStartedInMenu) {
-            let selectedDiv = document.elementFromPoint(event.clientX, event.clientY);
+          let selectedDiv = document.elementFromPoint(event.clientX, event.clientY);
             
+          if (selectedDiv.id.length > 0) {
             this.client.setPixel(selectedDiv.id, (event.buttons === 1) ? this.client.currentColor : new Color(0, 0, 0));
+          }
         }
       },
       // process keystroke history for valid commands

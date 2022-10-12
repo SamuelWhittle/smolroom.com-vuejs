@@ -66,9 +66,10 @@ export class LEDMatrixClient {
     }
 
     startUpdateInterval(fps: number) {
-        //console.log('startUpdateInterval', fps);
-        //clearInterval(this.updateInterval);
+        console.log('startUpdateInterval', fps);
+        clearInterval(this.updateInterval);
         this.updateInterval = setInterval(() => {
+            console.log("I am in the interval function");
             this.getPicture();
         }, 1000/fps);
     }

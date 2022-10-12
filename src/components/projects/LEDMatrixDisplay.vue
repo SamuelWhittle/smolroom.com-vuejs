@@ -33,6 +33,10 @@
       interactive: {
         type: Boolean,
         required: true,
+      },
+      fps: {
+        type: Number,
+        default: 10
       }
     },
     data() {
@@ -45,10 +49,10 @@
       connected: {
         handler(newVal) {
           if (newVal && !this.interactive) {
-            console.log("connected and not interactive");
-            this.client.startUpdateInterval(24);
+            this.updateInterval = setInterval(() => {
+              this.client.getPicture();
+            }, 1000/this.fps);
           } else if (newVal) {
-            console.log("connected and interactive");
             this.client.getPicture();
             this.initControls();
           }  

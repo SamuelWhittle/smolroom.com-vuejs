@@ -34,10 +34,6 @@
         type: Boolean,
         required: true,
       },
-      fps: {
-        type: Number,
-        default: 10
-      }
     },
     data() {
       return {
@@ -47,16 +43,11 @@
     },
     watch: {
       connected: {
-        handler(newVal) {
-          if (newVal && !this.interactive) {
-            this.updateInterval = setInterval(() => {
-              this.client.getPicture();
-            }, 1000/this.fps);
-          } else if (newVal) {
-            this.client.getPicture();
+        handler(connected) {
+          if (connected && this.interactive) {
             this.initControls();
-          }  
-          this.client.stopInterval(this.client.updateInterval);
+          }
+          this.client.getPicture();
         },
       },
     },

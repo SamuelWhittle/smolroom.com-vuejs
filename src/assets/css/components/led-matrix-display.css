@@ -6,7 +6,7 @@
     height: 100%;
     aspect-ratio: 1;
 
-    margin-inline: auto;
+    margin: 0 auto;
 
     background: #16161d;
 
@@ -44,5 +44,9 @@
     .grid {
         height: auto;
         width: 100%;
+
+        position: relative;
+        top: 50%;
+        transform: translateY(-50%);
     }
 }

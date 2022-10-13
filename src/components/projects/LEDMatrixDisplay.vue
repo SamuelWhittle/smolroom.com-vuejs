@@ -68,6 +68,10 @@
     beforeUnmount() {
       this.client.disconnect();
     },
+    mounted() {
+      this.currentColor = new Color(0x42, 0xb8, 0x83);
+      this.drawingColor = new Color();
+    },
     methods: {
       getCookieValue(name) {
         return document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)')?.pop() || ''
@@ -174,7 +178,7 @@
       colorPickerNewColor(event) {
         let tempColor = new Color();
         let tempRgbArray = tempColor.hexToRgbArray(event.srcElement.value);
-        this.client.currentColor.update(new Color(...tempRgbArray));
+        this.currentColor = new Color(...tempRgbArray);
         this.toggleControls();
       },
       // mouse down
@@ -250,13 +254,28 @@
       },
       // get mouse location and change colors accordingly
       canvasDrag(event) {
-        if(!this.pressStartedInMenu) {
-          let selectedDiv = document.elementFromPoint(event.clientX, event.clientY);
-            
-          if (selectedDiv.id.length > 0) {
-            this.client.setPixel(selectedDiv.id, (event.buttons === 1) ? this.client.currentColor : new Color(0, 0, 0));
-          }
+        if(this.pressStartedInMenu) {
+          return;
         }
+
+        if (event.buttons === 1) {
+          this.drawingColor.update(this.currentColor);
+        } else if (event.buttons === 2) {
+          this.drawingColor.update(new Color(0,0,0));
+        } else {
+          return;
+        }
+
+        let selectedDiv = document.elementFromPoint(event.clientX, event.clientY);
+            
+        if (selectedDiv.id.length > 0) {
+          if (this.colors[selectedDiv.id].rgb[0] == this.drawingColor.rgb[0] &&
+            this.colors[selectedDiv.id].rgb[1] == this.drawingColor.rgb[1] &&
+            this.colors[selectedDiv.id].rgb[2] == this.drawingColor.rgb[2] &&
+            this.colors[selectedDiv.id].rgb[3] == this.drawingColor.rgb[3]) return;
+        
+          this.client.setPixel(selectedDiv.id, this.drawingColor);
+        }    
       },
       // process keystroke history for valid commands
       processKeyStrokes() {

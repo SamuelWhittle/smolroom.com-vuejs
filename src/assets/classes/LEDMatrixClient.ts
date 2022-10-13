@@ -6,7 +6,6 @@ export class LEDMatrixClient {
     private noiseInterval: number = 0;
 
     public colors: Color[];
-    public currentColor: Color = new Color(0x42, 0xb8, 0x83);
 
     // Comms channel lol
     private websocket: WebSocket;

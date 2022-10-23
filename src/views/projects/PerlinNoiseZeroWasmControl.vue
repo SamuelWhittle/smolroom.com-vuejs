@@ -4,10 +4,11 @@
   export default {
     data() {
       return {
-        noiseDepth: 1000,
+        noiseDepth: 100,
         seed: BigInt(Math.floor(Math.random() * 100)),
         time: 0,
         scale: 25,
+        smoothed: true,
       }
     },
     mounted() {
@@ -32,18 +33,22 @@
 <template>
   <div class="flex flex-dir-column">
     <div class="canvasContainer">
-      <PerlinNoiseZeroWasm :seed="seed" :time="Number(time)" :scale="Number(scale)"/>
+      <PerlinNoiseZeroWasm :seed="seed" :time="Number(time)" :scale="Number(scale)" :smoothed="smoothed"/>
     </div>
 
     <div class="controls flex flex-dir-column">
-        <div class="timelineContainer flex flex-justify-space-between">
+        <div class="flex flex-justify-space-between">
             <label class="easy-on-the-eyes" for="timeline">Timeline:</label>
-            <input type="range" id="timeline" min="0" :max="noiseDepth" step="10" v-model="time"/>
+            <input class="slider" type="range" id="timeline" min="0" :max="noiseDepth" step="1" v-model="time"/>
         </div>
-        <div class="resolutionContainer flex flex-justify-space-between">
+        <div class="flex flex-justify-space-between">
             <label class="easy-on-the-eyes" for="resolution">Square Size:</label>
             <span class="easy-on-the-eyes">{{this.scale}}</span>
-            <input type="range" id="resolution" min="1" max="25" step="1" v-model="scale"/>
+            <input class="slider" type="range" id="resolution" min="1" max="25" step="1" v-model="scale"/>
+        </div>
+        <div class="flex">
+          <label class="easy-on-the-eyes" for="smoothed">Smoothed?:</label>
+          <input class="checkbox" type="checkbox" id="smoothed" v-model="smoothed"/>
         </div>
         <button id="redraw" class="newNoise" @click='newSeed'>New Noise!</button>
     </div>

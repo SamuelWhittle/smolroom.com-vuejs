@@ -7,7 +7,7 @@
     margin-inline: auto;
 }
 
-.controls input {
+input.slider {
     width: 30rem;
 }
 

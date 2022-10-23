@@ -19,7 +19,7 @@
       },
       octaveScale: {
         type: Number,
-        default: 1/3,
+        default: 0.75,
       },
       time: {
         type: Number,
@@ -28,6 +28,10 @@
       scale: {
         type: Number,
         required: true,
+      },
+      smoothed: {
+        type: Boolean,
+        default: false
       }
     },
     watch: {
@@ -46,6 +50,11 @@
           this.draw();
         }
       },
+      smoothed: {
+        handler() {
+          this.draw();
+        }
+      }
     },
     mounted() {
       this.canvas = document.getElementById('mainCanvas');
@@ -67,14 +76,39 @@
       this.parentResizeObserver.disconnect();
     },
     methods: {
-      draw() {
+      drawSmoothed() {
         let ctx = this.canvas.getContext('2d');
 
         let noise = wasm.PerlinNoise.multi_octave_with_seed(this.numOctaves, this.octaveScale, this.seed);
         
-        let xScale = 1/100;
-        let yScale = 1/100;
-        let tScale = 1/100;
+        let xScale = 0.006;
+        let yScale = 0.006;
+        let tScale = 0.06;
+
+        let noisePositions = new Array(Math.ceil(this.canvas.height / this.scale)).fill()
+          .flatMap((_, y) => new Array(Math.ceil(this.canvas.width / this.scale)).fill()
+          .flatMap((_, x) => [x * this.scale * xScale, y * this.scale * yScale, this.time * tScale]));
+
+        let noiseValues = Array.from(noise.get_noise_img_data(noisePositions, 3));
+
+        let noiseImgData = noiseValues.map((value) => Math.round(wasm.PerlinNoise.range_map(value, -0.8, 0.8, 0, 255))).flatMap((value) => [value, value, value, 255]);
+
+        let imgData = new ImageData(Math.ceil(this.canvas.width / this.scale), Math.ceil(this.canvas.height / this.scale));
+        imgData.data.set(Uint8ClampedArray.from(noiseImgData));
+
+        createImageBitmap(imgData).then((bitMap) => {
+          ctx.drawImage(bitMap, 0, 0, imgData.width * this.scale, imgData.height * this.scale);
+        });
+
+      },
+      drawSquares() {
+        let ctx = this.canvas.getContext('2d');
+
+        let noise = wasm.PerlinNoise.multi_octave_with_seed(this.numOctaves, this.octaveScale, this.seed);
+        
+        let xScale = 0.006;
+        let yScale = 0.006;
+        let tScale = 0.06;
 
         for(let x = 0; x < this.canvas.width; x += this.scale) {
           for(let y = 0; y < this.canvas.height; y += this.scale) {
@@ -85,12 +119,19 @@
             ctx.fillRect(x, y, this.scale, this.scale);
           }
         }
+        
       },
-
+      draw() {
+        if (this.smoothed) { 
+          this.drawSmoothed();
+        } else {
+          this.drawSquares();
+        }
+      },
       main() {
         this.noise = wasm.PerlinNoise.multi_octave_with_seed(this.numOctaves, this.octaveScale, this.seed);
 
-        this.draw();
+        this.drawSmoothed();
       },
     }
   }

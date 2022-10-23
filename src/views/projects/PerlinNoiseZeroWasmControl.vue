@@ -5,7 +5,7 @@
     data() {
       return {
         noiseDepth: 1000,
-        seed: null,
+        seed: BigInt(Math.floor(Math.random() * 100)),
         time: 0,
         scale: 25,
       }
@@ -15,7 +15,7 @@
     },
     methods: {
       newSeed() {
-        this.seed = Math.floor(Math.random() * 900000009 * 11111111);
+        this.seed = BigInt(Math.floor(Math.random() * 100));
       },
     },
     provide() {
@@ -41,8 +41,8 @@
             <input type="range" id="timeline" min="0" :max="noiseDepth" step="10" v-model="time"/>
         </div>
         <div class="resolutionContainer flex flex-justify-space-between">
-            <label class="easy-on-the-eyes" for="resolution">Resolution:</label>
-            <input type="range" id="resolution" min="1" max="25" step="1" v-model="scale"/>
+            <label class="easy-on-the-eyes" for="resolution">Square Size:</label>
+            <input type="range" id="resolution" min="2" max="25" step="1" v-model="scale"/>
         </div>
         <button id="redraw" class="newNoise" @click='newSeed'>New Noise!</button>
     </div>

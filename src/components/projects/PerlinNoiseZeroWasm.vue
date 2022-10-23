@@ -5,17 +5,13 @@
 </template>
 
 <script>
-  import * as basicExample from '@/assets/wasm/basic-example/basic_example.js';
+  import * as wasm from '@/assets/wasm/perlin_noise/perlin_noise_bg.js';
 
   export default {
     props: {
-      noiseDepth: {
-        type: Number,
-        default: 1000,
-      },
-      startingOctave: {
-        type: Number,
-        default: 100,
+      seed: {
+        type: BigInt,
+        default: BigInt(0),
       },
       numOctaves: {
         type: Number,
@@ -25,10 +21,6 @@
         type: Number,
         default: 1/3,
       },
-      seed: {
-        type: Number,
-        default: Math.floor(Math.random() * 900000009 * 11111111),
-      },
       time: {
         type: Number,
         required: true,
@@ -36,12 +28,6 @@
       scale: {
         type: Number,
         required: true,
-      }
-    },
-    data() {
-      return {
-        noiseWidth: null,
-        noiseHeight: null,
       }
     },
     watch: {
@@ -62,18 +48,17 @@
       },
     },
     mounted() {
-      //this.noise = null;
-
       this.canvas = document.getElementById('mainCanvas');
-      this.ctx = this.canvas.getContext('2d');
+      //this.ctx = this.canvas.getContext('2d');
 
-      this.main();
+      this.draw();
 
       this.parentResizeObserver = new ResizeObserver(() => {
         this.canvas.width = this.$el.parentNode.clientWidth;
         this.canvas.height = this.$el.parentNode.clientHeight;
 
-        this.main();
+        //this.main();
+        this.draw();
       });
 
       this.parentResizeObserver.observe(this.$el.parentNode);
@@ -82,34 +67,30 @@
       this.parentResizeObserver.disconnect();
     },
     methods: {
-      test() {
-        basicExample.greet('test');
-      },
-      /*draw() {
-        this.ctx.fillStyle = "white";
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+      draw() {
+        let ctx = this.canvas.getContext('2d');
 
-        this.ctx.beginPath();
+        let noise = wasm.PerlinNoise.multi_octave_with_seed(this.numOctaves, this.octaveScale, this.seed);
+        
+        let xScale = 1/100;
+        let yScale = 1/100;
+        let tScale = 1/100;
 
-        for(var x = 0; x < this.canvas.width; x += Number(this.scale)) {
-            for(var y = 0; y < this.canvas.height; y += Number(this.scale)) {
-                //let color = this.noise.getNoisePixel([x,y, this.time]);
-                //TODO: get noise color from wasm
-                let r, g, b;
-                r = g = b = map(color, -1, 1, 0, 255);
-                this.ctx.fillStyle = `rgb( ${r}, ${g}, ${b})`;
-                this.ctx.fillRect(x, y, Number(this.scale), Number(this.scale));
-            }
+        for(let x = 0; x < this.canvas.width; x += this.scale) {
+          for(let y = 0; y < this.canvas.height; y += this.scale) {
+            let color = noise.get_fractal_noise_value([x * xScale, y * yScale, this.time * tScale]);
+            let r, g, b;
+            r = g = b = wasm.PerlinNoise.range_map(color, -1, 1, 0, 255);
+            ctx.fillStyle = `rgb( ${r}, ${g}, ${b})`;
+            ctx.fillRect(x, y, this.scale, this.scale);
+          }
         }
-
-        this.ctx.closePath();
-      },*/
+      },
 
       main() {
-        //this.noise = new PerlinNoise([this.canvas.width, this.canvas.height, this.noiseDepth], this.startingOctave, this.numOctaves, this.octaveScale, this.seed);
-        //TODO: Instantiate Noise
+        this.noise = wasm.PerlinNoise.multi_octave_with_seed(this.numOctaves, this.octaveScale, this.seed);
 
-        //this.draw();
+        this.draw();
       },
     }
   }

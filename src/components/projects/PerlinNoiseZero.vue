@@ -1,3 +1,9 @@
+<template>
+  <div>
+    <canvas id="mainCanvas" class="main-canvas"></canvas>
+  </div>
+</template>
+
 <script>
   import { PerlinNoise, map } from '@/assets/classes/PerlinNoise';
   
@@ -80,8 +86,6 @@
         this.ctx.fillStyle = "white";
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-        this.ctx.beginPath();
-
         for(var x = 0; x < this.canvas.width; x += Number(this.scale)) {
             for(var y = 0; y < this.canvas.height; y += Number(this.scale)) {
                 let color = this.noise.getNoisePixel([x,y, this.time]);
@@ -91,8 +95,6 @@
                 this.ctx.fillRect(x, y, Number(this.scale), Number(this.scale));
             }
         }
-
-        this.ctx.closePath();
       },
 
       main() {
@@ -103,11 +105,5 @@
     }
   }
 </script>
-
-<template>
-  <div>
-    <canvas id="mainCanvas" class="main-canvas"></canvas>
-  </div>
-</template>
 
 <style scoped src="@/assets/css/components/canvas-component-base.css"></style>

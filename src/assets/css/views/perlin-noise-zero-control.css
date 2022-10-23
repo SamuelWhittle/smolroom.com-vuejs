@@ -20,9 +20,9 @@ input.slider {
         width: 100%;
     }
 
-    .controls input{
+    /*.controls input{
         width: 100%;
-    }
+    }*/
 
     .timelineContainer {
         flex-direction: column;

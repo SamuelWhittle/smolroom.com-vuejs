@@ -114,7 +114,7 @@
           for(let y = 0; y < this.canvas.height; y += this.scale) {
             let color = noise.get_fractal_noise_value([x * xScale, y * yScale, this.time * tScale]);
             let r, g, b;
-            r = g = b = wasm.PerlinNoise.range_map(color, -1, 1, 0, 255);
+            r = g = b = wasm.PerlinNoise.range_map(color, -0.8, 0.8, 0, 255);
             ctx.fillStyle = `rgb( ${r}, ${g}, ${b})`;
             ctx.fillRect(x, y, this.scale, this.scale);
           }
@@ -122,16 +122,18 @@
         
       },
       draw() {
+        let begin = performance.now();
         if (this.smoothed) { 
           this.drawSmoothed();
         } else {
           this.drawSquares();
         }
+        console.log(performance.now() - begin);
       },
       main() {
         this.noise = wasm.PerlinNoise.multi_octave_with_seed(this.numOctaves, this.octaveScale, this.seed);
 
-        this.drawSmoothed();
+        this.draw();
       },
     }
   }

@@ -74,7 +74,7 @@
     },
     methods: {
       getCookieValue(name) {
-        return document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)')?.pop() || ''
+        return document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)')?.pop() ?? ''
       },
       // Send the next frame from the videoBuffer to the server
       sendNextFrameInVideoBuffer() {
@@ -113,11 +113,11 @@
         this.noiseInterval = setInterval(() => this.sendNextFrameInVideoBuffer(), 1000/24);
       },
       initControls() {
-        this.controlsCookie = this.getCookieValue('controlsVisible');
-        if (this.controlsCookie === '') {
-          this.controlsVisible = true;
+        if (this.$cookies.isKey("controlsVisible")) {
+          //this.controlsVisible = true;
+          this.controlsVisible = this.$cookies.get("controlsVisible") === true;
         } else {
-          this.controlsVisible = (this.controlsCookie === 'true');
+          this.toggleControls();
         }
 
         // are they clicking?
@@ -168,7 +168,8 @@
       toggleControls() {
         if (this.interactive) {
           this.controlsVisible = !this.controlsVisible;
-          document.cookie = `controlsVisible=${this.controlsVisible}; SameSite=Strict`;
+          this.$cookies.set("controlsVisible",`${this.controlsVisible}`);
+          //document.cookie = `controlsVisible=${this.controlsVisible}; SameSite=Strict`;
         }
       },
       offButtonClick() {

@@ -41,7 +41,8 @@
             <input type="range" id="timeline" min="0" :max="noiseDepth" step="10" v-model="time"/>
         </div>
         <div class="resolutionContainer flex flex-justify-space-between">
-            <label class="easy-on-the-eyes" for="resolution">Resolution:</label>
+            <label class="easy-on-the-eyes" for="resolution">Square Size:</label>
+            <span class="easy-on-the-eyes">{{this.scale}}</span>
             <input type="range" id="resolution" min="1" max="25" step="1" v-model="scale"/>
         </div>
         <button id="redraw" class="newNoise" @click='newSeed'>New Noise!</button>

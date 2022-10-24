@@ -89,9 +89,13 @@
           .flatMap((_, y) => new Array(Math.ceil(this.canvas.width / this.scale)).fill()
           .flatMap((_, x) => [x * this.scale * xScale, y * this.scale * yScale, this.time * tScale]));
 
-        let noiseValues = Array.from(noise.get_noise_img_data(noisePositions, 3));
+        //let noiseValues = Array.from(noise.get_noise_img_data(noisePositions, 3));
 
-        let noiseImgData = noiseValues.map((value) => Math.round(wasm.PerlinNoise.range_map(value, -0.8, 0.8, 0, 255))).flatMap((value) => [value, value, value, 255]);
+        //let noiseImgData = noiseValues.map((value) => Math.round(wasm.PerlinNoise.range_map(value, -0.8, 0.8, 0, 255))).flatMap((value) => [value, value, value, 255]);
+
+        let noiseImgData = Array.from(noise.get_noise_img_data(noisePositions, 3))
+          .map((value) => Math.round(wasm.PerlinNoise.range_map(value, -0.8, 0.8, 0, 255)))
+          .flatMap((value) => [value, value, value, 255]);
 
         let imgData = new ImageData(Math.ceil(this.canvas.width / this.scale), Math.ceil(this.canvas.height / this.scale));
         imgData.data.set(Uint8ClampedArray.from(noiseImgData));

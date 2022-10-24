@@ -18,11 +18,6 @@
         this.seed = Math.floor(Math.random() * 900000009 * 11111111);
       },
     },
-    provide() {
-      return {
-        
-      }
-    },
     components: {
       PerlinNoiseZero,
     }
@@ -36,14 +31,13 @@
     </div>
 
     <div class="controls flex flex-dir-column">
-        <div class="timelineContainer flex flex-justify-space-between">
+        <div class="flex flex-justify-space-between control">
             <label class="easy-on-the-eyes" for="timeline">Timeline:</label>
-            <input type="range" id="timeline" min="0" :max="noiseDepth" step="10" v-model="time"/>
+            <input class="slider" type="range" id="timeline" min="0" :max="noiseDepth" step="10" v-model="time"/>
         </div>
-        <div class="resolutionContainer flex flex-justify-space-between">
-            <label class="easy-on-the-eyes" for="resolution">Square Size:</label>
-            <span class="easy-on-the-eyes">{{this.scale}}</span>
-            <input type="range" id="resolution" min="1" max="25" step="1" v-model="scale"/>
+        <div class="flex flex-justify-space-between control">
+            <label class="easy-on-the-eyes no-wrap" for="resolution">Square Size: {{this.scale}}</label>
+            <input class="slider" type="range" id="resolution" min="1" max="25" step="1" v-model="scale"/>
         </div>
         <button id="redraw" class="newNoise" @click='newSeed'>New Noise!</button>
     </div>

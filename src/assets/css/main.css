@@ -94,6 +94,10 @@ body {
 
 /* Text Properties */
 
+.no-wrap {
+    white-space: no-wrap;
+}
+
 .ff-sans-cond {
     font-family: sans-serif;
 }

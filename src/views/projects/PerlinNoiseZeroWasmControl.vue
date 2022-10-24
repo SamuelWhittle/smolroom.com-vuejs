@@ -37,13 +37,12 @@
     </div>
 
     <div class="controls flex flex-dir-column">
-        <div class="flex flex-justify-space-between">
+        <div class="control flex flex-justify-space-between">
             <label class="easy-on-the-eyes" for="timeline">Timeline:</label>
             <input class="slider" type="range" id="timeline" min="0" :max="noiseDepth" step="1" v-model="time"/>
         </div>
-        <div class="flex flex-justify-space-between">
-            <label class="easy-on-the-eyes" for="resolution">Square Size:</label>
-            <span class="easy-on-the-eyes">{{this.scale}}</span>
+        <div class="control flex flex-justify-space-between">
+            <label class="easy-on-the-eyes" for="resolution">Square Size: {{this.scale}}</label>
             <input class="slider" type="range" id="resolution" min="1" max="25" step="1" v-model="scale"/>
         </div>
         <div class="flex">

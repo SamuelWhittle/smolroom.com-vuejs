@@ -11,7 +11,7 @@ input.slider {
     width: 30rem;
 }
 
-@media (max-width: 37rem) {
+@media (max-width: 38rem) {
     .canvasContainer {
         height: 50vh;
     }
@@ -20,15 +20,11 @@ input.slider {
         width: 100%;
     }
 
-    /*.controls input{
+    input.slider {
         width: 100%;
-    }*/
-
-    .timelineContainer {
-        flex-direction: column;
     }
 
-    .resolutionContainer {
+    .control {
         flex-direction: column;
     }
 }

@@ -4,28 +4,30 @@
 }
 
 .controls {
+    width: 40rem;
     margin-inline: auto;
+    padding: 1rem;
+}
+
+.control {
 }
 
 input.slider {
     width: 30rem;
 }
 
-@media (max-width: 38rem) {
-    .canvasContainer {
-        height: 50vh;
-    }
-
+@media (max-width: 40rem) {
     .controls {
-        width: 100%;
-    }
-
-    input.slider {
         width: 100%;
     }
 
     .control {
         flex-direction: column;
+        width: 100%;
+    }
+
+    input.slider {
+        width: 100%;
     }
 }
 .newNoise {

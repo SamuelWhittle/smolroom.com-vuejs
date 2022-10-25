@@ -25,22 +25,19 @@
 </script>
 
 <template>
-  <div class="flex flex-dir-column">
-    <div class="canvasContainer">
-      <PerlinNoiseZero :seed="seed" :time="Number(time)" :scale="Number(scale)"/>
+  <div class="canvasContainer">
+    <PerlinNoiseZero :seed="seed" :time="Number(time)" :scale="Number(scale)"/>
+  </div>
+  <div class="controls flex flex-dir-column">
+    <div class="control flex flex-justify-space-between">
+      <label class="easy-on-the-eyes" for="timeline">Timeline:</label>
+      <input class="slider" type="range" id="timeline" min="0" :max="noiseDepth" step="10" v-model="time"/>
     </div>
-
-    <div class="controls flex flex-dir-column">
-        <div class="flex flex-justify-space-between control">
-            <label class="easy-on-the-eyes" for="timeline">Timeline:</label>
-            <input class="slider" type="range" id="timeline" min="0" :max="noiseDepth" step="10" v-model="time"/>
-        </div>
-        <div class="flex flex-justify-space-between control">
-            <label class="easy-on-the-eyes no-wrap" for="resolution">Square Size: {{this.scale}}</label>
-            <input class="slider" type="range" id="resolution" min="1" max="25" step="1" v-model="scale"/>
-        </div>
-        <button id="redraw" class="newNoise" @click='newSeed'>New Noise!</button>
+    <div class="control flex flex-justify-space-between">
+      <label class="easy-on-the-eyes no-wrap" for="resolution">Square Size: {{this.scale}}</label>
+      <input class="slider" type="range" id="resolution" min="1" max="25" step="1" v-model="scale"/>
     </div>
+    <button id="redraw" class="newNoise" @click='newSeed'>New Noise!</button>
   </div>
 </template>
 

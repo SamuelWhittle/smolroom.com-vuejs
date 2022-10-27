@@ -81,7 +81,7 @@ export class PerlinNoise {
         this.lengthConstants = new Array(this.numOctaves).fill(new Array()).map((_, index) => {
             return this.getLengthConstants(this.gridSizes[index]);
         });
-        //console.log("Length Constants =", this.lengthConstants);
+      //console.log("Length Constants =", this.lengthConstants);
 
 
         //array of unit corners based on the number of dimensions in play used to locate local corners
@@ -279,4 +279,55 @@ export class PerlinNoise {
 // transform a number from one range to another range
 export function map(num: number, oldMin: number, oldMax: number, min: number, max: number) {
     return (num-oldMin)/(oldMax-oldMin)*(max-min)+min;
+}
+
+export class State {
+    public ctx: CanvasRenderingContext2D;
+    public start: number;
+    public wasm: any;
+    public running: Boolean;
+    public counter: number;
+    public interval: number;
+
+    constructor(wasm: any, ctx: CanvasRenderingContext2D) {
+        this.ctx = ctx;
+        this.start = performance.now();
+        this.wasm = wasm;
+        this.running = true;
+        this.counter = 1;
+
+        this.interval = setInterval(() => this.updateTimer(true), 100);
+
+        wasm.promise()
+        .then((data: any) => {
+            this.updateTimer(false);
+            this.updateImage(data);
+            this.stop();
+        })
+        .catch(console.error)
+    }
+
+    updateTimer(updateImage: any) {
+        const dur = performance.now() - this.start;
+        console.log(`${dur}ms`);
+        this.counter += 1;
+        if (updateImage && this.wasm && this.counter % 3 == 0) {
+            console.log("strange if was true");
+            this.updateImage(this.wasm.imageSoFar());
+        }
+    }
+
+    updateImage(data: any) {
+        this.ctx.putImageData(data, 0, 0)
+    }
+
+    stop() {
+        if (!this.running) {
+            return;
+        }
+        console.timeEnd('render');
+        this.running = false;
+        this.wasm = null;
+        clearInterval(this.interval);
+    }
 }

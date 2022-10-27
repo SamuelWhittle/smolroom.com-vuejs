@@ -1,0 +1,14 @@
+{
+  "name": "perlin-noise",
+  "collaborators": [
+    "SamuelWhittle <swbnp7@gmail.com>"
+  ],
+  "version": "0.1.0",
+  "files": [
+    "perlin_noise_bg.wasm",
+    "perlin_noise.js",
+    "perlin_noise.d.ts"
+  ],
+  "browser": "perlin_noise.js",
+  "types": "perlin_noise.d.ts"
+}

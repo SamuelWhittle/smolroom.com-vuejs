@@ -48,6 +48,18 @@ function getUint8Memory0() {
 function getStringFromWasm0(ptr, len) {
     return cachedTextDecoder.decode(getUint8Memory0().subarray(ptr, ptr + len));
 }
+/**
+* @param {number} num
+* @param {number} old_min
+* @param {number} old_max
+* @param {number} new_min
+* @param {number} new_max
+* @returns {number}
+*/
+__exports.range_map = function(num, old_min, old_max, new_min, new_max) {
+    const ret = wasm.range_map(num, old_min, old_max, new_min, new_max);
+    return ret;
+};
 
 let cachedFloat64Memory0 = new Float64Array();
 
@@ -175,18 +187,6 @@ class PerlinNoise {
         const ptr0 = passArrayF64ToWasm0(coords, wasm.__wbindgen_malloc);
         const len0 = WASM_VECTOR_LEN;
         const ret = wasm.perlinnoise_get_fractal_noise_value(this.ptr, ptr0, len0);
-        return ret;
-    }
-    /**
-    * @param {number} num
-    * @param {number} old_min
-    * @param {number} old_max
-    * @param {number} new_min
-    * @param {number} new_max
-    * @returns {number}
-    */
-    static range_map(num, old_min, old_max, new_min, new_max) {
-        const ret = wasm.perlinnoise_range_map(num, old_min, old_max, new_min, new_max);
         return ret;
     }
     /**

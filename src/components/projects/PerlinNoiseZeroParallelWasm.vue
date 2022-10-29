@@ -5,13 +5,13 @@
 </template>
 
 <script>
-  import { State } from '@/assets/classes/PerlinNoise';
+  import * as wasm from '@/assets/wasm/perlin_noise/perlin_noise_bg.js';
 
   export default {
     props: {
       seed: {
-        type: BigInt,
-        default: BigInt(0),
+        type: Number,
+        default: Math.floor(Math.random() * 1000),
       },
       numOctaves: {
         type: Number,
@@ -32,117 +32,111 @@
       smoothed: {
         type: Boolean,
         default: false
-      },
-      concurrency: {
-        type: Number,
-        required: true
       }
     },
     data() {
       return {
-        wasmLoaded: false,
+        workerLoaded: false,
       }
     },
     watch: {
-      seed: {
+      workerLoaded: {
         handler() {
-          //this.draw();
-        }
-      },
-      time: {
-        handler() {
-          if (this.wasmLoaded) {
-            console.time('render');
-            this.render(new PerlinNoise())
-          }
-          //this.draw();
-        }
-      },
-      scale: {
-        handler() {
-          //this.draw();
-        }
-      },
-      smoothed: {
-        handler() {
-          //this.draw();
+          this.workerCanvasInit().then(this.draw);
         }
       },
     },
     mounted() {
       this.canvas = document.getElementById('mainCanvas');
-      this.ctx = this.canvas.getContext('2d');
+      //this.offscreenCanvas = null;
+      //this.noiseWorker = null;
 
-      this.parentResizeObserver = new ResizeObserver(() => {
-        this.canvas.width = this.$el.parentNode.clientWidth;
-        this.canvas.height = this.$el.parentNode.clientHeight;
-        //this.draw();
-      });
-
-      this.parentResizeObserver.observe(this.$el.parentNode);
-
-      this.rendering = null;
-      this.start = null;
-      this.interval = null;
-      this.pool = null;
-
-      // GET function form global was_bindgen object
-      this.PerlinNoise = wasm_bindgen.PerlinNoise;
-      this.range_map = wasm_bindgen.range_map;
-      this.startup = wasm_bindgen.startup;
-
-      this.loadWasm(); 
+      this.initWorker().then(this.initWatchers);
+      console.log("mounted() finished");
     },
     beforeUnmount() {
-      if (this.parentResizeObserver != null) {
+      if (this.parentResizeObserver) {
         this.parentResizeObserver.disconnect();
+      }
+      if (this.noiseWorker) {
+        this.noiseWorker.terminate();
       }
     },
     methods: {
-      loadWasm() {
-        let msg = 'This demo requires a current version of Firefox (e.g., 79.0)';
+      async initWorker() {
+        if (window.Worker) {
+          console.log("Main thread initializing worker...");
+          this.noiseWorker = new Worker('/workers/PerlinNoiseWasmWorker.js');
 
-        if (!window.Worker) {
-          alert('This browser does not have Web Worker support.');
+          this.noiseWorker.onmessage = (event) => {
+            switch (event.data.msgType) {
+              case 'loaded':
+                this.workerLoaded = true;
+                break;
+              case 'test':
+                console.log("test received");
+              case 'error':
+                console.log("error received from worker:", event);
+              default:
+                console.log("Main thread received unhandled msg type:", event);
+            }
+          };
+
+          this.noiseWorker.onerror = (event) => {
+            console.log(event);
+          };
+        } else {
+          console.log("This browser does not support Web Workers, loading WASM on main thread.");
+          this.canvasInit();
         }
-
-        /*if (typeof SharedArrayBuffer !== 'function') {
-          alert('This browser does not have SharedArrayBuffer support enabled' + '\n\n' + msg);
-          return
-        }*/
-        // Test for bulk memory operations with passive data segments
-        //  (module (memory 1) (data passive ""))
-        const buf = new Uint8Array([0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00, 0x05, 0x03, 0x01, 0x00, 0x01, 0x0b, 0x03, 0x01, 0x01, 0x00]);
-        if (!WebAssembly.validate(buf)) {
-          alert('This browser does not support passive wasm memory, demo does not work' + '\n\n' + msg);
-          return
-        }
-
-        wasm_bindgen('/wasm/perlin_noise/perlin_noise_bg.wasm')
-          .then(this.run)
-          .catch(console.error);
       },
-      run() {
-        this.wasmLoaded = true;
-        // The maximal concurrency of our web worker pool is `hardwareConcurrency`,
-        // so set that up here and this ideally is the only location we create web
-        // workers.
-        this.pool = new WorkerPool(this.concurrency);
+      async workerCanvasInit() {
+        let offscreenCanvas = this.canvas.transferControlToOffscreen();
+        offscreenCanvas.width = this.$el.parentNode.clientWidth;
+        offscreenCanvas.height = this.$el.parentNode.clientHeight;
 
-        console.time('render');
-        this.render(new PerlinNoise())
+        this.noiseWorker.postMessage({msgType: "canvas", canvas: offscreenCanvas}, [offscreenCanvas]);
+
+        this.parentResizeObserver = new ResizeObserver(() => {
+          console.log("parent Resize Observed");
+
+          this.noiseWorker.postMessage({msgType: "resize", width: this.$el.parentNode.clientWidth, height: this.$el.parentNode.clientHeight});
+
+          //this.main();
+          this.draw();
+        });
+
+        this.parentResizeObserver.observe(this.$el.parentNode);
       },
-      render(perlinNoise) {
-        if (this.rendering) {
-          this.rendereing.stop();
-          this.rendering = null;
-        }
-        this.rendering = new State(perlinNoise.render(parseInt(this.concurrency), pool), this.ctx)
+      canvasInit() {
+        this.parentResizeObserver = new ResizeObserver(() => {
+          console.log("parent Resize Observed");
+          this.canvas.width = this.$el.parentNode.clientWidth;
+          this.canvas.height = this.$el.parentNode.clientHeight;
+
+          this.draw();
+        });
+
+        this.parentResizeObserver.observe(this.$el.parentNode);
       },
-      mainDrawSmoothed() {
+      initWatchers() {
+        this.$watch('seed', () => {
+          this.draw();
+        })
+        this.$watch('time', () => {
+          this.draw();
+        })
+        this.$watch('scale', () => {
+          this.draw();
+        })
+        this.$watch('smoothed', () => {
+          this.draw();
+        })
+      },
+      drawSmoothed() {
         let ctx = this.canvas.getContext('2d');
 
-        let noise = this.PerlinNoise.multi_octave_with_seed(this.numOctaves, this.octaveScale, this.seed);
+        let noise = wasm.PerlinNoise.multi_octave_with_seed(this.numOctaves, this.octaveScale, BigInt(this.seed));
         
         let xScale = 0.006;
         let yScale = 0.006;
@@ -157,7 +151,7 @@
                 .flatMap((_, y) => new Array(Math.ceil(this.canvas.width / this.scale)).fill()
                 .flatMap((_, x) => [x * this.scale * xScale, y * this.scale * yScale, this.time * tScale]))
             , 3))
-              .map((value) => Math.round(this.range_map(value, -0.8, 0.8, 0, 255)))
+              .map((value) => Math.round(wasm.PerlinNoise.range_map(value, -0.8, 0.8, 0, 255)))
               .flatMap((value) => [value, value, value, 255])
           )
         );
@@ -179,10 +173,10 @@
         });
 
       },
-      mainDrawSquares() {
+      drawSquares() {
         let ctx = this.canvas.getContext('2d');
 
-        let noise = this.PerlinNoise.multi_octave_with_seed(this.numOctaves, this.octaveScale, this.seed);
+        let noise = wasm.PerlinNoise.multi_octave_with_seed(this.numOctaves, this.octaveScale, BigInt(this.seed));
         
         let xScale = 0.006;
         let yScale = 0.006;
@@ -192,27 +186,27 @@
           for(let y = 0; y < this.canvas.height; y += this.scale) {
             let color = noise.get_fractal_noise_value([x * xScale, y * yScale, this.time * tScale]);
             let r, g, b;
-            r = g = b = this.range_map(color, -0.8, 0.8, 0, 255);
+            r = g = b = wasm.PerlinNoise.range_map(color, -0.8, 0.8, 0, 255);
             ctx.fillStyle = `rgb( ${r}, ${g}, ${b})`;
             ctx.fillRect(x, y, this.scale, this.scale);
           }
         }
-        
       },
       draw() {
-        if (this.wasmLoaded) {
-          let begin = performance.now();
-          
-          if (this.smoothed) { 
-            this.mainDrawSmoothed();
-          } else {
-            this.mainDrawSquares();
-          }
-          
-          console.log(performance.now() - begin);
+        if (this.workerLoaded) {
+          this.noiseWorker.postMessage({msgType: "drawNoiseArray", scale: this.scale, smoothed: this.smoothed, time: this.time, numOctaves: this.numOctaves, octaveScale: this.octaveScale, seed: this.seed});
         } else {
-          console.log("loading WASM ...");
+          let begin = performance.now();
+
+          if (this.smoothed) {
+            this.drawSmoothed();
+          } else {
+            this.drawSquares();
+          }
+
+          console.log(performance.now() - begin);
         }
+
       },
     }
   }

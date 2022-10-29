@@ -2,6 +2,15 @@ declare namespace wasm_bindgen {
 	/* tslint:disable */
 	/* eslint-disable */
 	/**
+	* @param {number} num
+	* @param {number} old_min
+	* @param {number} old_max
+	* @param {number} new_min
+	* @param {number} new_max
+	* @returns {number}
+	*/
+	export function range_map(num: number, old_min: number, old_max: number, new_min: number, new_max: number): number;
+	/**
 	*/
 	export class PerlinNoise {
 	  free(): void;
@@ -38,15 +47,6 @@ declare namespace wasm_bindgen {
 	* @returns {number}
 	*/
 	  get_fractal_noise_value(coords: Float64Array): number;
-	/**
-	* @param {number} num
-	* @param {number} old_min
-	* @param {number} old_max
-	* @param {number} new_min
-	* @param {number} new_max
-	* @returns {number}
-	*/
-	  static range_map(num: number, old_min: number, old_max: number, new_min: number, new_max: number): number;
 	/**
 	* @returns {number}
 	*/
@@ -92,7 +92,7 @@ declare interface InitOutput {
   readonly perlinnoise_set_num_octaves: (a: number, b: number) => void;
   readonly perlinnoise_set_octave_scale: (a: number, b: number) => void;
   readonly perlinnoise_set_seed: (a: number, b: number) => void;
-  readonly perlinnoise_range_map: (a: number, b: number, c: number, d: number, e: number) => number;
+  readonly range_map: (a: number, b: number, c: number, d: number, e: number) => number;
   readonly __wbindgen_add_to_stack_pointer: (a: number) => number;
   readonly __wbindgen_malloc: (a: number) => number;
   readonly __wbindgen_free: (a: number, b: number) => void;

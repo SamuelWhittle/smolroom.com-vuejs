@@ -14,7 +14,7 @@ export function perlinnoise_get_seed(a: number): number;
 export function perlinnoise_set_num_octaves(a: number, b: number): void;
 export function perlinnoise_set_octave_scale(a: number, b: number): void;
 export function perlinnoise_set_seed(a: number, b: number): void;
-export function perlinnoise_range_map(a: number, b: number, c: number, d: number, e: number): number;
+export function range_map(a: number, b: number, c: number, d: number, e: number): number;
 export function __wbindgen_add_to_stack_pointer(a: number): number;
 export function __wbindgen_malloc(a: number): number;
 export function __wbindgen_free(a: number, b: number): void;

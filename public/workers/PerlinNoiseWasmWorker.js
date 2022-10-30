@@ -32,6 +32,7 @@ async function loadWasm() {
         octaveScale = event.data.octaveScale;
         seed = event.data.seed;
         drawNoise();
+        postMessage({msgType: "drawingFinished"});
         break;
       case 'resize':
         console.log("worker resize");

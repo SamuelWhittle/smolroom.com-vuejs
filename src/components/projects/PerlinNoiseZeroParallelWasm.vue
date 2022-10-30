@@ -37,6 +37,7 @@
     data() {
       return {
         workerLoaded: false,
+        drawing: false
       }
     },
     watch: {
@@ -45,11 +46,14 @@
           this.workerCanvasInit().then(this.draw);
         }
       },
+      drawing: {
+        handler() {
+          this.$emit('drawingToggle', this.drawing);
+        }
+      }
     },
     mounted() {
       this.canvas = document.getElementById('mainCanvas');
-      //this.offscreenCanvas = null;
-      //this.noiseWorker = null;
 
       this.initWorker().then(this.initWatchers);
       console.log("mounted() finished");
@@ -73,10 +77,13 @@
               case 'loaded':
                 this.workerLoaded = true;
                 break;
-              case 'test':
-                console.log("test received");
+              case 'drawingFinished':
+                console.log("DRAWING FINISHED");
+                this.drawing = false;
+                break;
               case 'error':
                 console.log("error received from worker:", event);
+                break;
               default:
                 console.log("Main thread received unhandled msg type:", event);
             }
@@ -121,17 +128,43 @@
       },
       initWatchers() {
         this.$watch('seed', () => {
+          console.log("SEED CHANGED");
           this.draw();
         })
         this.$watch('time', () => {
+          console.log("TIME CHANGED");
           this.draw();
         })
         this.$watch('scale', () => {
+          console.log("SCALE CHANGED");
           this.draw();
         })
         this.$watch('smoothed', () => {
+          console.log("SMOOTHED CHANGED");
           this.draw();
         })
+      },
+      draw() {
+        if (!this.drawing) {
+          console.log("STARTING TO DRAW");
+          this.drawing = true;
+          if (this.workerLoaded) {
+            this.noiseWorker.postMessage({msgType: "drawNoiseArray", scale: this.scale, smoothed: this.smoothed, time: this.time, numOctaves: this.numOctaves, octaveScale: this.octaveScale, seed: this.seed});
+          } else {
+            let begin = performance.now();
+
+            if (this.smoothed) {
+              this.drawSmoothed();
+            } else {
+              this.drawSquares();
+            }
+
+            console.log(performance.now() - begin);
+            this.drawing = false;
+          }
+        } else {
+          console.log("TRIED TO DRAW WHILE DRAWING");
+        }
       },
       drawSmoothed() {
         let ctx = this.canvas.getContext('2d');
@@ -191,22 +224,6 @@
             ctx.fillRect(x, y, this.scale, this.scale);
           }
         }
-      },
-      draw() {
-        if (this.workerLoaded) {
-          this.noiseWorker.postMessage({msgType: "drawNoiseArray", scale: this.scale, smoothed: this.smoothed, time: this.time, numOctaves: this.numOctaves, octaveScale: this.octaveScale, seed: this.seed});
-        } else {
-          let begin = performance.now();
-
-          if (this.smoothed) {
-            this.drawSmoothed();
-          } else {
-            this.drawSquares();
-          }
-
-          console.log(performance.now() - begin);
-        }
-
       },
     }
   }

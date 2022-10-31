@@ -1,7 +1,5 @@
 <template>
-  <div>
     <canvas id="mainCanvas" class="main-canvas" @click="test"></canvas>
-  </div>
 </template>
 
 <script>
@@ -10,8 +8,8 @@
   export default {
     props: {
       seed: {
-        type: BigInt,
-        default: BigInt(0),
+        type: Number,
+        default: Math.floor(Math.random() * 1000),
       },
       numOctaves: {
         type: Number,
@@ -34,52 +32,131 @@
         default: false
       }
     },
-    watch: {
-      seed: {
-        handler() {
-          this.main();
-        }
-      },
-      time: {
-        handler() {
-          this.draw();
-        }
-      },
-      scale: {
-        handler() {
-          this.draw();
-        }
-      },
-      smoothed: {
-        handler() {
-          this.draw();
-        }
+    data() {
+      return {
+        workerLoaded: false,
+        drawing: false
       }
+    },
+    watch: {
+      workerLoaded: {
+        handler() {
+          this.workerCanvasInit().then(this.draw);
+        }
+      },
+      /*drawing: {
+        handler() {
+          this.$emit('drawingToggle', this.drawing);
+        }
+      }*/
     },
     mounted() {
       this.canvas = document.getElementById('mainCanvas');
-      //this.ctx = this.canvas.getContext('2d');
 
-      this.draw();
-
-      this.parentResizeObserver = new ResizeObserver(() => {
-        this.canvas.width = this.$el.parentNode.clientWidth;
-        this.canvas.height = this.$el.parentNode.clientHeight;
-
-        //this.main();
-        this.draw();
-      });
-
-      this.parentResizeObserver.observe(this.$el.parentNode);
+      this.initWorker().then(this.initWatchers);
     },
     beforeUnmount() {
-      this.parentResizeObserver.disconnect();
+      if (this.parentResizeObserver) {
+        this.parentResizeObserver.disconnect();
+      }
+      if (this.noiseWorker) {
+        this.noiseWorker.terminate();
+      }
     },
     methods: {
+      async initWorker() {
+        if (window.Worker) {
+          console.log("Main thread initializing worker...");
+          this.noiseWorker = new Worker('/workers/PerlinNoiseWasmWorker.js');
+
+          this.noiseWorker.onmessage = (event) => {
+            switch (event.data.msgType) {
+              case 'loaded':
+                this.workerLoaded = true;
+                break;
+              case 'drawingFinished':
+                this.drawing = false;
+                break;
+              case 'error':
+                console.log("error received from worker:", event);
+                break;
+              default:
+                console.log("Main thread received unhandled msg type:", event);
+            }
+          };
+
+          this.noiseWorker.onerror = (event) => {
+            console.log(event);
+          };
+        } else {
+          console.log("This browser does not support Web Workers, loading WASM on main thread.");
+          this.canvasInit();
+        }
+      },
+      async workerCanvasInit() {
+        let offscreenCanvas = this.canvas.transferControlToOffscreen();
+        offscreenCanvas.width = this.$el.parentNode.clientWidth;
+        offscreenCanvas.height = this.$el.parentNode.clientHeight;
+
+        this.noiseWorker.postMessage({msgType: "canvas", canvas: offscreenCanvas}, [offscreenCanvas]);
+
+        this.parentResizeObserver = new ResizeObserver(() => {
+          this.noiseWorker.postMessage({msgType: "resize", width: this.$el.parentNode.clientWidth, height: this.$el.parentNode.clientHeight});
+
+          this.draw();
+        });
+
+        this.parentResizeObserver.observe(this.$el.parentNode);
+      },
+      canvasInit() {
+        this.parentResizeObserver = new ResizeObserver(() => {
+          this.canvas.width = this.$el.parentNode.clientWidth;
+          this.canvas.height = this.$el.parentNode.clientHeight;
+
+          this.draw();
+        });
+
+        this.parentResizeObserver.observe(this.$el.parentNode);
+      },
+      initWatchers() {
+        this.$watch('seed', () => {
+          this.draw();
+        })
+        this.$watch('time', () => {
+          this.draw();
+        })
+        this.$watch('scale', () => {
+          this.draw();
+        })
+        this.$watch('smoothed', () => {
+          this.draw();
+        })
+      },
+      draw() {
+        if (!this.drawing) {
+          this.drawing = true;
+          if (this.workerLoaded) {
+            this.noiseWorker.postMessage({msgType: "drawNoiseArray", scale: this.scale, smoothed: this.smoothed, time: this.time, numOctaves: this.numOctaves, octaveScale: this.octaveScale, seed: this.seed});
+          } else {
+            let begin = performance.now();
+
+            if (this.smoothed) {
+              this.drawSmoothed();
+            } else {
+              this.drawSquares();
+            }
+
+            console.log(performance.now() - begin);
+            this.drawing = false;
+          }
+        } else {
+          console.log("TRIED TO DRAW WHILE DRAWING");
+        }
+      },
       drawSmoothed() {
         let ctx = this.canvas.getContext('2d');
 
-        let noise = wasm.PerlinNoise.multi_octave_with_seed(this.numOctaves, this.octaveScale, this.seed);
+        let noise = wasm.PerlinNoise.multi_octave_with_seed(this.numOctaves, this.octaveScale, BigInt(this.seed));
         
         let xScale = 0.006;
         let yScale = 0.006;
@@ -119,7 +196,7 @@
       drawSquares() {
         let ctx = this.canvas.getContext('2d');
 
-        let noise = wasm.PerlinNoise.multi_octave_with_seed(this.numOctaves, this.octaveScale, this.seed);
+        let noise = wasm.PerlinNoise.multi_octave_with_seed(this.numOctaves, this.octaveScale, BigInt(this.seed));
         
         let xScale = 0.006;
         let yScale = 0.006;
@@ -134,21 +211,6 @@
             ctx.fillRect(x, y, this.scale, this.scale);
           }
         }
-        
-      },
-      draw() {
-        let begin = performance.now();
-        if (this.smoothed) { 
-          this.drawSmoothed();
-        } else {
-          this.drawSquares();
-        }
-        console.log(performance.now() - begin);
-      },
-      main() {
-        this.noise = wasm.PerlinNoise.multi_octave_with_seed(this.numOctaves, this.octaveScale, this.seed);
-
-        this.draw();
       },
     }
   }

@@ -35,7 +35,6 @@ async function loadWasm() {
         postMessage({msgType: "drawingFinished"});
         break;
       case 'resize':
-        console.log("worker resize");
         canvas.width = event.data.width;
         canvas.height = event.data.height;
         break;
@@ -65,8 +64,6 @@ function drawNoise() {
 }
 
 function drawSmoothed(scale) {
-  //let ctx = canvas.getContext('2d');
-
   let noise = PerlinNoise.multi_octave_with_seed(numOctaves, octaveScale, BigInt(seed));
 
   let xScale = 0.006;
@@ -94,8 +91,6 @@ function drawSmoothed(scale) {
 }
 
 function drawSquares(scale) {
-  //let ctx = canvas.getContext('2d');
-
   let noise = PerlinNoise.multi_octave_with_seed(numOctaves, octaveScale, BigInt(seed));
 
   let xScale = 0.006;

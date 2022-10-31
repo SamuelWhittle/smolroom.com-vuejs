@@ -1,7 +1,5 @@
 <template>
-  <div>
     <canvas id="mainCanvas" class="main-canvas" @click="test"></canvas>
-  </div>
 </template>
 
 <script>
@@ -46,17 +44,16 @@
           this.workerCanvasInit().then(this.draw);
         }
       },
-      drawing: {
+      /*drawing: {
         handler() {
           this.$emit('drawingToggle', this.drawing);
         }
-      }
+      }*/
     },
     mounted() {
       this.canvas = document.getElementById('mainCanvas');
 
       this.initWorker().then(this.initWatchers);
-      console.log("mounted() finished");
     },
     beforeUnmount() {
       if (this.parentResizeObserver) {
@@ -78,7 +75,6 @@
                 this.workerLoaded = true;
                 break;
               case 'drawingFinished':
-                console.log("DRAWING FINISHED");
                 this.drawing = false;
                 break;
               case 'error':
@@ -105,11 +101,8 @@
         this.noiseWorker.postMessage({msgType: "canvas", canvas: offscreenCanvas}, [offscreenCanvas]);
 
         this.parentResizeObserver = new ResizeObserver(() => {
-          console.log("parent Resize Observed");
-
           this.noiseWorker.postMessage({msgType: "resize", width: this.$el.parentNode.clientWidth, height: this.$el.parentNode.clientHeight});
 
-          //this.main();
           this.draw();
         });
 
@@ -117,7 +110,6 @@
       },
       canvasInit() {
         this.parentResizeObserver = new ResizeObserver(() => {
-          console.log("parent Resize Observed");
           this.canvas.width = this.$el.parentNode.clientWidth;
           this.canvas.height = this.$el.parentNode.clientHeight;
 
@@ -128,25 +120,20 @@
       },
       initWatchers() {
         this.$watch('seed', () => {
-          console.log("SEED CHANGED");
           this.draw();
         })
         this.$watch('time', () => {
-          console.log("TIME CHANGED");
           this.draw();
         })
         this.$watch('scale', () => {
-          console.log("SCALE CHANGED");
           this.draw();
         })
         this.$watch('smoothed', () => {
-          console.log("SMOOTHED CHANGED");
           this.draw();
         })
       },
       draw() {
         if (!this.drawing) {
-          console.log("STARTING TO DRAW");
           this.drawing = true;
           if (this.workerLoaded) {
             this.noiseWorker.postMessage({msgType: "drawNoiseArray", scale: this.scale, smoothed: this.smoothed, time: this.time, numOctaves: this.numOctaves, octaveScale: this.octaveScale, seed: this.seed});

@@ -1,35 +1,3 @@
-<script>
-  import PerlinNoiseZeroWasm from '@/components/projects/PerlinNoiseZeroWasm.vue';
-
-  export default {
-    data() {
-      return {
-        noiseDepth: 100,
-        seed: BigInt(Math.floor(Math.random() * 100)),
-        time: 0,
-        scale: 25,
-        smoothed: true,
-      }
-    },
-    mounted() {
-      this.newSeed();
-    },
-    methods: {
-      newSeed() {
-        this.seed = BigInt(Math.floor(Math.random() * 100));
-      },
-    },
-    provide() {
-      return {
-        
-      }
-    },
-    components: {
-      PerlinNoiseZeroWasm,
-    }
-  }
-</script>
-
 <template>
     <div class="canvasContainer">
       <PerlinNoiseZeroWasm :seed="seed" :time="Number(time)" :scale="Number(scale)" :smoothed="smoothed"/>
@@ -52,3 +20,31 @@
 </template>
 
 <style scoped src="@/assets/css/views/perlin-noise-zero-control.css"></style>
+
+<script>
+  import PerlinNoiseZeroWasm from '@/components/projects/PerlinNoiseZeroWasm.vue';
+
+  export default {
+    data() {
+      return {
+        noiseDepth: 100,
+        seed: Math.floor(Math.random() * 1000),
+        time: 0,
+        scale: 25,
+        smoothed: false,
+        controlsDisabled: false,
+      }
+    },
+    mounted() {
+      //this.newSeed();
+    },
+    methods: {
+      newSeed() {
+        this.seed = Math.floor(Math.random() * 1000);
+      },
+    },
+    components: {
+      PerlinNoiseZeroWasm,
+    }
+  }
+</script>

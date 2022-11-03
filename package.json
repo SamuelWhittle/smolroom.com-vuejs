@@ -2,7 +2,7 @@
   "name": "smolroom",
   "version": "0.1.0",
   "scripts": {
-    "dev": "vite",
+    "dev": "run-p type-check build-only && ./devdeploy.sh",
     "build": "run-p type-check build-only && ./deploy.sh",
     "preview": "vite preview --port 4173",
     "build-only": "vite build",
@@ -23,6 +23,7 @@
     "vite": "^3.0.9",
     "vite-plugin-top-level-await": "^1.1.1",
     "vite-plugin-wasm": "^3.0.0",
-    "vue-tsc": "^0.40.7"
+    "vue-tsc": "^0.40.7",
+    "worker-loader": "^3.0.8"
   }
 }

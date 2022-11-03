@@ -1,6 +1,10 @@
 <template>
     <div class="canvasContainer">
-      <PerlinNoiseZeroParallelWasm :seed="seed" :time="Number(time)" :scale="Number(scale)" :smoothed="smoothed"/>
+      <PerlinNoiseZeroParallelWasm :concurrency="concurrency" 
+        :seed="seed" 
+        :time="Number(time)" 
+        :scale="Number(scale)" 
+        :smoothed="smoothed"/>
     </div>
     <div class="controls flex flex-dir-column">
       <div class="control flex flex-justify-space-between">
@@ -32,11 +36,8 @@
         time: 0,
         scale: 25,
         smoothed: false,
-        controlsDisabled: false,
+        concurrency: window.navigator.hardwareConcurrency,
       }
-    },
-    mounted() {
-      //this.newSeed();
     },
     methods: {
       newSeed() {

@@ -101,7 +101,7 @@
         this.noiseWorker.postMessage({msgType: "canvas", canvas: offscreenCanvas}, [offscreenCanvas]);
 
         this.parentResizeObserver = new ResizeObserver(() => {
-          this.noiseWorker.postMessage({msgType: "resize", width: this.$el.parentNode.clientWidth, height: this.$el.parentNode.clientHeight});
+          this.noiseWorker.postMessage({msgType: "resizeCanvas", width: this.$el.parentNode.clientWidth, height: this.$el.parentNode.clientHeight});
 
           this.draw();
         });

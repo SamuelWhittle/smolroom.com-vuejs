@@ -34,7 +34,7 @@ async function loadWasm() {
         drawNoise();
         postMessage({msgType: "drawingFinished"});
         break;
-      case 'resize':
+      case 'resizeCanvas':
         canvas.width = event.data.width;
         canvas.height = event.data.height;
         break;

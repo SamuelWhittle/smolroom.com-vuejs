@@ -39,67 +39,98 @@ export default {
     },
     data() {
       return {
-        workerLoaded: false,
+        workersAtWork: 0,
+        workersReady: false,
         drawing: false
       }
     },
     watch: {
-      /*workerLoaded: {
-        handler() {
-          this.workerCanvasInit().then(this.draw);
+        workersAtWork: {
+            handler() {
+                if (this.workersAtWork >= this.concurrency) {
+                    //console.log("All Workers have clocked in...");
+                    this.workersReady = true;
+                }
+            }
+        },
+        workersReady: {
+            handler() {
+                if (this.workersReady) {
+                    this.initWatchers();
+                }
+            }
         }
-      },*/
-      /*drawing: {
-        handler() {
-          this.$emit('drawingToggle', this.drawing);
-        }
-      }*/
     },
     mounted() {
         this.canvas = document.getElementById('mainCanvas');
-        this.parentResizeObserver = new ResizeObserver(() => {
-            this.canvas.width = this.$el.parentNode.clientWidth;
-            this.canvas.height = this.$el.parentNode.clientHeight;
+        this.canvas.width = this.$el.parentNode.clientWidth;
+        this.canvas.height = this.$el.parentNode.clientHeight;
 
-            this.draw();
-        });
+        this.begin = null;
 
-        this.parentResizeObserver.observe(this.$el.parentNode);
-
-        this.waiter = new Worker('/workers/WaiterWorker.js');
+        this.waiter = null;
         this.workers = [];
-        this.sab = new SharedArrayBuffer(1024);
-        this.mu = new Mutex();
-        this.wg = new WaitGroup(this.concurrency);
+        this.sab = null;
+        this.mu = null;
+        this.wg = null;
+
+        this.xScale = 0.006;
+        this.yScale = 0.006;
+        this.tScale = 0.06;
 
         if (window.Worker) {
-            console.log("Main thread initializing workers...");
-
-            for(let i = 0; i < this.concurrency; i++) {
-                this.workers.push(new Worker('/workers/PerlinNoiseWasmWorkerParallel.js'));
-            }
-
-            this.waiter.postMessage({swg:this.wg, sc:this.sab});
-
-            this.workerLoaded = true;
+            this.initParallel();
         } else {
-            console.log("This browser does not support Web Workers, using WASM on main thread.");
+            //console.log("This browser does not support Web Workers, using WASM on main thread.");
         }
 
         //this.initWatchers();
-
-        //this.initWorker().then(this.initWatchers);
     },
     beforeUnmount() {
         if (this.parentResizeObserver) {
             this.parentResizeObserver.disconnect();
         }
-        if (this.noiseWorker) {
-            this.noiseWorker.terminate();
+        if (this.waiter) {
+            this.waiter.terminate();
         }
     },
     methods: {
+        initParallel() {
+            //console.log("Main thread initializing workers...");
+            
+            this.mu = new Mutex();
+            //this.wg = new WaitGroup(this.concurrency);
+
+            this.waiter = new Worker(new URL('../../assets/workers/WaiterWorker.js', import.meta.url));
+            this.waiter.onmessage = (event) => {
+                switch (event.data.msgType) {
+                case 'noiseReady':
+                    this.drawNoise();
+                    break;
+                default:
+                    //console.log("Main thread received unhandled msg type:", event);
+                }
+            };
+            this.waiter.onerror = (event) => {
+                //console.log(event);
+            };
+
+            for(let i = 0; i < this.concurrency; i++) {
+                //this.workers.push(new Worker('/workers/PerlinNoiseWasmWorkerParallel.js'));
+                this.workers.push(new Worker(new URL('../../assets/workers/PerlinNoiseWasmWorkerParallel.js', import.meta.url)));
+                this.workers[i].onmessage = (event) => {
+                    switch (event.data.msgType) {
+                        case 'clockIn':
+                            this.workersAtWork ++;
+                            break;
+                        default:
+                            //console.log("Main thread received unhandled msg type:", event);
+                    }
+                };
+            }
+        },
         initWatchers() {
+            //console.log("Initializing Watchers...");
             this.$watch('seed', () => {
                 this.draw();
             })
@@ -112,29 +143,73 @@ export default {
             this.$watch('smoothed', () => {
                 this.draw();
             })
+
+            this.parentResizeObserver = new ResizeObserver(() => {
+                this.canvas.width = this.$el.parentNode.clientWidth;
+                this.canvas.height = this.$el.parentNode.clientHeight;
+
+                this.draw();
+            });
+
+            this.parentResizeObserver.observe(this.$el.parentNode);
         },
         draw() {
+            //console.log("draw()");
             if (!this.drawing) {
                 this.drawing = true;
-                if (this.workerLoaded) {
+                if (this.workersReady && crossOriginIsolated) {
+                    this.begin = performance.now();
+                    //this.wg.add(this.concurrency);
+                    this.currentScale = this.scale;
+                    this.noiseWidth = Math.ceil(this.canvas.width / this.currentScale);
+                    this.noiseHeight = Math.ceil(this.canvas.height / this.currentScale);
+                    this.sab = new SharedArrayBuffer(this.noiseWidth * this.noiseHeight * 4 * 4);
+                    this.wg = new WaitGroup(this.concurrency);
+
+                    this.waiter.postMessage({swg:this.wg, sc:this.sab});
+                    
                     for(let i = 0; i < this.workers.length; i ++) {
-                        this.workers[i].postMessage({swg:this.wg, smu:this.mu, sc:this.sab, id:i});
+                        this.workers[i].postMessage({
+                            swg:this.wg, smu:this.mu, sc:this.sab,
+                            groupTotal:this.concurrency, id:i,
+                            numOctaves:this.numOctaves, octaveScale:this.octaveScale, seed:this.seed,
+                            time:this.time,
+                            width: this.noiseWidth, scale: this.currentScale,
+                            xScale: this.xScale, yScale: this.yScale, tScale: this.tScale,
+                        });
                     }
                 } else {
-                    let begin = performance.now();
+                    this.begin = performance.now();
 
-                    if (this.smoothed) {
-                        this.drawSmoothed();
-                    } else {
-                        this.drawSquares();
-                    }
+                    this.drawSmoothed();
 
-                    console.log(performance.now() - begin);
+                    //console.log(performance.now() - this.begin);
                     this.drawing = false;
                 }
             } else {
-                console.log("TRIED TO DRAW WHILE DRAWING");
+                //console.log("TRIED TO DRAW WHILE DRAWING");
             }
+        },
+        drawNoise() {
+            let ctx = this.canvas.getContext('2d');
+            ctx.imageSmoothingEnabled = this.smoothed;
+            ctx.imageSmoothingQuality = "high";
+            //const noise = new Int32Array(this.sab);
+
+            this.mu.lock();
+
+            let imgData = new ImageData(this.noiseWidth, this.noiseHeight);
+
+            imgData.data.set(Uint8ClampedArray.from(new Int32Array(this.sab)));
+
+            this.mu.unlock();
+
+            createImageBitmap(imgData, {resizeQuality: "pixelated"}).then((bitMap) => {
+                ctx.drawImage(bitMap, 0, 0, imgData.width * this.currentScale, imgData.height * this.currentScale);
+            });
+
+            //console.log(performance.now() - this.begin);
+            this.drawing = false;
         },
         drawSmoothed() {
             let ctx = this.canvas.getContext('2d');
@@ -156,43 +231,14 @@ export default {
                                 .flatMap((_, x) => [x * this.scale * xScale, y * this.scale * yScale, this.time * tScale])), 3
                         )
                     ).map((value) => Math.round(wasm.PerlinNoise.range_map(value, -0.8, 0.8, 0, 255)))
-                        .flatMap((value) => [value, value, value, 255])));
-
-            /*let noisePositions = new Array(Math.ceil(this.canvas.height / this.scale)).fill()
-              .flatMap((_, y) => new Array(Math.ceil(this.canvas.width / this.scale)).fill()
-              .flatMap((_, x) => [x * this.scale * xScale, y * this.scale * yScale, this.time * tScale]));
-
-              imgData.data.set(
-              Uint8ClampedArray.from(
-              Array.from(noise.get_noise_img_data(noisePositions, 3))
-              .map((value) => Math.round(wasm.PerlinNoise.range_map(value, -0.8, 0.8, 0, 255)))
-              .flatMap((value) => [value, value, value, 255])
-              )
-              );*/
+                        .flatMap((value) => [value, value, value, 255])
+                )
+            );
 
             createImageBitmap(imgData).then((bitMap) => {
                 ctx.drawImage(bitMap, 0, 0, imgData.width * this.scale, imgData.height * this.scale);
             });
 
-        },
-        drawSquares() {
-            let ctx = this.canvas.getContext('2d');
-
-            let noise = wasm.PerlinNoise.multi_octave_with_seed(this.numOctaves, this.octaveScale, BigInt(this.seed));
-
-            let xScale = 0.006;
-            let yScale = 0.006;
-            let tScale = 0.06;
-
-            for(let x = 0; x < this.canvas.width; x += this.scale) {
-                for(let y = 0; y < this.canvas.height; y += this.scale) {
-                    let color = noise.get_fractal_noise_value([x * xScale, y * yScale, this.time * tScale]);
-                    let r, g, b;
-                    r = g = b = wasm.PerlinNoise.range_map(color, -0.8, 0.8, 0, 255);
-                    ctx.fillStyle = `rgb( ${r}, ${g}, ${b})`;
-                    ctx.fillRect(x, y, this.scale, this.scale);
-                }
-            }
         },
     }
 }

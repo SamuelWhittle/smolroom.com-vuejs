@@ -1,4 +1,4 @@
-importScripts('@/assets/classes/ParallelSync.js');
+importScripts('/classes/ParallelSync.js');
 
 self.onmessage = event => {
   console.log('waiter started');

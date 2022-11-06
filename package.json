@@ -2,7 +2,8 @@
   "name": "smolroom",
   "version": "0.1.0",
   "scripts": {
-    "dev": "run-p type-check build-only && ./devdeploy.sh",
+    "dev": "vite",
+    "devbuild": "run-p type-check build-only && ./devdeploy.sh",
     "build": "run-p type-check build-only && ./deploy.sh",
     "preview": "vite preview --port 4173",
     "build-only": "vite build",

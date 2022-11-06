@@ -67,7 +67,7 @@
       async initWorker() {
         if (window.Worker) {
           console.log("Main thread initializing worker...");
-          this.noiseWorker = new Worker('/workers/PerlinNoiseWasmWorker.js');
+          this.noiseWorker = new Worker(new URL('../../assets/workers/PerlinNoiseWasmWorker.js', import.meta.url));
 
           this.noiseWorker.onmessage = (event) => {
             switch (event.data.msgType) {
@@ -150,7 +150,7 @@
             this.drawing = false;
           }
         } else {
-          console.log("TRIED TO DRAW WHILE DRAWING");
+          //console.log("TRIED TO DRAW WHILE DRAWING");
         }
       },
       drawSmoothed() {

@@ -1,6 +1,20 @@
 importScripts('/classes/ParallelSync.js');
 
 self.onmessage = event => {
+  switch (event.data.msgType) {
+    case "startWaiting":
+      startWaiting(event);
+      break;
+    case "termiante":
+      //console.log("waiter terminated");
+      self.close();
+      break;
+  }
+};
+
+//console.log("Manager Initialized...");
+
+function startWaiting(event) {
   //console.log('waiter started');
   // Deserialize data.
   const {swg} = event.data;
@@ -14,6 +28,4 @@ self.onmessage = event => {
   //console.log("final value:", count)
   //console.log('waiter done');
   postMessage({msgType: "noiseReady"});
-};
-
-//console.log("Manager Initialized...");
+}

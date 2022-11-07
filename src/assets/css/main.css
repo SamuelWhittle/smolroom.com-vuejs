@@ -76,6 +76,10 @@ body {
     color: #FFFFFF;
 }
 
+.display-none {
+    display: none;
+}
+
 /* Sizing */
 
 .fullscreen {

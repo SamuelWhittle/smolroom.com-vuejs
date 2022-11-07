@@ -1,6 +1,6 @@
 <template>
     <div class="canvasContainer">
-      <PerlinNoiseZeroParallelWasm :concurrency="concurrency" 
+      <PerlinNoiseZeroParallelWasm :concurrency="Number(concurrency)" 
         :seed="seed" 
         :time="Number(time)" 
         :scale="Number(scale)" 
@@ -14,6 +14,10 @@
       <div class="control flex flex-justify-space-between">
         <label class="easy-on-the-eyes" for="resolution">Square Size: {{this.scale}}</label>
         <input class="slider" type="range" id="resolution" min="1" max="25" step="1" v-model="scale"/>
+      </div>
+      <div class="control flex flex-justify-space-between">
+        <label class="easy-on-the-eyes" for="concurrency">Concurrency: {{this.concurrency}}</label>
+        <input class="slider" type="range" id="concurrency" min="1" :max="maxConcurrency" step="1" v-model="concurrency"/>
       </div>
       <div class="flex">
         <label class="easy-on-the-eyes" for="smoothed">Smoothed?:</label>
@@ -37,6 +41,7 @@
         scale: 25,
         smoothed: false,
         concurrency: window.navigator.hardwareConcurrency,
+        maxConcurrency: window.navigator.hardwareConcurrency,
       }
     },
     methods: {

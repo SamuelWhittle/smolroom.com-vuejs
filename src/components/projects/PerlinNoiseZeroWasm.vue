@@ -1,5 +1,6 @@
 <template>
     <canvas id="mainCanvas" class="main-canvas" @click="test"></canvas>
+    <div class="displayPerformance" :class="{hidePerformance: performanceDisplay}">{{performance}}</div>
 </template>
 
 <script>
@@ -30,12 +31,17 @@
       smoothed: {
         type: Boolean,
         default: false
-      }
+      },
+      performanceDisplay: {
+          type: Boolean,
+          default: false,
+      },
     },
     data() {
       return {
         workerLoaded: false,
-        drawing: false
+        drawing: false,
+        performance: 0,
       }
     },
     watch: {
@@ -52,6 +58,8 @@
     },
     mounted() {
       this.canvas = document.getElementById('mainCanvas');
+
+      this.begin = null;
 
       this.initWorker().then(this.initWatchers);
     },
@@ -75,6 +83,7 @@
                 this.workerLoaded = true;
                 break;
               case 'drawingFinished':
+                this.performance = performance.now() - this.begin;
                 this.drawing = false;
                 break;
               case 'error':
@@ -136,9 +145,10 @@
         if (!this.drawing) {
           this.drawing = true;
           if (this.workerLoaded) {
+            this.begin = performance.now();
             this.noiseWorker.postMessage({msgType: "drawNoiseArray", scale: this.scale, smoothed: this.smoothed, time: this.time, numOctaves: this.numOctaves, octaveScale: this.octaveScale, seed: this.seed});
           } else {
-            let begin = performance.now();
+            this.begin = performance.now();
 
             if (this.smoothed) {
               this.drawSmoothed();
@@ -146,7 +156,7 @@
               this.drawSquares();
             }
 
-            console.log(performance.now() - begin);
+            this.performance = performance.now() - this.begin;
             this.drawing = false;
           }
         } else {

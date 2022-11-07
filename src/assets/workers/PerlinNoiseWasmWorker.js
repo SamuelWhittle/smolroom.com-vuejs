@@ -52,11 +52,7 @@ async function loadWasm() {
 }
 
 function drawNoise() {
-  let begin = performance.now();
-  
   drawSmoothed(scale);
-
-  console.log(performance.now() - begin);
 }
 
 function drawSmoothed(scale) {

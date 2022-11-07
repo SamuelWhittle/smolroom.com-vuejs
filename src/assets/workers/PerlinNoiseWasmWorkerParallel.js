@@ -9,6 +9,22 @@ async function loadWasm() {
   await wasm_bindgen('/wasm/perlin_noise/perlin_noise_bg.wasm');
 
   self.onmessage = event => {
+    switch (event.data.msgType) {
+      case "getNoise":
+        getNoise(event);
+        break;
+      case "terminate":
+        //console.log("worker terminated");
+        self.close();
+        break;
+    }
+  };
+
+  //console.log("wasm worker initialized...");
+  postMessage({msgType: "clockIn"});
+}
+
+function getNoise(event) {
     // Deserialize data.
     const {
       swg, smu, sc,
@@ -67,8 +83,4 @@ async function loadWasm() {
     // Signal termination.
     //console.log('worker done');
     wg.done();
-  };
-
-  //console.log("wasm worker initialized...");
-  postMessage({msgType: "clockIn"});
 }

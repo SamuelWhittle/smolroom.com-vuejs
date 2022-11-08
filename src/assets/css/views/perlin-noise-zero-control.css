@@ -17,6 +17,10 @@ input.slider {
 }
 
 @media (max-width: 40rem) {
+    .canvasContainer {
+        height: 60vh;
+    }
+    
     .controls {
         width: 100%;
     }

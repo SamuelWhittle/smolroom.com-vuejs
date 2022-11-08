@@ -16,8 +16,8 @@
         <input class="slider" type="range" id="resolution" min="1" max="25" step="1" v-model="scale"/>
       </div>
       <div class="control flex flex-justify-space-between">
-        <label class="easy-on-the-eyes" for="concurrency">Concurrency: {{this.concurrency}}</label>
-        <input class="slider" type="range" id="concurrency" min="1" :max="maxConcurrency" step="1" v-model="concurrency"/>
+        <label class="easy-on-the-eyes" for="concurrency">Concurrency:</label>
+        <input id="concurrency" v-model="inputConcurrency" :onkeydown="checkEnter"/>
       </div>
       <div class="flex">
         <label class="easy-on-the-eyes" for="smoothed">Smoothed?:</label>
@@ -40,17 +40,53 @@
         time: 0,
         scale: 25,
         smoothed: false,
+        inputConcurrency: window.navigator.hardwareConcurrency,
         concurrency: window.navigator.hardwareConcurrency,
-        maxConcurrency: window.navigator.hardwareConcurrency,
       }
     },
+    mounted() {
+        this.debounceInput = this.debounce(() => {
+            this.setConcurrency()
+        }, 500);
+    },
     methods: {
-      newSeed() {
-        this.seed = Math.floor(Math.random() * 1000);
-      },
+        newSeed() {
+            this.seed = Math.floor(Math.random() * 1000);
+        },
+        checkEnter(event) {
+            if (event.key === "Enter") {
+                this.validateInputConcurrency();
+            }
+        },
+        validateInputConcurrency() {
+            console.log("validating");
+            if (this.inputConcurrency > window.navigator.hardwareConcurrency) {
+                this.inputConcurrency = window.navigator.hardwareConcurrency;
+            } else if (this.inputConcurrency <= 1) {
+                this.inputConcurrency = 1;
+            }
+            this.debounceInput();
+        },
+        setConcurrency() {
+            console.log("setConcurrency", this.inputConcurrency);
+            this.concurrency = this.inputConcurrency;
+        },
+        debounce(func, wait){
+            let timeout;
+
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
     },
     components: {
-      PerlinNoiseZeroParallelWasm,
+        PerlinNoiseZeroParallelWasm,
     }
   }
 </script>

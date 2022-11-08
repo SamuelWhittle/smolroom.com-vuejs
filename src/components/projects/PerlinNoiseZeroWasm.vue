@@ -146,7 +146,14 @@
           this.drawing = true;
           if (this.workerLoaded) {
             this.begin = performance.now();
-            this.noiseWorker.postMessage({msgType: "drawNoiseArray", scale: this.scale, smoothed: this.smoothed, time: this.time, numOctaves: this.numOctaves, octaveScale: this.octaveScale, seed: this.seed});
+            this.noiseWorker.postMessage({msgType: "drawNoiseArray", 
+                scale: this.scale, 
+                smoothed: this.smoothed, 
+                time: this.time, 
+                numOctaves: this.numOctaves, 
+                octaveScale: this.octaveScale, 
+                seed: this.seed
+            });
           } else {
             this.begin = performance.now();
 

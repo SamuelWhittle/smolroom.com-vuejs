@@ -17,7 +17,7 @@ self.onmessage = event => {
 function startWaiting(event) {
   //console.log('waiter started');
   // Deserialize data.
-  const {swg} = event.data;
+  const { swg } = event.data;
   const wg = WaitGroup.connect(swg);
   //const count = new Int32Array(sc);
 
@@ -26,6 +26,5 @@ function startWaiting(event) {
 
   // The following lines will always execute last.
   //console.log("final value:", count)
-  //console.log('waiter done');
-  postMessage({msgType: "noiseReady"});
+  console.log('waiter done');
 }

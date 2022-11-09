@@ -16,7 +16,7 @@
         <input class="slider" type="range" id="resolution" min="1" max="25" step="1" v-model="scale"/>
       </div>
       <div class="control flex flex-justify-space-between">
-        <label class="easy-on-the-eyes" for="concurrency">Concurrency:</label>
+        <label class="easy-on-the-eyes" for="concurrency">Concurrency: {{concurrency}}</label>
         <input class="slider" type="range" id="concurrency" min="1" :max="maxConcurrency" step="1" v-model="inputConcurrency"/>
       </div>
       <div class="flex">

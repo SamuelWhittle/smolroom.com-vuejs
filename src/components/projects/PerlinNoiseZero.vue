@@ -26,7 +26,7 @@
       },
       seed: {
         type: Number,
-        default: Math.floor(Math.random() * 900000009 * 11111111),
+        default: Math.floor(Math.random() * 1024),
       },
       time: {
         type: Number,

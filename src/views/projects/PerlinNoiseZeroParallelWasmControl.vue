@@ -17,7 +17,7 @@
       </div>
       <div class="control flex flex-justify-space-between">
         <label class="easy-on-the-eyes" for="concurrency">Concurrency:</label>
-        <input id="concurrency" v-model="inputConcurrency" :onkeydown="checkEnter"/>
+        <input class="slider" type="range" id="concurrency" min="1" :max="maxConcurrency" step="1" v-model="inputConcurrency"/>
       </div>
       <div class="flex">
         <label class="easy-on-the-eyes" for="smoothed">Smoothed?:</label>
@@ -31,6 +31,7 @@
 
 <script>
   import PerlinNoiseZeroParallelWasm from '@/components/projects/PerlinNoiseZeroParallelWasm.vue';
+  import { debounce } from '@/assets/debounce.js';
 
   export default {
     data() {
@@ -42,10 +43,18 @@
         smoothed: false,
         inputConcurrency: window.navigator.hardwareConcurrency,
         concurrency: window.navigator.hardwareConcurrency,
+        maxConcurrency: window.navigator.hardwareConcurrency,
       }
     },
+    watch: {
+        inputConcurrency: {
+            handler() {
+                this.validateInputConcurrency()
+            }
+        }
+    },
     mounted() {
-        this.debounceInput = this.debounce(() => {
+        this.debounceInput = debounce(() => {
             this.setConcurrency()
         }, 500);
     },
@@ -59,7 +68,7 @@
             }
         },
         validateInputConcurrency() {
-            console.log("validating");
+            //console.log("validating");
             if (this.inputConcurrency > window.navigator.hardwareConcurrency) {
                 this.inputConcurrency = window.navigator.hardwareConcurrency;
             } else if (this.inputConcurrency <= 1) {
@@ -68,22 +77,9 @@
             this.debounceInput();
         },
         setConcurrency() {
-            console.log("setConcurrency", this.inputConcurrency);
-            this.concurrency = this.inputConcurrency;
+            //console.log("setConcurrency", this.inputConcurrency);
+            this.concurrency = Number(this.inputConcurrency);
         },
-        debounce(func, wait){
-            let timeout;
-
-            return function executedFunction(...args) {
-                const later = () => {
-                    clearTimeout(timeout);
-                    func(...args);
-                };
-
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-            };
-        }
     },
     components: {
         PerlinNoiseZeroParallelWasm,

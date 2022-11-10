@@ -1,3 +1,11 @@
+<template>
+  <div class="fullscreen">
+    <canvas id="mainCanvas" class="main-canvas"></canvas>
+  </div>
+</template>
+
+<style scoped src="@/assets/css/components/canvas-component-base.css"></style>
+
 <script>
   import { PerlinNoise, map } from '@/assets/classes/PerlinNoise';
 
@@ -37,7 +45,8 @@
         this.drawLines();
       });
 
-      this.parentResizeObserver.observe(this.$el.parentNode);
+      this.parentResizeObserver.observe(this.canvas.parentNode);
+      console.log(this.canvas);
 
       if (this.fps > 0) {
         this.interval = setInterval(() => this.drawLines(), 1000/this.fps);
@@ -112,15 +121,9 @@
         this.intensityNoise = new PerlinNoise([this.dims[0], this.dims[1], 1000], 10, 2, 1/2, 2);
       },
       adjustCanvasSize() {
-        this.canvas.width = this.$el.parentNode.clientWidth;
-        this.canvas.height = this.$el.parentNode.clientHeight;
+        this.canvas.width = this.canvas.parentNode.clientWidth;
+        this.canvas.height = this.canvas.parentNode.clientHeight;
       },
     },
   }
 </script>
-
-<template>
-  <canvas id="mainCanvas" class="main-canvas"></canvas>
-</template>
-
-<style scoped src="@/assets/css/components/canvas-component-base.css"></style>

@@ -1,6 +1,10 @@
 <template>
     <div class="canvasContainer">
-      <PerlinNoiseZeroWasm :seed="seed" :time="Number(time)" :scale="Number(scale)" :smoothed="smoothed"/>
+      <PerlinNoiseZeroWasm :concurrency="Number(concurrency)" 
+        :seed="seed" 
+        :time="Number(time)" 
+        :scale="Number(scale)" 
+        :smoothed="smoothed"/>
     </div>
     <div class="controls flex flex-dir-column">
       <div class="control flex flex-justify-space-between">
@@ -10,6 +14,10 @@
       <div class="control flex flex-justify-space-between">
         <label class="easy-on-the-eyes" for="resolution">Square Size: {{this.scale}}</label>
         <input class="slider" type="range" id="resolution" min="1" max="25" step="1" v-model="scale"/>
+      </div>
+      <div class="control flex flex-justify-space-between">
+        <label class="easy-on-the-eyes" for="concurrency">Concurrency: {{concurrency}}</label>
+        <input class="slider" type="range" id="concurrency" min="1" :max="maxConcurrency" step="1" v-model="inputConcurrency"/>
       </div>
       <div class="flex">
         <label class="easy-on-the-eyes" for="smoothed">Smoothed?:</label>
@@ -23,6 +31,7 @@
 
 <script>
   import PerlinNoiseZeroWasm from '@/components/projects/PerlinNoiseZeroWasm.vue';
+  import { debounce } from '@/assets/functions/debounce.js';
 
   export default {
     data() {
@@ -32,19 +41,48 @@
         time: 0,
         scale: 25,
         smoothed: false,
-        controlsDisabled: false,
+        inputConcurrency: window.navigator.hardwareConcurrency,
+        concurrency: window.navigator.hardwareConcurrency,
+        maxConcurrency: window.navigator.hardwareConcurrency,
       }
     },
+    watch: {
+        inputConcurrency: {
+            handler() {
+                this.validateInputConcurrency()
+            }
+        }
+    },
     mounted() {
-      //this.newSeed();
+        this.debounceInput = debounce(() => {
+            this.setConcurrency()
+        }, 500);
     },
     methods: {
-      newSeed() {
-        this.seed = Math.floor(Math.random() * 1000);
-      },
+        newSeed() {
+            this.seed = Math.floor(Math.random() * 1000);
+        },
+        checkEnter(event) {
+            if (event.key === "Enter") {
+                this.validateInputConcurrency();
+            }
+        },
+        validateInputConcurrency() {
+            //console.log("validating");
+            if (this.inputConcurrency > window.navigator.hardwareConcurrency) {
+                this.inputConcurrency = window.navigator.hardwareConcurrency;
+            } else if (this.inputConcurrency <= 1) {
+                this.inputConcurrency = 1;
+            }
+            this.debounceInput();
+        },
+        setConcurrency() {
+            //console.log("setConcurrency", this.inputConcurrency);
+            this.concurrency = Number(this.inputConcurrency);
+        },
     },
     components: {
-      PerlinNoiseZeroWasm,
+        PerlinNoiseZeroWasm,
     }
   }
 </script>

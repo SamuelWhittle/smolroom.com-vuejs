@@ -2,19 +2,12 @@ import type { Project } from '@/assets/types';
 
 export const PROJECTLIST: Project[] = [
   {
-    id: 7,
-    name: 'perlin_noise_zero_parallel_wasm',
-    title: "Parallel Wasm Perlin Noise Example 0",
+    id: 6,
+    name: 'perlin_noise_zero_wasm',
+    title: "Wasm Perlin Noise Example 0",
     description: "",
     previewType: 'img',
   },
-  /*{
-      id: 6,
-      name: 'perlin_noise_zero_wasm',
-      title: "Wasm Perlin Noise Example 0",
-      description: "",
-      previewType: 'img',
-  },*/
   {
     id: 5,
     name: 'perlin_noise_one',

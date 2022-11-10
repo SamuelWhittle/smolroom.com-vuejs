@@ -6,9 +6,9 @@ import DesaturationScaleControl from '@/views/projects/DesaturationScaleControl.
 import PerlinNoiseZeroControl from '@/views/projects/PerlinNoiseZeroControl.vue'
 import CircumcenterControl from '@/views/projects/CircumcenterControl.vue'
 import PerlinNoiseOneControl from '@/views/projects/PerlinNoiseOneControl.vue'
+import PerlinNoiseOne from '@/components/projects/PerlinNoiseOne.vue'
 import LEDMatrixControl from '@/views/projects/LEDMatrixControl.vue'
 import PerlinNoiseZeroWasmControl from '@/views/projects/PerlinNoiseZeroWasmControl.vue';
-import PerlinNoiseZeroParallelWasmControl from '@/views/projects/PerlinNoiseZeroParallelWasmControl.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -41,7 +41,7 @@ const router = createRouter({
     {
       path: '/perlin_noise_one',
       name: 'Perlin Noise Example 1',
-      component: PerlinNoiseOneControl
+      component: PerlinNoiseOne
     },
     {
       path: '/circumcenter',
@@ -57,11 +57,6 @@ const router = createRouter({
       path: '/perlin_noise_zero_wasm',
       name: 'Wasm Perlin Noise Example 0',
       component: PerlinNoiseZeroWasmControl
-    },
-    {
-      path: '/perlin_noise_zero_parallel_wasm',
-      name: 'Parallel Wasm Perlin Noise Example 0',
-      component: PerlinNoiseZeroParallelWasmControl
     },
   ]
 })

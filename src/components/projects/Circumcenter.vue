@@ -1,3 +1,9 @@
+<template>
+  <canvas id="mainCanvas" class="main-canvas"></canvas>
+</template>
+
+<style scoped src="@/assets/css/components/canvas-component-base.css"></style>
+
 <script>
   import { Triangle } from '@/assets/classes/Triangle';
 
@@ -34,13 +40,13 @@
       this.redrawCanvas();
       
       this.parentResizeObserver = new ResizeObserver(() => {
-        this.canvas.width = this.$el.parentNode.clientWidth;
-        this.canvas.height = this.$el.parentNode.clientHeight;
+        this.canvas.width = this.canvas.parentNode.clientWidth;
+        this.canvas.height = this.canvas.parentNode.clientHeight;
 
         this.redrawCanvas();
       });
 
-      this.parentResizeObserver.observe(this.$el.parentNode);
+      this.parentResizeObserver.observe(this.canvas.parentNode);
     },
     methods: {
       redrawCanvas() {
@@ -52,14 +58,8 @@
         this.triangle.drawCircumcenter(this.canvas.width, this.canvas.height, this.ctx);
       }
     },
-    beforeDestroy() {
+    beforeUnmount() {
       this.parentResizeObserver.disconnect();
     },
   }
 </script>
-
-<template>
-  <canvas id="mainCanvas" class="main-canvas"></canvas>
-</template>
-
-<style scoped src="@/assets/css/components/canvas-component-base.css"></style>

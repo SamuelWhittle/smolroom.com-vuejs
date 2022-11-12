@@ -76,4 +76,4 @@ class WaitGroup {
   }
 }
 
-//export { Mutex, WaitGroup };
+export { Mutex, WaitGroup };

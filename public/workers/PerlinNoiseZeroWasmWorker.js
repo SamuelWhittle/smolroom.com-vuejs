@@ -1,4 +1,5 @@
 importScripts('/classes/ParallelSync.js', '/wasm/perlin_noise/perlin_noise.js');
+//import { Mutex, WaitGroup } from '/public/classes/ParallelSync.mjs';
 
 const PerlinNoise = wasm_bindgen.PerlinNoise;
 const { range_map } = wasm_bindgen;

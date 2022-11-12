@@ -1,4 +1,4 @@
-importScripts('/classes/ParallelSync.js', '/wasm/perlin_noise/perlin_noise.js');
+importScripts('/wasm/perlin_noise/perlin_noise.js');
 
 const PerlinNoise = wasm_bindgen.PerlinNoise;
 
@@ -13,7 +13,6 @@ async function loadWasm() {
         getNoiseArray(event);
         break;
       case "terminate":
-        //console.log("worker terminated");
         self.close();
         break;
     }

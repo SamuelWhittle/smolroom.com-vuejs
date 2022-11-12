@@ -7,6 +7,8 @@
 <style scoped src="@/assets/css/components/canvas-component-base.css"></style>
 
 <script>
+import { Mutex, WaitGroup } from '/public/classes/ParallelSync.mjs';
+
 export default {
     props: {
         seed: {
@@ -101,14 +103,15 @@ export default {
         // get canvas from DOM
         this.canvas = document.getElementById('mainCanvas');
         // Set initial canvas rendering size
-        this.canvas.width = this.$el.parentNode.clientWidth;
-        this.canvas.height = this.$el.parentNode.clientHeight;
+        this.canvas.width = this.canvas.parentNode.clientWidth;
+        this.canvas.height = this.canvas.parentNode.clientHeight;
 
         this.offscreenCanvas = this.canvas.transferControlToOffscreen();
 
         //this.manager = null; // bg thread used to wait for all workers to be done then draw the noise
         // create the manager that keeps track of the waitgroup status
-        this.manager = new Worker(new URL('../../assets/workers/PerlinNoiseZeroWorkerManager.js', import.meta.url));
+        //this.manager = new Worker(new URL('../../assets/workers/PerlinNoiseZeroWorkerManager.js', import.meta.url));
+        this.manager = new Worker('/public/workers/PerlinNoiseZeroWorkerManager.js');
         this.manager.onmessage = (event) => {
             switch (event.data.msgType) {
             // manager says the group is done working, draw the imgData
@@ -179,7 +182,8 @@ export default {
 
             //console.log("mutex created");
             for(let i = 0; i < this.workers.length; i++) {
-                this.workers[i] = new Worker(new URL('../../assets/workers/PerlinNoiseZeroWasmWorker.js', import.meta.url));
+                //this.workers[i] = new Worker(new URL('../../assets/workers/PerlinNoiseZeroWasmWorker.js', import.meta.url));
+                this.workers[i] = new Worker('/public/workers/PerlinNoiseZeroWasmWorker.js');
                 this.workers[i].onmessage = (event) => {
                     switch (event.data.msgType) {
                         // when a worker is ready he clocks in
@@ -229,15 +233,13 @@ export default {
 
             //
             this.parentResizeObserver = new ResizeObserver(() => {
-                //this.canvas.width = this.$el.parentNode.clientWidth;
-                //this.canvas.height = this.$el.parentNode.clientHeight;
-                this.manager.postMessage({msgType: "resizeCanvas", width: this.$el.parentNode.clientWidth, height: this.$el.parentNode.clientHeight});
+                this.manager.postMessage({msgType: "resizeCanvas", width: this.canvas.parentNode.clientWidth, height: this.canvas.parentNode.clientHeight});
 
                 this.draw();
                 
             });
 
-            this.parentResizeObserver.observe(this.$el.parentNode);
+            this.parentResizeObserver.observe(this.canvas.parentNode);
         },
         unwatch() {
             this.seedWatcher();

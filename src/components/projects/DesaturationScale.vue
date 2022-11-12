@@ -1,3 +1,9 @@
+<template>
+  <canvas id="mainCanvas" class="main-canvas"></canvas>
+</template>
+
+<style scoped src="@/assets/css/components/canvas-component-base.css"></style>
+
 <script>
   import { Color } from '@/assets/classes/Color';
   import { DesaturationScale } from '@/assets/classes/DesaturationScale';
@@ -61,9 +67,3 @@
     },
   }
 </script>
-
-<template>
-  <canvas id="mainCanvas" class="main-canvas"></canvas>
-</template>
-
-<style scoped src="@/assets/css/components/canvas-component-base.css"></style>

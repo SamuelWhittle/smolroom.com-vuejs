@@ -12,8 +12,9 @@ export default defineConfig({
   plugins: [vue(), vueJsx(), wasm(), topLevelAwait()],
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
-    }
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+      'pub': fileURLToPath(new URL('./public', import.meta.url))
+    },
   },
   build: {
     assetsInlineLimit: 0,

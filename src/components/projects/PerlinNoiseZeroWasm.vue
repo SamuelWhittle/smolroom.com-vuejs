@@ -7,7 +7,7 @@
 <style scoped src="@/assets/css/components/canvas-component-base.css"></style>
 
 <script>
-import { Mutex, WaitGroup } from '/public/classes/ParallelSync.mjs';
+import { Mutex, WaitGroup } from 'pub/classes/ParallelSync.mjs';
 
 export default {
     props: {
@@ -111,7 +111,7 @@ export default {
         //this.manager = null; // bg thread used to wait for all workers to be done then draw the noise
         // create the manager that keeps track of the waitgroup status
         //this.manager = new Worker(new URL('../../assets/workers/PerlinNoiseZeroWorkerManager.js', import.meta.url));
-        this.manager = new Worker('/public/workers/PerlinNoiseZeroWorkerManager.js');
+        this.manager = new Worker('/workers/PerlinNoiseZeroWorkerManager.js');
         this.manager.onmessage = (event) => {
             switch (event.data.msgType) {
             // manager says the group is done working, draw the imgData
@@ -183,7 +183,7 @@ export default {
             //console.log("mutex created");
             for(let i = 0; i < this.workers.length; i++) {
                 //this.workers[i] = new Worker(new URL('../../assets/workers/PerlinNoiseZeroWasmWorker.js', import.meta.url));
-                this.workers[i] = new Worker('/public/workers/PerlinNoiseZeroWasmWorker.js');
+                this.workers[i] = new Worker('/workers/PerlinNoiseZeroWasmWorker.js');
                 this.workers[i].onmessage = (event) => {
                     switch (event.data.msgType) {
                         // when a worker is ready he clocks in
@@ -253,6 +253,10 @@ export default {
             this.scaleWatcher = null;
             this.smoothedWatcher = null;
             this.concurrencyWatcher = null;
+            
+            if (this.parentResizeObserver) {
+                this.parentResizeObserver.disconnect();
+            }
         },
         draw() {
             //console.log("draw()");

@@ -1,15 +1,14 @@
-//importScripts('/classes/ParallelSync.js', '/wasm/perlin_noise/perlin_noise.js');
+importScripts('/classes/ParallelSync.js');
 
-let canvas;
-let ctx;
-
-let workers = new Array(3);
-let workersAtWork = 0;
-
-init();
+let canvas = null;
+let ctx = null;
 
 self.onmessage = event => {
   switch (event.data.msgType) {
+    case "startWaiting":
+      begin = performance.now();
+      startWaiting(event);
+      break;
     case 'resizeCanvas':
       canvas.width = event.data.width;
       canvas.height = event.data.height;
@@ -25,30 +24,18 @@ self.onmessage = event => {
   }
 };
 
-function init() {
-  for (let i = 0; i < workers.length; i++) {
-    workers[i] = new Worker('/public/workers/PerlinNoiseWasmWorker.js');
-    workers[i].onmessage = (event) => {
-      switch (event.data.msgType) {
-        // when a worker is ready he clocks in
-        case 'clockIn':
-          workersAtWork++;
-          checkTeam();
-          break;
-        case 'noise':
+function startWaiting(event) {
+  //console.log('waiter started');
+  // Deserialize data.
+  const { swg, sc, scale } = event.data;
+  const wg = WaitGroup.connect(swg);
+  //imgData = new Int32Array(sc);
 
-          break;
-      }
-    };
-  }
-}
+  // Wait for workers to terminate.
+  wg.wait();
 
-function checkTeam() {
-  if (workersAtWork == workers.length) {
-    startTask();
-  }
-}
+  // TODO: Draw the stuff
 
-function startTask() {
-  ctx.fillRect(0, 0, 50, 50);
+  // give the main thread the performance number
+  postMessage({ msgType: "finishedDrawing", performance: (performance.now() - begin) });
 }

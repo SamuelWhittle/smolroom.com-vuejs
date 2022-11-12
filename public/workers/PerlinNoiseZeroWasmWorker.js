@@ -1,5 +1,4 @@
 importScripts('/classes/ParallelSync.js', '/wasm/perlin_noise/perlin_noise.js');
-//import { Mutex, WaitGroup } from '/public/classes/ParallelSync.mjs';
 
 const PerlinNoise = wasm_bindgen.PerlinNoise;
 const { range_map } = wasm_bindgen;
@@ -62,26 +61,12 @@ function getNoise(event) {
 
   mu.lock();
 
-  //const startIndex = Math.floor(noise.length * (id / groupTotal));
-  ////console.log({id, groupTotal, byteLength: noise.length});
-  ////console.log(`start of critical section for worker ${id}`);
-  // This section does not require atomic operations, the mutex takes care of it.
-  // This allows to do complex operations with the guarantee that no other worker
-  // is in it. For example we could modify multiple sections of the array without
-  // worrying that some might have changed before we are done.
   for (let i = workerStartPixel * 4, noiseIndex = 0; i < nextWorkerStartPixel * 4; i += 4, noiseIndex++) {
     noiseImgData[i] = noiseImgData[i + 1] = noiseImgData[i + 2] = range_map(workerSpecificNoise[noiseIndex], -0.8, 0.8, 0, 255);
     noiseImgData[i + 3] = 255;
   }
 
-
-  ////console.log("end of critical section");
   mu.unlock();
 
-  // Simulate intensive computation.
-  //for (let i=0;i<100000;i++);
-
-  // Signal termination.
-  //console.log('worker done');
   wg.done();
 }

@@ -1,5 +1,4 @@
 importScripts('/classes/ParallelSync.js');
-//import { WaitGroup } from '/public/classes/ParallelSync.mjs';
 
 let canvas = null;
 let ctx = null;

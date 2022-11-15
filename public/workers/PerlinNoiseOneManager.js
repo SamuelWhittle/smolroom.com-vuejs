@@ -95,8 +95,6 @@ function startWaiting(event) {
       ctx.closePath();
     }
   }
-  ctx.stroke();
-  ctx.closePath();
 
   // give the main thread the performance number
   postMessage({ msgType: "finishedDrawing" });

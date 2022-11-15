@@ -53,7 +53,7 @@ export default {
         },
         tScale: {
             type: Number,
-            default: 0.06,
+            default: 0.05,
         },
     },
     data() {

@@ -13,37 +13,49 @@ async function loadWasm() {
         getNoiseArray(event);
         break;
       case "terminate":
+        //console.log("worker terminated");
         self.close();
         break;
     }
   };
 
-  console.log("worker initialized. clocking in...");
   postMessage({ msgType: "clockIn" });
 }
 
 
 function getNoiseArray(event) {
   const {
-    swg, mu, sab,
+    swg, sab,
     numOctaves, octaveScale, seed,
-    coords, numDims
+    time,
+    noiseWidth, canvasDivisor,
+    xScale, yScale, tScale
   } = event.data;
 
   const wg = WaitGroup.connect(swg);
-  const noiseMu = Mutex.connect(mu);
-  let noiseData = new Int32Array(sab);
+
+  let noiseData = new Float64Array(sab);
 
   let noiseGen = PerlinNoise.multi_octave_with_seed(numOctaves, octaveScale, BigInt(seed));
-
   //array of noise values for this workers area
-  let noise = noiseGen.get_noise_array(coords, numDims);
+  let noise = noiseGen.get_noise_array(
+    // new array the length of the number of noise values needed
+    new Array(noiseData.length).fill()
+      // fill an index with it's index value
+      .map((_, index) => index)
+      // convert indices into positions
+      .flatMap((index) => {
+        return [
+          (index % noiseWidth) * canvasDivisor * xScale,
+          Math.floor(index / noiseWidth) * canvasDivisor * yScale,
+          time * tScale
+        ]
+      }), 3
+  );
 
-  noiseMu.lock();
-
-  noiseData = [...noise];
-
-  noiseMu.unlock();
+  for (let i = 0; i < noiseData.length; i++) {
+    noiseData[i] = noise[i];
+  }
 
   wg.done();
 }

@@ -28,10 +28,6 @@
     }
 }
 
-.primary-navigation a {
-    text-decoration: none;
-}
-
 .primary-navigation a > [aria-hidden="true"] {
     font-weight: 700;
     margin-inline-end: .75em;
@@ -72,15 +68,6 @@
         .primary-navigation {
             inset: 0 0 0 10%;
         }
-    }
-
-    .primary-navigation a {
-        text-decoration: none;
-    }
-
-    .primary-navigation a > [aria-hidden="true"] {
-        font-weight: 700;
-        margin-inline-end: .75em;
     }
 
     .visible {

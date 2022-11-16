@@ -1,18 +1,18 @@
 <script>
   import MainHeader from '@/components/utils/MainHeader.vue'
-  import HomeContent from '@/components/utils/HomeContent.vue';
+  import AboutPageContent from '@/components/utils/AboutPageContent.vue'
 
   export default {
     components: {
       MainHeader,
-      HomeContent,
+      AboutPageContent,
     }
   }
 </script>
 
 <template>
-  <MainHeader />
-  <HomeContent />
+  <MainHeader selected="2"/>
+  <AboutPageContent />
 </template>
 
 <style scoped></style>

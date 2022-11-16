@@ -26,6 +26,10 @@ body {
     overflow-x: hidden;
 }
 
+router-link {
+    text-decoration: none;
+}
+
 /* Flex Box */
 
 .flex {
@@ -102,6 +106,10 @@ body {
     white-space: no-wrap;
 }
 
+.no-dec {
+    text-decoration: none;
+}
+
 .ff-sans-cond {
     font-family: sans-serif;
 }
@@ -116,6 +124,10 @@ body {
 
 .letter-spacing-2 {
     letter-spacing: 2px;
+}
+
+.underline {
+    text-decoration: underline;
 }
 
 /* Image Properties */

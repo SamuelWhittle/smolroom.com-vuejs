@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-import HomeView from '@/views/HomeView.vue'
+import HomePage from '@/views/HomePage.vue'
+import ProjectsPage from '@/views/ProjectsPage.vue'
+import AboutPage from '@/views/AboutPage.vue'
 
 import DesaturationScaleControl from '@/views/projects/DesaturationScaleControl.vue'
 import PerlinNoiseZeroControl from '@/views/projects/PerlinNoiseZeroControl.vue'
@@ -16,17 +18,17 @@ const router = createRouter({
     {
       path: '/',
       name: 'Home',
-      component: HomeView
+      component: HomePage
     },
     {
       path: '/projects',
       name: 'Projects',
-      component: HomeView
+      component: ProjectsPage
     },
     {
       path: '/about',
       name: 'About',
-      component: HomeView
+      component: AboutPage
     },
     {
       path: '/desat_scale',

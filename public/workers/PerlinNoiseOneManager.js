@@ -82,7 +82,7 @@ function startWaiting(event) {
       ctx.beginPath();
       ctx.moveTo(x * canvasDivisor, y * canvasDivisor);
       ctx.lineTo(lineEndX, lineEndY);
-
+      ctx.stroke();
       ctx.closePath();
 
       // Set accent color

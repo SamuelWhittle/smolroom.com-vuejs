@@ -88,10 +88,9 @@ function startWaiting(event) {
       // Set accent color
       ctx.fillStyle = `hsla(${color}, 100%, 100%, ${opacity})`
       // Draw accent
-      ctx.beginPath();
+      //ctx.beginPath();
       ctx.arc(lineEndX, lineEndY, lineWidth / 2, 0, Math.PI * 2);
       ctx.fill();
-      ctx.closePath();
     }
   }
   ctx.stroke();

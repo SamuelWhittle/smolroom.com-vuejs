@@ -1,5 +1,5 @@
 <template>
-  <div class="grid" v-longpress="toggleControls" v-on="interactive ? { mousedown: mousedown, mousemove: mousemove, contextmenu: contextmenu,
+  <div class="grid vertical-center" :style="gridStyle" v-longpress="toggleControls" v-on="interactive ? { mousedown: mousedown, mousemove: mousemove, contextmenu: contextmenu,
     touchstart: processTouchstart, touchmove: processTouchmove } : {}">
     <div v-for="color in colors" :key="color.id" :id="color.id" :style="{ 'background-color': color.getRGBString() }"></div>
     <div class="controls flex flex-dir-column flex-justify-center easy-on-the-eyes" :class="{ 'controls-visible': controlsVisible }">
@@ -39,6 +39,11 @@
       return {
         client: new LEDMatrixClient(),
         controlsVisible: false,
+        gridStyle: {
+          width: '0px',
+          height: '0px',
+          margin: 'auto'
+        }
       }
     },
     watch: {
@@ -71,10 +76,32 @@
     mounted() {
       this.currentColor = new Color(0x42, 0xb8, 0x83);
       this.drawingColor = new Color();
+
+      
+      this.parentResizeObserver = new ResizeObserver(() => {
+        this.setGridSize();
+      });
+
+      this.parentResizeObserver.observe(this.$el.parentNode);
+    },
+    beforeUnmount() {
+      if (this.parentResizeObserver) {
+        this.parentResizeObserver.disconnect();
+      }
     },
     methods: {
-      getCookieValue(name) {
-        return document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)')?.pop() ?? ''
+      setGridSize() {
+        let parentWidth = this.$el.parentNode.clientWidth;
+        let parentHeight = this.$el.parentNode.clientHeight;
+
+        if (parentWidth > parentHeight) {
+          console.log("width > height");
+          this.gridStyle.width = `${parentHeight}px`;
+          this.gridStyle.height = `${parentHeight}px`;
+        } else {
+          this.gridStyle.width = `${parentWidth}px`;
+          this.gridStyle.height = `${parentWidth}px`;
+        }
       },
       // Send the next frame from the videoBuffer to the server
       sendNextFrameInVideoBuffer() {

@@ -1,0 +1,17 @@
+.main-content {
+  width: 100vw;
+  padding: 0 10%;
+  margin: 1rem 0;
+}
+
+.project-card {
+  width: 100%;
+  height: 25rem;
+  outline: 1px solid #404054;
+}
+
+@media (max-width: 33rem) {
+  .main-content {
+    padding: 0 1rem;
+  }
+}

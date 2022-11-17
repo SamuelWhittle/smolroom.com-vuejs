@@ -1,6 +1,6 @@
 <script>
   import { PROJECTLIST } from '@/assets/lists/ProjectList';
-  import LEDMatrixDisplay from '@/components/projects/LEDMatrixDisplay.vue';
+  import ProjectCard from '@/components/utils/ProjectCard.vue';
 
   export default {
     data() {
@@ -8,27 +8,17 @@
         PROJECTLIST,
       }
     },
-    methods: {
-      getImageUrl(name) {
-        return new URL(`../../assets/images/${name}.png`, import.meta.url).href;
-      }
-    },
     components: {
-      LEDMatrixDisplay,
+      ProjectCard,
     }
   }
 </script>
 
 <template>
-<div class="main-content flex flex-justify-center">
-    <div class="main-content-item" v-for="project in PROJECTLIST" :key="project.id">
-        <router-link :to="project.name">
-            <img v-if="project.previewType === 'img'" :src="getImageUrl(project.name)" :alt="project.name">
-            <LEDMatrixDisplay v-else-if="project.previewType === 'LEDMatrixDisplay'" :interactive="false"/>
-        </router-link>
-    </div>
+<div class="main-content flex flex-dir-column">
+    <ProjectCard class="project-card" v-for="project in PROJECTLIST" :key="project.id" :project="project"/>
 </div>
 </template>
 
-<style scoped src="@/assets/css/components/home-content.css"></style>
+<style scoped src="@/assets/css/components/projects-page-content.css"></style>
 

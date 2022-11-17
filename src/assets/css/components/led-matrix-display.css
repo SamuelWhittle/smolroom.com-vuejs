@@ -3,12 +3,8 @@
 }
 
 .grid {
-    height: 100%;
+    position: relative;
     aspect-ratio: 1;
-
-    margin: 0 auto;
-
-    background: #16161d;
 
     display: grid;
     grid-template-columns: repeat(30, 1fr);
@@ -40,13 +36,3 @@
     opacity: 90%;
 }
 
-@media (max-width: 100vh) {
-    .grid {
-        height: auto;
-        width: 100%;
-
-        position: relative;
-        top: 50%;
-        transform: translateY(-50%);
-    }
-}

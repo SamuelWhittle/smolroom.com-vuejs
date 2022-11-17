@@ -30,5 +30,5 @@
 </div>
 </template>
 
-<style scoped src="@/assets/css/components/home-content.css"></style>
+<style scoped src="@/assets/css/components/about-page-content.css"></style>
 

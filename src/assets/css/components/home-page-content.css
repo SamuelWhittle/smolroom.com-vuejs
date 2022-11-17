@@ -37,7 +37,7 @@
 }
 
 
-@media (max-width: 33rem) {
+@media (max-width: 27rem) {
     .main-content {
         flex-direction: column;
         justify-content: flex-start;

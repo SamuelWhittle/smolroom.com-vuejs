@@ -7,7 +7,6 @@ import AboutPage from '@/views/AboutPage.vue'
 import DesaturationScaleControl from '@/views/projects/DesaturationScaleControl.vue'
 import PerlinNoiseZeroControl from '@/views/projects/PerlinNoiseZeroControl.vue'
 import CircumcenterControl from '@/views/projects/CircumcenterControl.vue'
-import PerlinNoiseOneControl from '@/views/projects/PerlinNoiseOneControl.vue'
 import PerlinNoiseOne from '@/components/projects/PerlinNoiseOne.vue'
 import LEDMatrixControl from '@/views/projects/LEDMatrixControl.vue'
 import PerlinNoiseZeroWasmControl from '@/views/projects/PerlinNoiseZeroWasmControl.vue';

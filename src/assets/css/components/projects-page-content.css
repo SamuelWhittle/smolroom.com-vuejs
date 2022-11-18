@@ -10,8 +10,14 @@
   outline: 1px solid #404054;
 }
 
-@media (max-width: 33rem) {
+@media (max-width: 65rem) {
   .main-content {
     padding: 0 1rem;
+  }
+}
+
+@media (max-width: 33rem) {
+  .project-card {
+    height: auto;
   }
 }

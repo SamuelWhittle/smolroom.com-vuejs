@@ -93,7 +93,7 @@ function startWaiting(event) {
       ctx.fill();
     }
   }
-  ctx.stroke();
+  console.log(count);
 
   // give the main thread the performance number
   postMessage({ msgType: "finishedDrawing" });

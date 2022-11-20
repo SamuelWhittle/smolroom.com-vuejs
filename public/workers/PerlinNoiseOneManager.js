@@ -6,7 +6,7 @@ let wg;
 
 let workers, workersAtWork;
 let sabs;
-let seeds;
+let seeds = new Array(3).fill();
 
 let canvas, ctx;
 
@@ -32,7 +32,6 @@ async function loadWasm() {
         startWaiting(event);
         break;
       case 'resizeCanvas':
-        initializing = true;
         canvas.width = event.data.width;
         canvas.height = event.data.height;
 
@@ -40,7 +39,11 @@ async function loadWasm() {
         break;
       case 'task':
         canvas = event.data.canvas;
-        ctx = canvas.getContext('2d');
+        ctx = canvas.getContext('2d', {
+          alpha: false,
+          desynchronized: true,
+          preserveDrawingBuffer: true
+        });
         ctx.imageSmoothingEnabled = false;
 
         cDiv = event.data.canvasDivisor;
@@ -54,6 +57,7 @@ async function loadWasm() {
         break;
       case "terminate":
         //console.log("waiter terminated");
+        clearDrawInterval();
         self.close();
         break;
     }
@@ -73,7 +77,9 @@ function init() {
   time = 0;
   sabs = new Array(3);
 
-  seeds = new Array(3).fill(Math.floor(Math.random() * 1000));
+  seeds = seeds.map((_, index) => Math.floor(Math.random() * 1000) + index)
+
+  new Array(3).fill(Math.floor(Math.random() * 1000));
 
   for (let i = 0; i < workers.length; i++) {
     //this.workers[i] = new Worker(new URL('../../assets/workers/PerlinNoiseZeroWasmWorker.js', import.meta.url));
@@ -110,46 +116,20 @@ function terminateAllWorkers() {
 }
 
 function initWorkersTask() {
-  //console.log('waiter started');
-  // Deserialize data.
-  //const { swg, sabs, canvasDivisor, noiseWidth, noiseHeight } = event.data;
-
-
   nWidth = Math.ceil(canvas.width / cDiv) + 3;
   nHeight = Math.ceil(canvas.height / cDiv) + 3;
 
-  //this.sabs = new Array(3);
   sabs[0] = new SharedArrayBuffer(nWidth * nHeight * 8);
   sabs[1] = new SharedArrayBuffer(nWidth * nHeight * 8);
   sabs[2] = new SharedArrayBuffer(nWidth * nHeight * 8);
 
-  //wg = WaitGroup.connect(swg);
-
   initializing = false;
 
-  //cDiv = canvasDivisor;
-  //nWidth = noiseWidth;
-  //nHeight = noiseHeight;
-
-  // Wait for workers to terminate.
-  //draw();
+  //requestAnimationFrame(draw);
   setDrawInterval();
-
-  // give the main thread the performance number
-  //postMessage({ msgType: "finishedDrawing" });
 }
 
 function draw() {
-  if (initializing) {
-    return;
-  }
-
-  /*if (drawing) {
-    console.log("drawing took too long");
-    return;
-  }
-  drawing = true;*/
-
   /*if (!lastCalledTime) {
     lastCalledTime = performance.now();
     fps = 0;
@@ -159,8 +139,6 @@ function draw() {
   //lastCalledTime = performance.now();
   //fps = 1000 / delta;
   //console.log(fps);
-
-  //wg = new WaitGroup(3);
 
   for (let i = 0; i < workers.length; i++) {
     workers[i].postMessage({
@@ -203,7 +181,7 @@ function draw() {
       // adjust intensity contraints from -1 to 0 and from 1 to 1, this is for line opacity
       let opacity = length / 300;
 
-      if (length <= 0) continue;
+      if (length <= 0 || opacity <= 0) continue;
 
       // calculate the endpoint of the line
       let lineEndX = x * cDiv + Math.cos(angle) * length;
@@ -223,16 +201,16 @@ function draw() {
       ctx.fillStyle = `hsla(${color}, 100%, 100%, ${opacity})`
       //ctx.fillStyle = `hsl(${color}, 100%, 100%)`
       // Draw accent
-      //ctx.beginPath();
+      ctx.beginPath();
       ctx.arc(lineEndX, lineEndY, lineWidth / 2, 0, Math.PI * 2);
       ctx.fill();
+      ctx.closePath();
     }
   }
 
   time++;
   wg.add(3);
   //requestAnimationFrame(draw);
-  //drawing = false;
 }
 
 function setDrawInterval() {

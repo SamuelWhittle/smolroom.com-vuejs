@@ -5,4 +5,7 @@
 <style scoped></style>
 
 <script>
+export default {
+  name: 'PerlinNoiseZeroWasmReadMore',
+}
 </script>

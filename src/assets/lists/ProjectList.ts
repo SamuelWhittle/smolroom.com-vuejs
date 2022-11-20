@@ -7,8 +7,8 @@ import PerlinNoiseOne from '@/components/projects/PerlinNoiseOne.vue'
 import LEDMatrixControl from '@/views/projects/LEDMatrixControl.vue'
 import PerlinNoiseZeroWasmControl from '@/views/projects/PerlinNoiseZeroWasmControl.vue';
 
-import PerlinNoiseZeroWasmReadMore from '@/views/ReadMore/PerlinNoiseZeroWasmReadMore.vue'
-import LEDMatrixReadMore from '@/views/ReadMore/LEDMatrixReadMore.vue'
+import PerlinNoiseZeroWasmReadMore from '@/views/ReadMore/PerlinNoiseZeroWasm.vue'
+import LEDMatrixReadMore from '@/views/ReadMore/LEDMatrix.vue'
 
 export const PROJECTLIST: Project[] = [
     {

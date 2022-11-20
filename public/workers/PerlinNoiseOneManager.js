@@ -70,7 +70,7 @@ function startWaiting(event) {
       // adjust intensity contraints from -1 to 0 and from 1 to 1, this is for line opacity
       let opacity = length / 300;
 
-      if (length < 0) length = 0;
+      if (length <= 0) continue;
 
       // calculate the endpoint of the line
       let lineEndX = x * canvasDivisor + Math.cos(angle) * length;
@@ -79,6 +79,7 @@ function startWaiting(event) {
       // Draw the inital line
       ctx.lineWidth = lineWidth;
       ctx.strokeStyle = `hsla(${color}, 100%, 50%, ${opacity})`
+      //ctx.strokeStyle = `hsl(${color}, 100%, 50%)`
       ctx.beginPath();
       ctx.moveTo(x * canvasDivisor, y * canvasDivisor);
       ctx.lineTo(lineEndX, lineEndY);
@@ -87,13 +88,13 @@ function startWaiting(event) {
 
       // Set accent color
       ctx.fillStyle = `hsla(${color}, 100%, 100%, ${opacity})`
+      //ctx.fillStyle = `hsl(${color}, 100%, 100%)`
       // Draw accent
       //ctx.beginPath();
       ctx.arc(lineEndX, lineEndY, lineWidth / 2, 0, Math.PI * 2);
       ctx.fill();
     }
   }
-  console.log(count);
 
   // give the main thread the performance number
   postMessage({ msgType: "finishedDrawing" });

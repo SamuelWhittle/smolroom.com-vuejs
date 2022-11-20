@@ -8,7 +8,7 @@
 
     <nav>
         <ul id="primary-navigation" class="primary-navigation flex" :class="{ visible: isVisible }">
-            <li v-for="item in NAVLIST" :key="item.name">
+            <li v-for="item in HEADERNAV" :key="item.name">
               <router-link v-if="item.external === false" :to="item.path" class="no-dec ff-sans-cond uppercase text-white letter-spacing-2" :class="{ 'underline': highlighted[item.id] }">
                 {{item.name}}
               </router-link>
@@ -24,7 +24,7 @@
 <style scoped src="@/assets/css/components/main-header.css"></style>
 
 <script>
-  import { NAVLIST } from '@/assets/lists/MainHeaderNavList';
+  import { HEADERNAV } from '@/assets/lists/HeaderNavList';
   import HamburgerButton from '@/components/utils/HamburgerButton.vue';
 
   export default {
@@ -36,7 +36,7 @@
     },
     data() {
       return {
-        NAVLIST,
+        HEADERNAV,
         isVisible: false,
         highlighted: new Array(4).fill(false)
       }

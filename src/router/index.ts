@@ -1,17 +1,56 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-import HomePage from '@/views/HomePage.vue'
-import ProjectsPage from '@/views/ProjectsPage.vue'
-import AboutPage from '@/views/AboutPage.vue'
+import { HEADERNAV } from '@/assets/lists/HeaderNavList'
+import { PROJECTLIST } from '@/assets/lists/ProjectList'
 
-import DesaturationScaleControl from '@/views/projects/DesaturationScaleControl.vue'
-import PerlinNoiseZeroControl from '@/views/projects/PerlinNoiseZeroControl.vue'
-import CircumcenterControl from '@/views/projects/CircumcenterControl.vue'
-import PerlinNoiseOne from '@/components/projects/PerlinNoiseOne.vue'
-import LEDMatrixControl from '@/views/projects/LEDMatrixControl.vue'
-import PerlinNoiseZeroWasmControl from '@/views/projects/PerlinNoiseZeroWasmControl.vue';
+import ProjectsPageContent from '@/components/utils/ProjectsPageContent.vue'
 
 const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes: []
+})
+
+console.log();
+
+HEADERNAV.forEach((item) => {
+  if (!item.external) {
+    router.addRoute({
+      path: item.path,
+      name: item.name,
+      component: item.component,
+    })
+  }
+})
+
+router.addRoute('Projects', {
+  path: '',
+  component: ProjectsPageContent
+})
+
+PROJECTLIST.forEach((item) => {
+  router.addRoute({
+    path: `/${item.name}`,
+    name: item.title,
+    component: item.component,
+  })
+
+  if (item.readMore) {
+    router.addRoute('Projects', {
+      path: item.name,
+      component: item.readMoreComp
+    })
+  }
+})
+
+
+
+/*router.addRoute({
+  path: '/',
+  name: 'Home',
+  component: HomePage
+})*/
+
+/*const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
@@ -21,8 +60,21 @@ const router = createRouter({
     },
     {
       path: '/projects',
-      name: 'Projects',
-      component: ProjectsPage
+      component: ProjectsPage,
+      children: [
+        {
+          path: '',
+          component: ProjectsPageContent
+        },
+        {
+          path: 'led_matrix',
+          component: LEDMatrixReadMore
+        },
+        {
+          path: 'perlin_noise_zero_wasm',
+          component: PerlinNoiseZeroWasmReadMore
+        },
+      ]
     },
     {
       path: '/about',
@@ -52,14 +104,14 @@ const router = createRouter({
     {
       path: '/led_matrix',
       name: 'LED Matrix Control',
-      component: LEDMatrixControl
+      component: LEDMatrixControl,
     },
     {
       path: '/perlin_noise_zero_wasm',
       name: 'Wasm Perlin Noise Example 0',
-      component: PerlinNoiseZeroWasmControl
+      component: PerlinNoiseZeroWasmControl,
     },
   ]
-})
+})*/
 
 export default router

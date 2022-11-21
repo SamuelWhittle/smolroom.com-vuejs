@@ -195,7 +195,6 @@ function draw() {
       ctx.moveTo(x * cDiv, y * cDiv);
       ctx.lineTo(lineEndX, lineEndY);
       ctx.stroke();
-      ctx.closePath();
 
       // Set accent color
       ctx.fillStyle = `hsla(${color}, 100%, 100%, ${opacity})`
@@ -204,7 +203,6 @@ function draw() {
       ctx.beginPath();
       ctx.arc(lineEndX, lineEndY, lineWidth / 2, 0, Math.PI * 2);
       ctx.fill();
-      ctx.closePath();
     }
   }
 

@@ -1,3 +1,9 @@
+<template>
+  <div class="fullscreen">
+    <perlin-noise-one />
+  </div>
+</template>
+
 <script>
   import PerlinNoiseOne from '@/components/projects/PerlinNoiseOne.vue';
 
@@ -7,9 +13,3 @@
     },
   }
 </script>
-
-<template>
-  <div class="fullscreen">
-    <perlin-noise-one :fps="Number(24)" :speed="Number(7)"/>
-  </div>
-</template>

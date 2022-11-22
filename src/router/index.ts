@@ -37,8 +37,7 @@ PROJECTLIST.forEach((item) => {
   if (item.readMore) {
     router.addRoute('Projects', {
       path: item.name,
-      //component: item.readMoreComp
-      component: UnderConstruction
+      component: item.readMoreComp
     })
   }
 })

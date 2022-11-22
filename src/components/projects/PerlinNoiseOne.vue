@@ -1,7 +1,5 @@
 <template>
-  <div class="fullscreen">
-    <canvas id="mainCanvas" class="main-canvas"></canvas>
-  </div>
+  <canvas id="mainCanvas" class="main-canvas"></canvas>
 </template>
 
 <style scoped src="@/assets/css/components/canvas-component-base.css"></style>

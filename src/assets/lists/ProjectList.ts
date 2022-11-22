@@ -3,14 +3,26 @@ import type { Project } from '@/assets/types'
 import DesaturationScaleControl from '@/views/projects/DesaturationScaleControl.vue'
 import PerlinNoiseZeroControl from '@/views/projects/PerlinNoiseZeroControl.vue'
 import CircumcenterControl from '@/views/projects/CircumcenterControl.vue'
-import PerlinNoiseOne from '@/components/projects/PerlinNoiseOne.vue'
+import PerlinNoiseOneControl from '@/views/projects/PerlinNoiseOneControl.vue'
 import LEDMatrixControl from '@/views/projects/LEDMatrixControl.vue'
-import PerlinNoiseZeroWasmControl from '@/views/projects/PerlinNoiseZeroWasmControl.vue';
+import PerlinNoiseZeroWasmControl from '@/views/projects/PerlinNoiseZeroWasmControl.vue'
+import ConwaysGameOfLifeControl from '@/views/projects/ConwaysGameOfLifeControl.vue'
 
+import UnderConstruction from '@/components/utils/UnderConstruction.vue'
 import PerlinNoiseZeroWasmReadMore from '@/views/ReadMore/PerlinNoiseZeroWasm.vue'
 import LEDMatrixReadMore from '@/views/ReadMore/LEDMatrix.vue'
 
 export const PROJECTLIST: Project[] = [
+    {
+        id: 7,
+        name: 'ConwaysGameOfLife',
+        title: '',
+        description: '',
+        previewType: 'img',
+        readMore: false,
+        component: ConwaysGameOfLifeControl,
+        readMoreComp: {}
+    },
     {
         id: 6,
         name: 'perlin_noise_zero_wasm',
@@ -19,7 +31,8 @@ export const PROJECTLIST: Project[] = [
         previewType: 'img',
         readMore: true,
         component: PerlinNoiseZeroWasmControl,
-        readMoreComp: PerlinNoiseZeroWasmReadMore,
+        //readMoreComp: PerlinNoiseZeroWasmReadMore,
+        readMoreComp: UnderConstruction,
     },
     {
         id: 5,
@@ -28,7 +41,7 @@ export const PROJECTLIST: Project[] = [
         description: 'This Demonstration uses Multi-threaded Rust-Based WASM. One thread draws and renders the canvas, and three others calculate the noise values for angle, color, and intensity.',
         previewType: 'img',
         readMore: false,
-        component: PerlinNoiseOne,
+        component: PerlinNoiseOneControl,
         readMoreComp: {},
     },
     {
@@ -49,7 +62,8 @@ export const PROJECTLIST: Project[] = [
         previewType: 'LEDMatrixDisplay',
         readMore: true,
         component: LEDMatrixControl,
-        readMoreComp: LEDMatrixReadMore,
+        //readMoreComp: LEDMatrixReadMore,
+        readMoreComp: UnderConstruction,
     },
     {
         id: 2,

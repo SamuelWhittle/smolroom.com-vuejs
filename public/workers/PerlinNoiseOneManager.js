@@ -33,9 +33,6 @@ async function loadWasm() {
 
   self.onmessage = event => {
     switch (event.data.msgType) {
-      case "startWaiting":
-        startWaiting(event);
-        break;
       case 'resizeCanvas':
         canvas.width = event.data.width;
         canvas.height = event.data.height;

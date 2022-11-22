@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { HEADERNAV } from '@/assets/lists/HeaderNavList'
 import { PROJECTLIST } from '@/assets/lists/ProjectList'
 
+import UnderConstruction from '@/components/utils/UnderConstruction.vue'
 import ProjectsPageContent from '@/components/utils/ProjectsPageContent.vue'
 
 const router = createRouter({
@@ -36,7 +37,8 @@ PROJECTLIST.forEach((item) => {
   if (item.readMore) {
     router.addRoute('Projects', {
       path: item.name,
-      component: item.readMoreComp
+      //component: item.readMoreComp
+      component: UnderConstruction
     })
   }
 })

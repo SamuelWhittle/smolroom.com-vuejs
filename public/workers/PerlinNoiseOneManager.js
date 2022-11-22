@@ -19,6 +19,11 @@ let lastCalledTime, fps;
 let drawInterval;
 let drawing = false;
 
+let colorPaths = 8;
+let opacityPaths = 8;
+let widthPaths = 8;
+let linePaths, dotPaths;
+
 const { range_map } = wasm_bindgen;
 
 loadWasm();
@@ -79,7 +84,9 @@ function init() {
 
   seeds = seeds.map((_, index) => Math.floor(Math.random() * 1000) + index)
 
-  new Array(3).fill(Math.floor(Math.random() * 1000));
+  //paths = new Array(colorPaths).fill(new Array(opacityPaths).fill(new Array(widthPaths).fill(new Path2D())))
+  linePaths = new Array(colorPaths * opacityPaths * widthPaths).fill(new Path2D());
+  dotPaths = new Array(colorPaths * opacityPaths * widthPaths).fill(new Path2D());
 
   for (let i = 0; i < workers.length; i++) {
     //this.workers[i] = new Worker(new URL('../../assets/workers/PerlinNoiseZeroWasmWorker.js', import.meta.url));
@@ -130,16 +137,6 @@ function initWorkersTask() {
 }
 
 function draw() {
-  /*if (!lastCalledTime) {
-    lastCalledTime = performance.now();
-    fps = 0;
-    return;
-  }*/
-  //delta = performance.now() - lastCalledTime;
-  //lastCalledTime = performance.now();
-  //fps = 1000 / delta;
-  //console.log(fps);
-
   for (let i = 0; i < workers.length; i++) {
     workers[i].postMessage({
       msgType: "getNoiseArray",
@@ -211,6 +208,101 @@ function draw() {
   //requestAnimationFrame(draw);
 }
 
+function drawPaths() {
+  for (let i = 0; i < workers.length; i++) {
+    workers[i].postMessage({
+      msgType: "getNoiseArray",
+      swg: wg, sab: sabs[i],
+      numOctaves: numOctaves, octaveScale: octaveScale, seed: seeds[i],
+      time: time,
+      noiseWidth: nWidth, canvasDivisor: cDiv,
+      xScale: xScale, yScale: yScale, tScale: tScale,
+    });
+  }
+
+  wg.wait();
+
+  noise = sabs.map((sab) => {
+    return new Float64Array(sab);
+  });
+
+  // TODO: Draw the stuff
+  ctx.fillStyle = `#000000`;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.beginPath();
+
+  for (let x = 0; x < nWidth; x++) {
+    for (let y = 0; y < nHeight; y++) {
+      let index = y * nWidth + x;
+
+      //console.log(noise[0][index], noise[1][index], noise[2][index]);
+      let angle = noise[0][index];
+      angle = range_map(angle, -1, 1, 0, Math.PI * 2) + Math.PI / 2;
+
+      // Get color noise value
+      let color = noise[1][index];
+
+      // Get color path number
+      let colorPath = Math.floor(range_map(color, -1, 1, 0, colorPaths));
+
+      // Get intensity noise value
+      let intensity = noise[2][index];
+
+      // Get width path number
+      let widthPath = Math.floor(range_map(intensity, -1, 1, 0, widthPaths));
+
+      // Get opacity path number
+      let opacityPath = Math.floor(range_map(intensity, -1, 1, 0, opacityPaths));
+
+      let pathIndex = getSingleDim(widthPath, opacityPath, colorPath, opacityPaths, colorPaths);
+
+      // adjust intensity contraints from -1 to 0 and from 1 to 150, this is for line length
+      let length = range_map(intensity, -1, 1, -100, 300);
+
+      let opacity = length / 300;
+
+      if (length <= 0 || opacity <= 0) continue;
+
+      // calculate the endpoint of the line
+      let lineEndX = x * cDiv + Math.cos(angle) * length;
+      let lineEndY = y * cDiv + Math.sin(angle) * length;
+
+      // Draw the inital line
+
+      linePaths[pathIndex].moveTo(x * cDiv, y * cDiv);
+      linePaths[pathIndex].lineTo(lineEndX, lineEndY);
+
+      // Set accent color
+      let lineWidth = Math.floor(range_map(intensity, -1, 1, 3, 10));
+      dotPaths[pathIndex].moveTo(lineEndX, lineEndY);
+      dotPaths[pathIndex].arc(lineEndX, lineEndY, lineWidth / 2, 0, Math.PI * 2);
+    }
+  }
+
+  linePaths.forEach((path, index) => {
+    let pathInfo = getThreeDims(index, opacityPaths, colorPaths);
+    let color = range_map(pathInfo.color, 0, colorPaths - 1, 150, 250);
+    let opacity = range_map(pathInfo.opacity, 0, opacityPaths - 1, 0, 1);
+
+    ctx.lineWidth = pathInfo.width + 3;
+    //console.log(range_map(pathInfo.opacity, 0, opacityPaths - 1, -0.15, 1));
+    ctx.strokeStyle = `hsla(${color}, 100%, 50%, ${opacity})`
+    ctx.stroke(path);
+    linePaths[index] = new Path2D();
+
+
+    ctx.fillStyle = `hsla(${color}, 100%, 80%, ${opacity})`
+    // Draw accent
+    ctx.fill(dotPaths[index]);
+    dotPaths[index] = new Path2D();
+  })
+
+  time++;
+  wg.add(3);
+  //requestAnimationFrame(draw);
+}
+
 function setDrawInterval() {
   clearDrawInterval();
   drawInterval = setInterval(draw, 1000 / 60);
@@ -221,3 +313,16 @@ function clearDrawInterval() {
     clearInterval(drawInterval);
   }
 }
+
+function getSingleDim(z, y, x, yl, xl) {
+  return (z * yl * xl) + (y * xl) + x
+}
+
+function getThreeDims(n, yl, xl) {
+  return {
+    width: Math.floor(n / (yl * xl)),
+    opacity: Math.floor(n / yl / xl),
+    color: n % xl
+  }
+}
+

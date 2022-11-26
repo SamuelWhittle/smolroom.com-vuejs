@@ -39,7 +39,7 @@ self.onmessage = event => {
       clearCells();
       break;
     case "cellUpdate":
-      updateCell(event.data.x, event.data.y);
+      updateCell(event.data.x, event.data.y, event.data.state);
       break;
     case "terminate":
       //console.log("waiter terminated");
@@ -92,17 +92,17 @@ function drawCells() {
   ctx.fill(path);
 }
 
-function updateCell(x, y) {
+function updateCell(x, y, state) {
   let cellX = Math.floor(x / cDiv);
   let cellY = Math.floor(y / cDiv);
 
   let index = cells.indexOf(`[${cellX},${cellY}]`);
 
-  if (index == -1) {
+  if (index == -1 && state) {
     cells.push(`[${cellX},${cellY}]`);
-  }/* else {
+  } else if (index != -1 && !state) {
     cells.splice(index, 1);
-  }*/
+  }
 
   draw();
 }

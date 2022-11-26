@@ -2,10 +2,12 @@
   <canvas id="mainCanvas" class="main-canvas" v-longpress="toggleControls" v-on="interactive ? { mousedown: mousedown, mousemove: mousemove, contextmenu: contextmenu,
     touchstart: processTouchstart, touchmove: processTouchmove } : {}"></canvas>
   <div class="controls flex flex-dir-column flex-justify-center easy-on-the-eyes" v-longpress="toggleControls" :class="{ 'controls-visible': controlsVisible }">
-    <p>Press Esc or long touch to toggle this menu.</p>
-    <p>Clicking the 'Start' button or pressing the Enter key will start the simulation.</p>
-    <p>Clicking the 'Clear' button or pressing 'c' on your keyboard will clear the field.</p>
-    <p>Clicking the 'Randomize' button or pressing 'r' on your keyboard will randomize the field.</p>
+    <p>Press 'Esc' or long touch to toggle this menu.</p>
+    <p>Left click will draw alive cells, right click or hold shift while clicking to kill cells.</p>
+    <p>Clicking on the simulation while it's running will pause it.</p>
+    <p>Pressing the 'Enter' key will toggle the simulation running state.</p>
+    <p>Pressing 'c' on your keyboard will clear the field.</p>
+    <p>Pressing 'r' on your keyboard will randomize the field.</p>
     <button @click="toggleTask" class="controls-button">Start</button>
     <button @click="clearCells" class="controls-button">Clear</button>
     <button @click="randomizeCells" class="controls-button">Randomize</button>
@@ -59,6 +61,7 @@
       this.offscreenCanvas = this.canvas.transferControlToOffscreen();
 
       this.running = false;
+      this.shifting = false;
 
       this.init();
     },
@@ -108,6 +111,13 @@
         window.addEventListener('touchend', () => {
           this.mouseup();
         });
+        window.addEventListener('keydown', (event) => {
+          switch (event.key) {
+            case 'Shift':
+              this.shifting = true;
+              break;
+          }
+        })
         window.addEventListener('keyup', (event) => {
           switch(event.key) {
             case "Escape":
@@ -119,6 +129,9 @@
               break;
             case 'r':
               this.randomizeCells();
+              break;
+            case 'Shift':
+              this.shifting = false;
               break;
           }
         });
@@ -189,11 +202,21 @@
       },
       updateCell(event) {
         //console.log(Math.floor(event.clientX / this.canvasDivisor), Math.floor(event.clientY / this.canvasDivisor));
-        this.manager.postMessage({
-          msgType: "cellUpdate", 
-          x: event.clientX, 
-          y: event.clientY, 
-        });
+        if (event.buttons == 2 || this.shifting) {
+          this.manager.postMessage({
+            msgType: "cellUpdate", 
+            x: event.clientX, 
+            y: event.clientY, 
+            state: false
+          });
+        } else {
+          this.manager.postMessage({
+            msgType: "cellUpdate", 
+            x: event.clientX, 
+            y: event.clientY, 
+            state: true
+          });
+        }
       },
       // mouse move
       mousemove(event) {

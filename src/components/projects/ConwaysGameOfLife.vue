@@ -1,7 +1,7 @@
 <template>
   <canvas id="mainCanvas" class="main-canvas" v-longpress="toggleControls" v-on="interactive ? { mousedown: mousedown, mousemove: mousemove, contextmenu: contextmenu,
     touchstart: processTouchstart, touchmove: processTouchmove } : {}"></canvas>
-  <div class="controls flex flex-dir-column flex-justify-center easy-on-the-eyes" :class="{ 'controls-visible': controlsVisible }">
+  <div class="controls flex flex-dir-column flex-justify-center easy-on-the-eyes" v-longpress="toggleControls" :class="{ 'controls-visible': controlsVisible }">
     <p>Press Esc or long touch to toggle this menu.</p>
     <p>Clicking the 'Start' button or pressing the Enter key will start the simulation.</p>
     <p>Clicking the 'Clear' button or pressing 'c' on your keyboard will clear the field.</p>

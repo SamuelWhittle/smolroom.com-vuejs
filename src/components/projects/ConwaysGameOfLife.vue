@@ -4,6 +4,8 @@
   <div class="controls flex flex-dir-column flex-justify-center easy-on-the-eyes" :class="{ 'controls-visible': controlsVisible }">
     <p>Press Esc or long touch to toggle this menu.</p>
     <p>Clicking the 'Start' button or pressing the Enter key will start the simulation.</p>
+    <p>Clicking the 'Clear' button or pressing 'c' on your keyboard will clear the field.</p>
+    <p>Clicking the 'Randomize' button or pressing 'r' on your keyboard will randomize the field.</p>
     <button @click="randomizeCells" class="controls-button">Randomize</button>
     <button @click="clearCells" class="controls-button">Clear</button>
     <button @click="toggleTask" class="controls-button">Start</button>
@@ -107,6 +109,12 @@
             case "Escape":
               //console.log("Esc");
               this.toggleControls();
+              break;
+            case 'c':
+              this.clearCells();
+              break;
+            case 'r':
+              this.randomizeCells();
               break;
           }
         });

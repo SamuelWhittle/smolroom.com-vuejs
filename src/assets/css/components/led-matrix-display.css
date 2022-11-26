@@ -4,6 +4,7 @@
 
 .grid {
     position: relative;
+    margin: auto;
     aspect-ratio: 1;
 
     display: grid;

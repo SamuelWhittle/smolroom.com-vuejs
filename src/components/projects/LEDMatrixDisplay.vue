@@ -95,7 +95,6 @@
         let parentHeight = this.$el.parentNode.clientHeight;
 
         if (parentWidth > parentHeight) {
-          console.log("width > height");
           this.gridStyle.width = `${parentHeight}px`;
           this.gridStyle.height = `${parentHeight}px`;
         } else {
@@ -142,7 +141,7 @@
       initControls() {
         if (this.$cookies.isKey("controlsVisible")) {
           //this.controlsVisible = true;
-          this.controlsVisible = this.$cookies.get("controlsVisible") === true;
+          this.controlsVisible = this.$cookies.get("controlsVisible") === 'true';
         } else {
           this.toggleControls();
         }

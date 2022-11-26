@@ -9,7 +9,7 @@ let interval;
 self.onmessage = event => {
   switch (event.data.msgType) {
     case "toggleTask":
-      toggleTask(event.data.state);
+      toggleTask(event.data.state, event.data.fps);
       break;
     case 'resizeCanvas':
       canvas.width = event.data.width;
@@ -40,7 +40,6 @@ self.onmessage = event => {
       break;
     case "cellUpdate":
       updateCell(event.data.x, event.data.y);
-      drawCells();
       break;
     case "terminate":
       //console.log("waiter terminated");
@@ -51,9 +50,9 @@ self.onmessage = event => {
 
 postMessage({ msgType: "clockIn" });
 
-function toggleTask(state) {
+function toggleTask(state, fps) {
   if (state) {
-    setTimeInterval();
+    setTimeInterval(fps);
   } else {
     clearTimeInterval();
   }
@@ -85,9 +84,10 @@ function drawCells() {
   ctx.fillStyle = '#000000';
   let path = new Path2D();
 
-  for (let i = 0; i < cells.length; i++) {
-    path.rect(cells[i][0] * cDiv + 1, cells[i][1] * cDiv + 1, cDiv - 2, cDiv - 2);
-  }
+  cells.forEach((val) => {
+    let cell = JSON.parse(val);
+    path.rect(cell[0] * cDiv + 1, cell[1] * cDiv + 1, cDiv - 2, cDiv - 2);
+  });
 
   ctx.fill(path);
 }
@@ -96,16 +96,22 @@ function updateCell(x, y) {
   let cellX = Math.floor(x / cDiv);
   let cellY = Math.floor(y / cDiv);
 
-  let color = ctx.getImageData(x, y, 1, 1).data;
+  let index = cells.indexOf(`[${cellX},${cellY}]`);
 
-  if (color[0] == 255 && color[1] == 255 && color[2] == 255) {
-    cells.push([cellX, cellY]);
-  }
+  if (index == -1) {
+    cells.push(`[${cellX},${cellY}]`);
+  }/* else {
+    cells.splice(index, 1);
+  }*/
+
+  draw();
 }
 
 function updateLife() {
   // remove duplicates and keep cells in json form
-  currentCells = [...new Set(cells.map(JSON.stringify))]
+  //console.log(cells);
+  currentCells = [...new Set(cells)]
+  //console.log(currentCells);
 
   // next gen of cells
   let nextGen = new Array();
@@ -164,7 +170,7 @@ function updateLife() {
 
       if (total == 3 || (total == 4 && currentState)) {
         //console.log(`pushing: ${[val[0], val[1]]}`);
-        nextGen.push([val[0], val[1]]);
+        nextGen.push(`[${val[0]},${val[1]}]`);
         //return [nX, nY];
       }
     });
@@ -187,7 +193,7 @@ function randomizeCells() {
     for (let y = 0; y < gridHeight; y++) {
       let temp = Math.random()
       if (temp >= 0.5) {
-        cells.push([x, y]);
+        cells.push(`[${x},${y}]`);
       }
     }
   }
@@ -200,10 +206,10 @@ function clearCells() {
   draw();
 }
 
-function setTimeInterval() {
+function setTimeInterval(fps) {
   clearTimeInterval();
 
-  interval = setInterval(update, 1000 / 24);
+  interval = setInterval(update, 1000 / fps);
 }
 
 function clearTimeInterval() {

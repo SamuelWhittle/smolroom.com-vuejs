@@ -6,9 +6,9 @@
     <p>Clicking the 'Start' button or pressing the Enter key will start the simulation.</p>
     <p>Clicking the 'Clear' button or pressing 'c' on your keyboard will clear the field.</p>
     <p>Clicking the 'Randomize' button or pressing 'r' on your keyboard will randomize the field.</p>
-    <button @click="randomizeCells" class="controls-button">Randomize</button>
-    <button @click="clearCells" class="controls-button">Clear</button>
     <button @click="toggleTask" class="controls-button">Start</button>
+    <button @click="clearCells" class="controls-button">Clear</button>
+    <button @click="randomizeCells" class="controls-button">Randomize</button>
   </div>
 </template>
 
@@ -28,6 +28,10 @@
       randomStart: {
         type: Boolean,
         default: true,
+      },
+      fps: {
+        type: Number,
+        default: 24
       }
     },
     data() {
@@ -154,7 +158,7 @@
           this.controlsVisible = false;
         }
 
-        this.manager.postMessage({ msgType: "toggleTask", state: this.running });
+        this.manager.postMessage({ msgType: "toggleTask", state: this.running, fps: this.fps });
       },
       initResizeObserve() {
         this.parentResizeObserver = new ResizeObserver(() => {
@@ -176,6 +180,10 @@
       mousedown(event) {
         this.mouseIsDown = true;
         //console.log("mousedown");
+
+        if(this.running) {
+          this.toggleTask();
+        }
 
         this.updateCell(event);
       },

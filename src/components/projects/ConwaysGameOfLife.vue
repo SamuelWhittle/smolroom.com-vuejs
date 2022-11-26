@@ -3,9 +3,8 @@
     touchstart: processTouchstart, touchmove: processTouchmove } : {}"></canvas>
   <div class="controls flex flex-dir-column flex-justify-center easy-on-the-eyes" v-longpress="toggleControls" :class="{ 'controls-visible': controlsVisible }">
     <p>Press 'Esc' or long touch to toggle this menu.</p>
-    <p>Left click will draw alive cells, right click or hold shift while clicking to kill cells.</p>
-    <p>Clicking on the simulation while it's running will pause it.</p>
-    <p>Pressing the 'Enter' key will toggle the simulation running state.</p>
+    <p>Clicking a cell will toggle it's state and pause the simulation.</p>
+    <p>Pressing the 'Enter' or 'Space' key will toggle the simulation running state.</p>
     <p>Pressing 'c' on your keyboard will clear the field.</p>
     <p>Pressing 'r' on your keyboard will randomize the field.</p>
     <button @click="toggleTask" class="controls-button">Start</button>
@@ -130,13 +129,11 @@
             case 'r':
               this.randomizeCells();
               break;
-            case 'Shift':
-              this.shifting = false;
-              break;
           }
         });
         window.addEventListener('keypress', (event) => {
           switch(event.key) {
+            case " ":
             case "Enter":
               //console.log("Enter");
               this.toggleTask();
@@ -202,21 +199,11 @@
       },
       updateCell(event) {
         //console.log(Math.floor(event.clientX / this.canvasDivisor), Math.floor(event.clientY / this.canvasDivisor));
-        if (event.buttons == 2 || this.shifting) {
-          this.manager.postMessage({
-            msgType: "cellUpdate", 
-            x: event.clientX, 
-            y: event.clientY, 
-            state: false
-          });
-        } else {
-          this.manager.postMessage({
-            msgType: "cellUpdate", 
-            x: event.clientX, 
-            y: event.clientY, 
-            state: true
-          });
-        }
+        this.manager.postMessage({
+          msgType: "cellUpdate", 
+          x: event.clientX, 
+          y: event.clientY, 
+        });
       },
       // mouse move
       mousemove(event) {
@@ -229,6 +216,7 @@
       // mouse up
       mouseup() {
         this.mouseIsDown = false;
+        this.manager.postMessage({ msgType: 'clearLastUpdated' });
         //console.log("mouseup");
       },
       // touch start

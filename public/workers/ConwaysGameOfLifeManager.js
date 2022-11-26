@@ -1,8 +1,8 @@
-console.log("ConwaysGameOfLifeManager");
-
 let canvas, ctx;
 let cDiv;
 let cells = new Array();
+
+let lastUpdated;
 
 let interval;
 
@@ -39,7 +39,10 @@ self.onmessage = event => {
       clearCells();
       break;
     case "cellUpdate":
-      updateCell(event.data.x, event.data.y, event.data.state);
+      updateCell(event.data.x, event.data.y);
+      break;
+    case "clearLastUpdated":
+      lastUpdated = "";
       break;
     case "terminate":
       //console.log("waiter terminated");
@@ -92,17 +95,21 @@ function drawCells() {
   ctx.fill(path);
 }
 
-function updateCell(x, y, state) {
+function updateCell(x, y) {
   let cellX = Math.floor(x / cDiv);
   let cellY = Math.floor(y / cDiv);
 
+  if (lastUpdated === `[${cellX},${cellY}]`) return;
+
   let index = cells.indexOf(`[${cellX},${cellY}]`);
 
-  if (index == -1 && state) {
+  if (index == -1) {
     cells.push(`[${cellX},${cellY}]`);
-  } else if (index != -1 && !state) {
+  } else {
     cells.splice(index, 1);
   }
+
+  lastUpdated = `[${cellX},${cellY}]`;
 
   draw();
 }

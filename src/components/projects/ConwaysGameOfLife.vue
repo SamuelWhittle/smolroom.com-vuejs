@@ -60,7 +60,7 @@
       this.offscreenCanvas = this.canvas.transferControlToOffscreen();
 
       this.running = false;
-      this.shifting = false;
+      this.mouseIsDown = false;
 
       this.init();
     },
@@ -105,18 +105,13 @@
         this.pressStartedInMenu = false;
 
         window.addEventListener('mouseup', () => {
+          console.log("mouseup");
           this.mouseup();
         });
         window.addEventListener('touchend', () => {
+          console.log('touchend');
           this.mouseup();
         });
-        window.addEventListener('keydown', (event) => {
-          switch (event.key) {
-            case 'Shift':
-              this.shifting = true;
-              break;
-          }
-        })
         window.addEventListener('keyup', (event) => {
           switch(event.key) {
             case "Escape":
@@ -188,6 +183,7 @@
         }
       },
       mousedown(event) {
+        console.log("mousedown(event)");
         this.mouseIsDown = true;
         //console.log("mousedown");
 
@@ -198,7 +194,7 @@
         this.updateCell(event);
       },
       updateCell(event) {
-        //console.log(Math.floor(event.clientX / this.canvasDivisor), Math.floor(event.clientY / this.canvasDivisor));
+        console.log("updateCell(event)");
         this.manager.postMessage({
           msgType: "cellUpdate", 
           x: event.clientX, 
@@ -208,47 +204,60 @@
       // mouse move
       mousemove(event) {
         if (this.mouseIsDown) {
-          //console.log("mousemove");
+          console.log("mousemove(event) while mouseIsDown");
 
           this.updateCell(event);
         }
       },
       // mouse up
       mouseup() {
+        console.log("mouseup()");
         this.mouseIsDown = false;
         this.manager.postMessage({ msgType: 'clearLastUpdated' });
         //console.log("mouseup");
       },
       // touch start
       processTouchstart(event) {
-        var touch = event.touches[0];
+        console.log("processTouchstart(event)");
+        event.preventDefault();
 
-        var mouseEvent = new MouseEvent('mousedown', {
-            clientX: touch.pageX,
-            clientY: touch.pageY,
-            buttons: 1
+        this.mouseIsDown = true;
+
+        if(this.running) {
+          this.toggleTask();
+        }
+
+        let touch = event.touches[0];
+
+        let mouseEvent = new MouseEvent('mousedown', {
+          clientX: touch.pageX,
+          clientY: touch.pageY,
+          buttons: 1
         });
 
         this.updateCell(mouseEvent);
       },
       // touch move
       processTouchmove(event) {
+        console.log("processTouchmove(event)");
         event.preventDefault();
 
-        var touch = event.touches[0];
+        if (this.mouseIsDown) {
+          let touch = event.touches[0];
 
-        var mouseEvent = new MouseEvent("mousemove", {
+          let mouseEvent = new MouseEvent("mousemove", {
             clientX: touch.pageX,
             clientY: touch.pageY,
             buttons: 1
-        });
+          });
 
-        this.updateCell(mouseEvent);
+          this.updateCell(mouseEvent);
+        }
       },
       // Block the default right click behavior
-      contextmenu(event) {
+      /*contextmenu(event) {
         event.preventDefault();
-      },
+      },*/
     }
   }
 </script>

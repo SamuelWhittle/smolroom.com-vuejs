@@ -67,10 +67,10 @@ function draw() {
 }
 
 function drawGrid() {
-  ctx.fillStyle = '#FFFFFF';
+  ctx.fillStyle = '#16161d';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  ctx.strokeStyle = '#808080';
+  ctx.strokeStyle = '#000000';
   ctx.beginPath();
   for (let x = 0; x < canvas.width / cDiv; x++) {
     ctx.moveTo(x * cDiv, 0);
@@ -84,7 +84,7 @@ function drawGrid() {
 }
 
 function drawCells() {
-  ctx.fillStyle = '#000000';
+  ctx.fillStyle = '#FF8800';
   let path = new Path2D();
 
   cells.forEach((val) => {

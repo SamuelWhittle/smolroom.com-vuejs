@@ -184,14 +184,16 @@
       },
       mousedown(event) {
         console.log("mousedown(event)");
-        this.mouseIsDown = true;
-        //console.log("mousedown");
+        if (event.buttons == 1) {
+          this.mouseIsDown = true;
+          //console.log("mousedown");
 
-        if(this.running) {
-          this.toggleTask();
+          if(this.running) {
+            this.toggleTask();
+          }
+
+          this.updateCell(event);
         }
-
-        this.updateCell(event);
       },
       updateCell(event) {
         console.log("updateCell(event)");
@@ -255,9 +257,9 @@
         }
       },
       // Block the default right click behavior
-      /*contextmenu(event) {
+      contextmenu(event) {
         event.preventDefault();
-      },*/
+      },
     }
   }
 </script>

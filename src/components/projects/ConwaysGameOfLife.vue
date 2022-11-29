@@ -105,11 +105,11 @@
         this.pressStartedInMenu = false;
 
         window.addEventListener('mouseup', () => {
-          console.log("mouseup");
+          //console.log("mouseup");
           this.mouseup();
         });
         window.addEventListener('touchend', () => {
-          console.log('touchend');
+          //console.log('touchend');
           this.mouseup();
         });
         window.addEventListener('keyup', (event) => {
@@ -183,7 +183,7 @@
         }
       },
       mousedown(event) {
-        console.log("mousedown(event)");
+        //console.log("mousedown(event)");
         if (event.buttons == 1) {
           this.mouseIsDown = true;
           //console.log("mousedown");
@@ -196,7 +196,7 @@
         }
       },
       updateCell(event) {
-        console.log("updateCell(event)");
+        //console.log("updateCell(event)");
         this.manager.postMessage({
           msgType: "cellUpdate", 
           x: event.clientX, 
@@ -206,21 +206,21 @@
       // mouse move
       mousemove(event) {
         if (this.mouseIsDown) {
-          console.log("mousemove(event) while mouseIsDown");
+          //console.log("mousemove(event) while mouseIsDown");
 
           this.updateCell(event);
         }
       },
       // mouse up
       mouseup() {
-        console.log("mouseup()");
+        //console.log("mouseup()");
         this.mouseIsDown = false;
         this.manager.postMessage({ msgType: 'clearLastUpdated' });
         //console.log("mouseup");
       },
       // touch start
       processTouchstart(event) {
-        console.log("processTouchstart(event)");
+        //console.log("processTouchstart(event)");
         event.preventDefault();
 
         this.mouseIsDown = true;
@@ -241,7 +241,7 @@
       },
       // touch move
       processTouchmove(event) {
-        console.log("processTouchmove(event)");
+        //console.log("processTouchmove(event)");
         event.preventDefault();
 
         if (this.mouseIsDown) {

@@ -16,8 +16,8 @@ export const PROJECTLIST: Project[] = [
     {
         id: 7,
         name: 'ConwaysGameOfLife',
-        title: '',
-        description: '',
+        title: "Conway's Game of Life",
+        description: `Basic Simulation of Conway's Game of Life, it can be paused and edited at will.`,
         previewType: 'img',
         readMore: false,
         component: ConwaysGameOfLifeControl,

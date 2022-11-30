@@ -1,15 +1,15 @@
+
 <template>
-  <canvas id="mainCanvas" class="main-canvas" v-longpress="toggleControls" v-on="interactive ? { mousedown: mousedown, mousemove: mousemove, contextmenu: contextmenu,
-    touchstart: processTouchstart, touchmove: processTouchmove } : {}"></canvas>
+  <canvas id="mainCanvas" class="main-canvas" v-longpress="toggleControls" 
+  v-on="interactive ? { mousedown: mousedown, mousemove: mousemove, contextmenu: contextmenu, touchstart: processTouchstart, touchmove: processTouchmove } : {}"></canvas>
   <div class="controls flex flex-dir-column flex-justify-center easy-on-the-eyes" v-longpress="toggleControls" :class="{ 'controls-visible': controlsVisible }">
     <p>Press 'Esc' or long touch to toggle this menu.</p>
-    <p>Clicking a cell will toggle it's state and pause the simulation.</p>
     <p>Pressing the 'Enter' or 'Space' key will toggle the simulation running state.</p>
-    <p>Pressing 'c' on your keyboard will clear the field.</p>
-    <p>Pressing 'r' on your keyboard will randomize the field.</p>
+    <p>Pressing 'c' on your keyboard will clear the path.</p>
+    <p>Pressing 'r' on your keyboard will randomize the maze.</p>
     <button @click="toggleTask" class="controls-button">Start</button>
-    <button @click="clearCells" class="controls-button">Clear</button>
-    <button @click="randomizeCells" class="controls-button">Randomize</button>
+    <button @click="clearPath" class="controls-button">Clear</button>
+    <button @click="newMaze" class="controls-button">Randomize</button>
   </div>
 </template>
 
@@ -60,7 +60,7 @@
       this.offscreenCanvas = this.canvas.transferControlToOffscreen();
 
       this.running = false;
-      this.mouseIsDown = false;
+      //this.mouseIsDown = false;
 
       this.init();
     },
@@ -74,7 +74,7 @@
 
         this.running = false;
 
-        this.manager = new Worker('/workers/ConwaysGameOfLifeManager.js');
+        this.manager = new Worker('/workers/MazesManager.js');
         this.manager.onmessage = (event) => {
           switch (event.data.msgType) {
             case 'clockIn':
@@ -93,8 +93,8 @@
         };
       },
       initControls() {
-        if (this.$cookies.isKey("smol-controls-cgl")) {
-          this.controlsVisible = (this.$cookies.get("smol-controls-cgl") === 'true');
+        if (this.$cookies.isKey("smol-controls-mazes")) {
+          this.controlsVisible = (this.$cookies.get("smol-controls-mazes") === 'true');
         } else {
           this.toggleControls();
         }
@@ -140,16 +140,16 @@
         this.initResizeObserve();
         this.initControls();
       },
-      randomizeCells() {
-          this.manager.postMessage({msgType: "randomizeCells"});
+      newMaze() {
+          this.manager.postMessage({msgType: "newMaze"});
       },
       clearCells() {
-          this.manager.postMessage({msgType: "clearCells"});
+          this.manager.postMessage({msgType: "clearPath"});
       },
       toggleControls() {
         if (this.interactive) {
           this.controlsVisible = !this.controlsVisible;
-          this.$cookies.set("smol-controls-cgl",`${this.controlsVisible}`);
+          this.$cookies.set("smol-controls-mazes",`${this.controlsVisible}`);
 
           if(this.running) {
               this.toggleTask();

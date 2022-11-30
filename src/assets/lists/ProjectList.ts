@@ -7,12 +7,23 @@ import PerlinNoiseOneControl from '@/views/projects/PerlinNoiseOneControl.vue'
 import LEDMatrixControl from '@/views/projects/LEDMatrixControl.vue'
 import PerlinNoiseZeroWasmControl from '@/views/projects/PerlinNoiseZeroWasmControl.vue'
 import ConwaysGameOfLifeControl from '@/views/projects/ConwaysGameOfLifeControl.vue'
+import MazesControl from '@/views/projects/MazesControl.vue'
 
 import UnderConstruction from '@/components/utils/UnderConstruction.vue'
 import PerlinNoiseZeroWasmReadMore from '@/views/ReadMore/PerlinNoiseZeroWasm.vue'
 import LEDMatrixReadMore from '@/views/ReadMore/LEDMatrix.vue'
 
 export const PROJECTLIST: Project[] = [
+    {
+        id: 8,
+        name: 'Mazes',
+        title: "Mazes and How to Solve Them",
+        description: `Maze generator and various pathfinding algorithms for comparison.`,
+        previewType: 'img',
+        readMore: false,
+        component: MazesControl,
+        readMoreComp: {}
+    },
     {
         id: 7,
         name: 'ConwaysGameOfLife',

@@ -13,7 +13,7 @@ export default {
     props: {
         seed: {
             type: Number,
-            default: /*this.$route.query.seed ??*/ Math.floor(Math.random() * 1000),
+            default: Math.floor(Math.random() * 1000),
         },
         numOctaves: {
             type: Number,
@@ -154,6 +154,7 @@ export default {
                 this.workersAtWork = 0;
                 this.sab = null;
                 this.mu = null;
+                //console.log(this.$route.query);
 
                 // create empty array to store workers
                 this.workers = new Array(this.localConcurrency).fill();
@@ -214,6 +215,7 @@ export default {
         initWatchers() {
             ////console.log("Initializing Watchers...");
             this.seedWatcher = this.$watch('seed', () => {
+                this.localSeed = this.seed;
                 this.draw();
             })
             this.timeWatcher = this.$watch('time', () => {

@@ -1,7 +1,7 @@
 <template>
     <div class="canvasContainer">
       <PerlinNoiseZeroWasm :concurrency="Number(concurrency)" 
-        :seed="seed" 
+        :seed="Number(seed)" 
         :time="Number(time)" 
         :scale="Number(scale)" 
         :smoothed="smoothed"/>
@@ -37,7 +37,7 @@
     data() {
       return {
         noiseDepth: 100,
-        seed: Math.floor(Math.random() * 1000),
+        seed: this.$route.query.seed ?? Math.floor(Math.random() * 1000),
         time: 0,
         scale: 25,
         smoothed: false,

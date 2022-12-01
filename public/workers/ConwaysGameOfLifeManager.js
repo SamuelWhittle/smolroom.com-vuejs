@@ -1,6 +1,7 @@
 let canvas, ctx;
 let cDiv;
-let cells = new Array();
+let cells = {};
+let neighborhood = [[1, 1], [0, 1], [-1, 1], [1, 0], [0, 0], [-1, 0], [1, -1], [0, -1], [-1, -1]]
 
 let lastUpdated;
 
@@ -87,10 +88,9 @@ function drawCells() {
   ctx.fillStyle = '#FF8800';
   let path = new Path2D();
 
-  cells.forEach((val) => {
-    let cell = JSON.parse(val);
-    path.rect(cell[0] * cDiv + 1, cell[1] * cDiv + 1, cDiv - 2, cDiv - 2);
-  });
+  for (const loc in cells) {
+    path.rect(cells[loc].x * cDiv + 1, cells[loc].y * cDiv + 1, cDiv - 2, cDiv - 2);
+  }
 
   ctx.fill(path);
 }
@@ -99,91 +99,76 @@ function updateCell(x, y) {
   let cellX = Math.floor(x / cDiv);
   let cellY = Math.floor(y / cDiv);
 
-  if (lastUpdated === `[${cellX},${cellY}]`) return;
+  let loc = `${cellX},${cellY}`;
 
-  let index = cells.indexOf(`[${cellX},${cellY}]`);
+  if (lastUpdated === loc) return;
 
-  if (index == -1) {
-    cells.push(`[${cellX},${cellY}]`);
+  if (loc in cells) {
+    delete cells[loc];
   } else {
-    cells.splice(index, 1);
+    cells[loc] = {
+      x: cellX,
+      y: cellY,
+    }
   }
 
-  lastUpdated = `[${cellX},${cellY}]`;
+  lastUpdated = loc;
 
   draw();
 }
 
 function updateLife() {
-  // remove duplicates and keep cells in json form
-  //console.log(cells);
-  currentCells = [...new Set(cells)]
-  //console.log(currentCells);
-
   // next gen of cells
-  let nextGen = new Array();
+  let nextGen = {};
+  // neighbors
+  let couldChange = {};
 
-  //console.log(currentCells);
   let numCellsW = Math.ceil(canvas.width / cDiv);
   let numCellsH = Math.ceil(canvas.height / cDiv);
 
-  [...new Set(currentCells.map(JSON.parse)
-    .map((val) => {
-      //determine alive neighbors
-      let neighbors = new Array();
+  for (loc in cells) {
+    neighborhood.forEach((val) => {
+      nX = (val[0] + cells[loc].x) % numCellsW;
+      if (nX == -1)
+        nX = numCellsW - 1;
+      nY = (val[1] + cells[loc].y) % numCellsH;
+      if (nY == -1)
+        nY = numCellsH - 1;
 
-      for (let x = 1; x >= -1; x -= 1) {
-        for (let y = 1; y >= -1; y -= 1) {
-          nX = (val[0] + x) % numCellsW;
-          if (nX == -1)
-            nX = numCellsW - 1;
-          nY = (val[1] + y) % numCellsH;
-          if (nY == -1)
-            nY = numCellsH - 1;
-
-          neighbors.push(`[${nX},${nY}]`);
-        }
+      couldChange[`${nX},${nY}`] = {
+        x: nX,
+        y: nY,
+        n: 0
       }
+    });
+  }
 
-      return neighbors;
-    })
-    .flatMap(num => num))]
-    .forEach((cell) => {
-      let val = JSON.parse(cell);
-      let total = 0;
-      let currentState = false;
+  for (loc in couldChange) {
+    neighborhood.forEach((val) => {
+      nX = (val[0] + couldChange[loc].x) % numCellsW;
+      if (nX == -1)
+        nX = numCellsW - 1;
+      nY = (val[1] + couldChange[loc].y) % numCellsH;
+      if (nY == -1)
+        nY = numCellsH - 1;
 
-      //console.log(`checking: ${val}`);
-      for (let x = 1; x >= -1; x -= 1) {
-        for (let y = 1; y >= -1; y -= 1) {
-          nX = (val[0] + x) % numCellsW;
-          if (nX == -1)
-            nX = numCellsW - 1;
-          nY = (val[1] + y) % numCellsH;
-          if (nY == -1)
-            nY = numCellsH - 1;
-          //console.log(nX, nY);
-          if (currentCells.indexOf(`[${nX},${nY}]`) != -1) {
-            //console.log("found cell");
-            if (x == 0 && y == 0) {
-              currentState = true;
-              //console.log(currentState);
-            }
-            total++;
-          }
-        }
-      }
-      //console.log(`total: ${total}`);
+      let nLoc = `${nX},${nY}`
 
-      if (total == 3 || (total == 4 && currentState)) {
-        //console.log(`pushing: ${[val[0], val[1]]}`);
-        nextGen.push(`[${val[0]},${val[1]}]`);
-        //return [nX, nY];
+      if (nLoc in cells) {
+        couldChange[loc].n++;
       }
     });
 
+
+    if (couldChange[loc].n == 3 || (couldChange[loc].n == 4 && loc in cells)) {
+      nextGen[loc] = {
+        x: couldChange[loc].x,
+        y: couldChange[loc].y
+      };
+    }
+  }
+
   cells = nextGen;
-  //console.log(cells);
 }
 
 function update() {
@@ -192,7 +177,7 @@ function update() {
 }
 
 function randomizeCells() {
-  cells = new Array();
+  cells = {};
   let gridWidth = canvas.width / cDiv;
   let gridHeight = canvas.height / cDiv;
 
@@ -200,7 +185,10 @@ function randomizeCells() {
     for (let y = 0; y < gridHeight; y++) {
       let temp = Math.random()
       if (temp >= 0.5) {
-        cells.push(`[${x},${y}]`);
+        cells[`${x},${y}`] = {
+          x: x,
+          y: y,
+        };
       }
     }
   }
@@ -208,7 +196,7 @@ function randomizeCells() {
 }
 
 function clearCells() {
-  cells = new Array();
+  cells = {};
 
   draw();
 }

@@ -14,7 +14,7 @@ import PerlinNoiseZeroWasmReadMore from '@/views/ReadMore/PerlinNoiseZeroWasm.vu
 import LEDMatrixReadMore from '@/views/ReadMore/LEDMatrix.vue'
 
 export const PROJECTLIST: Project[] = [
-    {
+    /*{
         id: 8,
         name: 'Mazes',
         title: "Mazes and How to Solve Them",
@@ -23,7 +23,7 @@ export const PROJECTLIST: Project[] = [
         readMore: false,
         component: MazesControl,
         readMoreComp: {}
-    },
+    },*/
     {
         id: 7,
         name: 'ConwaysGameOfLife',

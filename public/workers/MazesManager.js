@@ -1,3 +1,4 @@
+importScripts('../classes/maze.js');
 
 let canvas, ctx;
 let cDiv;

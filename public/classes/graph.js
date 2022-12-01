@@ -7,11 +7,11 @@ class Graph {
     return this.nodes;
   }
 
-  AddNode(k, e, m) {
-    this.nodes[k] = {
-      edges: [...e],
-      potentialEdges: [...e],
-      metadata: m
+  AddNode(key, edges, meta) {
+    this.nodes[key] = {
+      edges: [...edges],
+      potentialEdges: [...edges],
+      metadata: meta
     };
   }
 }

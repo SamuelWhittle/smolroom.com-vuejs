@@ -13,7 +13,7 @@ export default {
     props: {
         seed: {
             type: Number,
-            default: this.$route.query.seed ?? Math.floor(Math.random() * 1000),
+            default: /*this.$route.query.seed ??*/ Math.floor(Math.random() * 1000),
         },
         numOctaves: {
             type: Number,

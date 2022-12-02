@@ -1,17 +1,26 @@
-class Graph {
-  constructor() {
-    this.nodes = {};
+let _graph;
+(() => {
+  let __exports = {}
+  class Graph {
+    constructor() {
+      this.nodes = {};
+    }
+
+    get Nodes() {
+      return this.nodes;
+    }
+
+    AddNode(key, edges, meta) {
+      this.nodes[key] = {
+        edges: [...edges],
+        potentialEdges: [...edges],
+        metadata: meta
+      };
+    }
   }
 
-  get Nodes() {
-    return this.nodes;
-  }
+  __exports.Graph = Graph;
 
-  AddNode(key, edges, meta) {
-    this.nodes[key] = {
-      edges: [...edges],
-      potentialEdges: [...edges],
-      metadata: meta
-    };
-  }
-}
+  _graph = Object.assign(__exports);
+
+})();

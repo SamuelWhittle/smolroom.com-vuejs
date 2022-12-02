@@ -111,17 +111,17 @@
           //console.log('touchend');
           this.mouseup();
         });
-        window.addEventListener('keyup', (event) => {
+        window.addEventListener('keydown', (event) => {
           switch(event.key) {
             case "Escape":
               //console.log("Esc");
               this.toggleControls();
               break;
             case 'c':
-              this.clearCells();
+              this.clearPath();
               break;
             case 'r':
-              this.randomizeCells();
+              this.newMaze();
               break;
           }
         });
@@ -142,8 +142,12 @@
       newMaze() {
           this.manager.postMessage({msgType: "newMaze"});
       },
-      clearCells() {
+      clearPath() {
           this.manager.postMessage({msgType: "clearPath"});
+      },
+      startButton() {
+        this.toggleControls();
+        this.toggleTask();
       },
       toggleControls() {
         if (this.interactive) {

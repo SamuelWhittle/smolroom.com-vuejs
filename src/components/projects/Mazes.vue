@@ -1,6 +1,6 @@
 <template>
   <canvas id="mainCanvas" class="main-canvas" v-longpress="toggleControls" 
-  v-on="interactive ? { mousedown: mousedown, mousemove: mousemove, contextmenu: contextmenu, touchstart: processTouchstart, touchmove: processTouchmove } : {}"></canvas>
+  v-on="interactive ? { mousedown: mousedown, mousemove: mousemove, /*contextmenu: contextmenu,*/ touchstart: processTouchstart, touchmove: processTouchmove } : {}"></canvas>
   <div class="controls flex flex-dir-column flex-justify-center easy-on-the-eyes" v-longpress="toggleControls" :class="{ 'controls-visible': controlsVisible }">
     <p>Press 'Esc' or long touch to toggle this menu.</p>
     <p>Pressing the 'Enter' or 'Space' key will toggle the simulation running state.</p>
@@ -257,9 +257,9 @@
         }
       },
       // Block the default right click behavior
-      contextmenu(event) {
+      /*contextmenu(event) {
         event.preventDefault();
-      },
+      },*/
     }
   }
 </script>

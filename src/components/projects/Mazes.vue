@@ -123,12 +123,9 @@
             case 'r':
               this.newMaze();
               break;
-          }
-        });
-        window.addEventListener('keypress', (event) => {
-          switch(event.key) {
             case " ":
             case "Enter":
+            event.preventDefault();
               //console.log("Enter");
               this.toggleTask();
               break;

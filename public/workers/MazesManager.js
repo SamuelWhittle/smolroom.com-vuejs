@@ -14,6 +14,7 @@ let interval;
 self.onmessage = event => {
         switch (event.data.msgType) {
                 case "toggleTask":
+                        console.log("toggleTask");
                         //toggleTask(event.data.state, event.data.fps);
                         step();
                         break;
@@ -47,7 +48,7 @@ self.onmessage = event => {
                         init();
                         break;
                 case "clearPath":
-                        //TODO
+                        console.log("clearPath()");
                         break;
                 case "terminate":
                         //console.log("waiter terminated");

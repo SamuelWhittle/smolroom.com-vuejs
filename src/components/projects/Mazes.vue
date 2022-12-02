@@ -1,4 +1,3 @@
-
 <template>
   <canvas id="mainCanvas" class="main-canvas" v-longpress="toggleControls" 
   v-on="interactive ? { mousedown: mousedown, mousemove: mousemove, contextmenu: contextmenu, touchstart: processTouchstart, touchmove: processTouchmove } : {}"></canvas>

@@ -63,25 +63,10 @@ function toggleTask(state, fps) {
 }
 
 function draw() {
-  drawGrid();
-  drawCells();
-}
-
-function drawGrid() {
   ctx.fillStyle = '#16161d';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  ctx.strokeStyle = '#000000';
-  ctx.beginPath();
-  for (let x = 0; x < canvas.width / cDiv; x++) {
-    ctx.moveTo(x * cDiv, 0);
-    ctx.lineTo(x * cDiv, canvas.height);
-  }
-  for (let y = 0; y < canvas.height / cDiv; y++) {
-    ctx.moveTo(0, y * cDiv);
-    ctx.lineTo(canvas.width, y * cDiv);
-  }
-  ctx.stroke();
+  drawCells();
 }
 
 function drawCells() {

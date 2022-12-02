@@ -7,7 +7,7 @@
     <p>Pressing the 'Enter' or 'Space' key will toggle the simulation running state.</p>
     <p>Pressing 'c' on your keyboard will clear the field.</p>
     <p>Pressing 'r' on your keyboard will randomize the field.</p>
-    <button @click="toggleTask" class="controls-button">Start</button>
+    <button @click="startButton" class="controls-button">Start</button>
     <button @click="clearCells" class="controls-button">Clear</button>
     <button @click="randomizeCells" class="controls-button">Randomize</button>
   </div>
@@ -112,10 +112,9 @@
           //console.log('touchend');
           this.mouseup();
         });
-        window.addEventListener('keyup', (event) => {
+        window.addEventListener('keydown', (event) => {
           switch(event.key) {
             case "Escape":
-              //console.log("Esc");
               this.toggleControls();
               break;
             case 'c':
@@ -124,13 +123,9 @@
             case 'r':
               this.randomizeCells();
               break;
-          }
-        });
-        window.addEventListener('keypress', (event) => {
-          switch(event.key) {
             case " ":
             case "Enter":
-              //console.log("Enter");
+              event.preventDefault();
               this.toggleTask();
               break;
           }
@@ -146,13 +141,17 @@
       clearCells() {
           this.manager.postMessage({msgType: "clearCells"});
       },
+      startButton() {
+        this.toggleControls();
+        this.toggleTask();
+      },
       toggleControls() {
         if (this.interactive) {
           this.controlsVisible = !this.controlsVisible;
           this.$cookies.set("smol-controls-cgl",`${this.controlsVisible}`);
 
-          if(this.running) {
-              this.toggleTask();
+          if(this.controlsVisible && this.running) {
+            this.toggleTask();
           }
         }
       },

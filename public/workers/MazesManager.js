@@ -7,7 +7,7 @@ let canvas, ctx;
 let cDiv;
 let xTiles, yTiles;
 
-let graph, maze;
+let graph, maze, gridType;
 
 let interval;
 
@@ -22,8 +22,14 @@ self.onmessage = event => {
                         canvas.width = event.data.width;
                         canvas.height = event.data.height;
 
-                        xTiles = Math.floor(canvas.width / cDiv);
-                        yTiles = Math.floor(canvas.height / cDiv);
+                        switch (gridType) {
+                                case 'hex':
+                                        break;
+                                case 'rect':
+                                default:
+                                        xTiles = Math.floor(canvas.width / cDiv);
+                                        yTiles = Math.floor(canvas.height / cDiv);
+                        }
 
                         init();
 
@@ -31,13 +37,20 @@ self.onmessage = event => {
                 case 'task':
                         canvas = event.data.canvas;
                         cDiv = event.data.cDiv;
-
-                        xTiles = Math.floor(canvas.width / cDiv);
-                        yTiles = Math.floor(canvas.height / cDiv);
+                        gridType = event.data.gridType;
 
                         ctx = canvas.getContext('2d');
                         ctx.imageSmoothingEnabled = false;
                         ctx.lineWidth = 1;
+
+                        switch (gridType) {
+                                case 'hex':
+                                        break;
+                                case 'rect':
+                                default:
+                                        xTiles = Math.floor(canvas.width / cDiv);
+                                        yTiles = Math.floor(canvas.height / cDiv);
+                        }
 
                         //TODO
                         init();
@@ -48,7 +61,7 @@ self.onmessage = event => {
                         init();
                         break;
                 case "clearPath":
-                        console.log("clearPath()");
+                        maze.render();
                         break;
                 case "terminate":
                         //console.log("waiter terminated");
@@ -67,6 +80,16 @@ function init() {
 function initGraph() {
         graph = new Graph();
 
+        switch (gridType) {
+                case 'hex':
+                        console.log("hexagonal graph init has not yet been implemented.");
+                case 'rect':
+                default:
+                        initRectGridGraph();
+        }
+}
+
+function initRectGridGraph() {
         for (let x = 0; x < xTiles; x++) {
                 for (let y = 0; y < yTiles; y++) {
                         const key = getKey(x, y);
@@ -106,11 +129,13 @@ function newMaze() {
         const start = getKey(0, 0);
         const end = getKey(xTiles - 1, yTiles - 1);
 
-        maze = new Maze(graph.Nodes);
+        const nodes = graph.Nodes;
+
+        maze = new Maze(nodes);
         maze.setStart(start);
         maze.setEnd(end);
         maze.generate(start);
-        maze.render(ctx, xTiles, yTiles, cDiv);
+        maze.render({ gridType: gridType, ctx: ctx, xTiles: xTiles, yTiles: yTiles, cDiv: cDiv });
 }
 
 function step() {

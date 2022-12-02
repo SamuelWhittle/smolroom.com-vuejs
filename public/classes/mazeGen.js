@@ -26,6 +26,7 @@ let maze_gen;
       this.nodes = nodes;
       this.start = null;
       this.end = null;
+      this.style = null; // rect or hex
       this.visited = {};
     }
 
@@ -65,7 +66,18 @@ let maze_gen;
       node.metadata.render.active = false;
     }
 
-    render(ctx, xTiles, yTiles, cDiv) {
+    render(args) {
+      switch (args.gridType) {
+        case 'hex':
+          console.log("hexagonal maze rendering has not been implemented yet.");
+          break;
+        case 'rect':
+        default:
+          this.renderRect(args.ctx, args.xTiles, args.yTiles, args.cDiv);
+      }
+    }
+
+    renderRect(ctx, xTiles, yTiles, cDiv) {
       ctx.fillStyle = '#000000';
       ctx.fillRect(0, 0, xTiles * cDiv + 1, yTiles * cDiv + 1);
 

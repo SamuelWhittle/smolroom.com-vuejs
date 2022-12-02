@@ -2,7 +2,7 @@ import type { App } from 'vue';
 
 const directiveLongpress = (app: App<Element>) => {
   return app.directive('longpress', {
-    beforeMount: function (el: Element, binding) {
+    beforeMount: function(el: Element, binding) {
       // Make sure expression provided is a function
       if (typeof binding.value !== 'function') {
         // Fetch name of component
@@ -21,7 +21,7 @@ const directiveLongpress = (app: App<Element>) => {
       // Define funtion handlers
       // Create timeout ( run function after 1s )
       let start = (e: any) => {
-        if (e.type === 'click' && e.button !== 0) {
+        if (e.type === 'mousedown' && e.button !== 0) {
           return;
         }
 

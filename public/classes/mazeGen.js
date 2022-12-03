@@ -3,24 +3,6 @@ let maze_gen;
 (() => {
   const __exports = {};
 
-  function RouletteSelect(src) {
-    const roll = Math.random() * src.length;
-
-    let sum = 0;
-    for (let i = 0; i < src.length; i++) {
-      sum += 1.0;
-      if (roll < sum) {
-        const res = src[i];
-        src = src.splice(i, 1);
-        return res;
-      }
-    }
-  }
-
-  const _key = (x, y) => x + '.' + y;
-
-  __exports.getKey = _key;
-
   class Maze {
     constructor(nodes) {
       this.nodes = nodes;
@@ -28,6 +10,7 @@ let maze_gen;
       this.end = null;
       this.style = null; // rect or hex
       this.visited = {};
+      this.genStack = [];
     }
 
     setStart(start) {
@@ -41,7 +24,7 @@ let maze_gen;
     sprinkle(chance) {
       for (const key in this.nodes) {
         const node = this.nodes[key];
-        if (Math.random() < chance && node.potentialEdges.length == 4 && node.edges.length < 3) {
+        if (Math.random() < chance && node.potentialEdges.length == 4 && node.edges.length == 2) {
           const potentialNewEdges = node.potentialEdges.filter(edge => node.edges.indexOf(edge) == -1);
 
           node.edges.push(potentialNewEdges[Math.floor(Math.random() * potentialNewEdges.length)]);
@@ -49,32 +32,46 @@ let maze_gen;
       }
     }
 
-    generate(nodeKey) {
+    // generate the edges that make up the maze paths, nodeKey is the starting Node
+    generateRB(nodeKey) {
+      // Mark the initial cell as visited
       this.visited[nodeKey] = true;
 
-      const node = this.nodes[nodeKey];
+      // push the initial cell to the stack
+      this.genStack.push(nodeKey);
 
-      node.metadata.render.visited = true;
-      node.metadata.render.active = true;
+      // while the stack is not empty
+      while (this.genStack.length > 0) {
+        // pop a cell from the stack and make it the current cell
+        const currentKey = this.genStack.pop();
+        const currentNode = this.nodes[currentKey];
 
-      const neighbors = [...node.potentialEdges];
-      while (neighbors.length > 0) {
-        const ki = RouletteSelect(neighbors);
+        // get a list of all unvisited neighbors of the current cell
+        const unvisited = [];
+        currentNode.potentialEdges.forEach(edgeKey => {
+          if (!(edgeKey in this.visited)) {
+            unvisited.push(edgeKey);
+          }
+        });
 
-        if (!(ki in this.visited)) {
-          node.metadata.render.active = true;
+        // if the current cell has any neighbors which have not been visited
+        if (unvisited.length > 0) {
+          // push the current cell to the stack
+          this.genStack.push(currentKey);
 
-          const adjNode = this.nodes[ki];
+          // choose one of the unvisited neighbors
+          const neighborKey = unvisited[Math.floor(Math.random() * unvisited.length)];
 
-          node.edges.push(ki);
-          adjNode.edges.push(nodeKey);
-          node.metadata.render.active = false;
-          this.generate(ki);
-          node.metadata.render.active = true;
+          // add a path from the current cell to the chosen cell
+          currentNode.edges.push(neighborKey);
+
+          // mark the chosen cell as visited
+          this.visited[neighborKey] = true;
+
+          // push the chosen cell to the stack
+          this.genStack.push(neighborKey);
         }
       }
-
-      node.metadata.render.active = false;
     }
 
     render(args) {

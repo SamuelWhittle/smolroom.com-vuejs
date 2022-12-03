@@ -1,7 +1,7 @@
 importScripts('../classes/graph.js', '../classes/mazeGen.js');
 
-const { Maze, getKey } = maze_gen;
-const { Graph } = _graph;
+const { Maze } = maze_gen;
+const { Graph, getKey } = _graph;
 
 let canvas, ctx;
 let cDiv;
@@ -22,15 +22,7 @@ self.onmessage = event => {
       canvas.width = event.data.width;
       canvas.height = event.data.height;
 
-      switch (gridType) {
-        case 'hex':
-          break;
-        case 'rect':
-        default:
-          xTiles = Math.floor(canvas.width / cDiv);
-          yTiles = Math.floor(canvas.height / cDiv);
-      }
-
+      initGrid();
       init();
 
       break;
@@ -43,16 +35,7 @@ self.onmessage = event => {
       ctx.imageSmoothingEnabled = false;
       ctx.lineWidth = 1;
 
-      switch (gridType) {
-        case 'hex':
-          break;
-        case 'rect':
-        default:
-          xTiles = Math.floor(canvas.width / cDiv);
-          yTiles = Math.floor(canvas.height / cDiv);
-      }
-
-      //TODO
+      initGrid();
       init();
 
       postMessage({ msgType: "ready" });
@@ -72,6 +55,17 @@ self.onmessage = event => {
 
 postMessage({ msgType: "clockIn" });
 
+function initGrid() {
+  switch (gridType) {
+    case 'hex':
+      break;
+    case 'rect':
+    default:
+      xTiles = Math.floor(canvas.width / cDiv);
+      yTiles = Math.floor(canvas.height / cDiv);
+  }
+}
+
 function init() {
   initGraph();
   newMaze();
@@ -85,43 +79,7 @@ function initGraph() {
       console.log("hexagonal graph init has not yet been implemented.");
     case 'rect':
     default:
-      initRectGridGraph();
-  }
-}
-
-function initRectGridGraph() {
-  for (let x = 0; x < xTiles; x++) {
-    for (let y = 0; y < yTiles; y++) {
-      const key = getKey(x, y);
-      graph.AddNode(key, [], {
-        position: [x, y],
-        weight: 0,
-        render: {
-          visited: false
-        }
-      });
-    }
-  }
-
-
-  for (let x = 0; x < xTiles; x++) {
-    for (let y = 0; y < yTiles; y++) {
-      const key = getKey(x, y);
-
-      for (let xi = -1; xi <= 1; xi++) {
-        for (let yi = -1; yi <= 1; yi++) {
-          if (xi == 0 && yi == 0 || (Math.abs(xi) + Math.abs(yi) != 1)) {
-            continue;
-          }
-
-          const ki = getKey(x + xi, y + yi);
-
-          if (ki in graph.Nodes) {
-            graph.Nodes[key].potentialEdges.push(ki)
-          }
-        }
-      }
-    }
+      graph.initMazeNodes(xTiles, yTiles);
   }
 }
 
@@ -134,7 +92,7 @@ function newMaze() {
   maze = new Maze(nodes);
   maze.setStart(start);
   maze.setEnd(end);
-  maze.generate(start);
+  maze.generateRB(start);
   maze.sprinkle(0.01);
   maze.render({ gridType: gridType, ctx: ctx, xTiles: xTiles, yTiles: yTiles, cDiv: cDiv });
 }

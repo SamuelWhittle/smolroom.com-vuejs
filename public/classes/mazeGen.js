@@ -33,7 +33,7 @@ let maze_gen;
     }
 
     // generate the edges that make up the maze paths, nodeKey is the starting Node
-    generateRB(nodeKey) {
+    generateBacktracker(nodeKey) {
       // Mark the initial cell as visited
       this.visited[nodeKey] = true;
 
@@ -72,6 +72,10 @@ let maze_gen;
           this.genStack.push(neighborKey);
         }
       }
+    }
+
+    generateKruskal() {
+
     }
 
     render(args) {

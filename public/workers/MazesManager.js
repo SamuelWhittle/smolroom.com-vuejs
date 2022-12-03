@@ -92,7 +92,7 @@ function newMaze() {
   maze = new Maze(nodes);
   maze.setStart(start);
   maze.setEnd(end);
-  maze.generateRB(start);
+  maze.generateBacktracker(start);
   maze.sprinkle(0.01);
   maze.render({ gridType: gridType, ctx: ctx, xTiles: xTiles, yTiles: yTiles, cDiv: cDiv });
 }

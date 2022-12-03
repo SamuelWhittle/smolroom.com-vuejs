@@ -1,7 +1,7 @@
-importScripts('../classes/mazeGen.js', '../classes/graph.js');
+importScripts('../classes/graph.js', '../classes/mazeGen.js');
 
-const { Graph } = _graph;
 const { Maze, getKey } = maze_gen;
+const { Graph } = _graph;
 
 let canvas, ctx;
 let cDiv;
@@ -135,6 +135,7 @@ function newMaze() {
   maze.setStart(start);
   maze.setEnd(end);
   maze.generate(start);
+  maze.sprinkle(0.01);
   maze.render({ gridType: gridType, ctx: ctx, xTiles: xTiles, yTiles: yTiles, cDiv: cDiv });
 }
 

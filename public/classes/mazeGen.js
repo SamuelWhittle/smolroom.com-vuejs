@@ -38,6 +38,17 @@ let maze_gen;
       this.end = end;
     }
 
+    sprinkle(chance) {
+      for (const key in this.nodes) {
+        const node = this.nodes[key];
+        if (Math.random() < chance && node.potentialEdges.length == 4 && node.edges.length < 3) {
+          const potentialNewEdges = node.potentialEdges.filter(edge => node.edges.indexOf(edge) == -1);
+
+          node.edges.push(potentialNewEdges[Math.floor(Math.random() * potentialNewEdges.length)]);
+        }
+      }
+    }
+
     generate(nodeKey) {
       this.visited[nodeKey] = true;
 

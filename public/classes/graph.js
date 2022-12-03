@@ -1,6 +1,6 @@
 let _graph;
 (() => {
-  let __exports = {}
+  const __exports = {}
   class Graph {
     constructor() {
       this.nodes = {};

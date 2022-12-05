@@ -1,265 +1,347 @@
 <template>
-  <canvas id="mainCanvas" class="main-canvas" v-longpress="toggleControls" 
-  v-on="interactive ? { mousedown: mousedown, mousemove: mousemove, /*contextmenu: contextmenu,*/ touchstart: processTouchstart, touchmove: processTouchmove } : {}"></canvas>
-  <div class="controls flex flex-dir-column flex-justify-center easy-on-the-eyes" v-longpress="toggleControls" :class="{ 'controls-visible': controlsVisible }">
+  <canvas id="mainCanvas" class="main-canvas" v-longpress="toggleControls"
+    v-on="interactive ? { mousedown: mousedown, mousemove: mousemove, contextmenu: contextmenu, touchstart: processTouchstart, touchmove: processTouchmove } : {}"></canvas>
+  <div class="controls flex flex-dir-column flex-justify-center easy-on-the-eyes" v-longpress="toggleControls"
+    :class="{ 'controls-visible': controlsVisible }">
     <p>Press 'Esc' or long touch to toggle this menu.</p>
     <p>Pressing the 'Enter' or 'Space' key will toggle the simulation running state.</p>
-    <p>Pressing 'c' on your keyboard will clear the path.</p>
-    <p>Pressing 'r' on your keyboard will randomize the maze.</p>
     <button @click="toggleTask" class="controls-button">Start</button>
-    <button @click="clearPath" class="controls-button">Clear</button>
-    <button @click="newMaze" class="controls-button">Randomize</button>
+    <button @click="clearPath" class="controls-button"><u>C</u>lear</button>
+    <button @click="newMaze" class="controls-button"><u>R</u>andomize</button>
+    <div class="flex flex-justify-center flex-wrap">
+      <div class="flex flex-dir-column">
+        <p>Maze Gen Algorithm:</p>
+        <div class="flex">
+          <input type="radio" name="genType" id="backtracker" value="backtracker" checked="checked" v-model="genType">
+          <label for="backtracker">Backtracker</label>
+        </div>
+        <div class="flex">
+          <input type="radio" name="genType" id="kruskal" value="kruskal" v-model="genType">
+          <label for="kruskal">Kruskal</label>
+        </div>
+      </div>
+      <div class="flex flex-dir-column">
+        <p>Pathfinding Algorithm:</p>
+        <div class="flex">
+          <input type="radio" name="pathfinder" id="a-star" value="a-star" checked="checked" v-model="pathfinder">
+          <label for="a-star">A*</label>
+        </div>
+        <div class="flex">
+          <input type="radio" name="pathfinder" id="greedy" value="greedy" v-model="pathfinder">
+          <label for="greedy">Greedy Search</label>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
-<style scoped src="@/assets/css/components/canvas-and-controls.css"></style>
+<style scoped src="@/assets/css/components/canvas-and-controls.css">
+
+</style>
 
 <script>
-  export default {
-    props: {
-      interactive: {
-        type: Boolean,
-        required: true,
-      },
-      canvasDivisor: {
-        type: Number,
-        default: 30,
-      },
-      randomStart: {
-        type: Boolean,
-        default: true,
-      },
-      fps: {
-        type: Number,
-        default: 24
-      }
+export default {
+  props: {
+    interactive: {
+      type: Boolean,
+      required: true,
     },
-    data() {
-      return {
-        initializing: false,
-        message: "Initializing...",
-        controlsVisible: false,
-      }
+    canvasDivisor: {
+      type: Number,
+      default: 30,
     },
-    watch: {
-      initializing: {
-        handler() {
-          //console.log(this.initializing);
-          if (!this.initializing) {
-            this.postInit();
-          }
+    randomStart: {
+      type: Boolean,
+      default: true,
+    },
+    fps: {
+      type: Number,
+      default: 24
+    }
+  },
+  data() {
+    return {
+      initializing: false,
+      message: "Initializing...",
+      controlsVisible: false,
+      genType: "",
+      pathfinder: '',
+    }
+  },
+  watch: {
+    initializing: {
+      handler() {
+        //console.log(this.initializing);
+        if (!this.initializing) {
+          this.postInit();
         }
-      },
+      }
     },
-    mounted() {
-      this.canvas = document.getElementById('mainCanvas');
-      this.canvas.width = this.canvas.parentNode.clientWidth;
-      this.canvas.height = this.canvas.parentNode.clientHeight;
+  },
+  mounted() {
+    this.canvas = document.getElementById('mainCanvas');
+    this.canvas.width = this.canvas.parentNode.clientWidth;
+    this.canvas.height = this.canvas.parentNode.clientHeight;
 
-      this.offscreenCanvas = this.canvas.transferControlToOffscreen();
+    this.offscreenCanvas = this.canvas.transferControlToOffscreen();
+
+    this.running = false;
+    //this.mouseIsDown = false;
+
+    this.init();
+  },
+  unmounted() {
+    this.unwatch();
+  },
+  methods: {
+    init() {
+      if (this.initializing) return;
+
+      this.initializing = true;
+
+      this.terminateManager();
 
       this.running = false;
-      //this.mouseIsDown = false;
 
-      this.init();
+      this.manager = new Worker('/workers/MazesManager.js');
+      this.manager.onmessage = (event) => {
+        switch (event.data.msgType) {
+          case 'clockIn':
+            //console.log("manager clocked in");
+            this.manager.postMessage({
+              msgType: "task",
+              canvas: this.offscreenCanvas,
+              cDiv: this.canvasDivisor,
+              gridType: 'rect',
+              genType: this.genType,
+              randomStart: this.randomStart,
+            }, [this.offscreenCanvas]);
+            break;
+          case 'ready':
+            this.initializing = false;
+            break;
+        }
+      };
     },
-    methods: {
-      init() {
-        if (this.initializing) return;
-        
-        this.initializing = true;
+    initControls() {
+      if (this.$cookies.isKey("smol-controls-mazes")) {
+        let cookieSettings;
+        try {
+          cookieSettings = this.$cookies.get("smol-controls-mazes");
 
-        this.terminateManager();
-
-        this.running = false;
-
-        this.manager = new Worker('/workers/MazesManager.js');
-        this.manager.onmessage = (event) => {
-          switch (event.data.msgType) {
-            case 'clockIn':
-              //console.log("manager clocked in");
-              this.manager.postMessage({
-                msgType: "task", 
-                canvas: this.offscreenCanvas,
-                cDiv: this.canvasDivisor,
-                randomStart: this.randomStart, 
-              }, [this.offscreenCanvas]);
-              break;
-            case 'ready':
-              this.initializing = false;
-              break;
-          }
-        };
-      },
-      initControls() {
-        if (this.$cookies.isKey("smol-controls-mazes")) {
-          this.controlsVisible = (this.$cookies.get("smol-controls-mazes") === 'true');
-        } else {
-          this.toggleControls();
+          this.controlsVisible = cookieSettings.controlsVisible;
+          this.genType = cookieSettings.genType;
+          this.pathfinder = cookieSettings.pathfinder;
+        } catch (err) {
+          console.error(err);
         }
-
-        // are they clicking?
-        this.mouseIsDown = false;
-        // Did they start long pressing whilst in the menu
-        this.pressStartedInMenu = false;
-
-        window.addEventListener('mouseup', () => {
-          //console.log("mouseup");
-          this.mouseup();
-        });
-        window.addEventListener('touchend', () => {
-          //console.log('touchend');
-          this.mouseup();
-        });
-        window.addEventListener('keydown', (event) => {
-          switch(event.key) {
-            case "Escape":
-              //console.log("Esc");
-              this.toggleControls();
-              break;
-            case 'c':
-              this.clearPath();
-              break;
-            case 'r':
-              this.newMaze();
-              break;
-            case " ":
-            case "Enter":
-            event.preventDefault();
-              //console.log("Enter");
-              this.toggleTask();
-              break;
-          }
-        });
-      },
-      postInit() {
-        this.initResizeObserve();
-        this.initControls();
-      },
-      newMaze() {
-          this.manager.postMessage({msgType: "newMaze"});
-      },
-      clearPath() {
-          this.manager.postMessage({msgType: "clearPath"});
-      },
-      startButton() {
+      } else {
         this.toggleControls();
-        this.toggleTask();
-      },
-      toggleControls() {
-        if (this.interactive) {
-          this.controlsVisible = !this.controlsVisible;
-          this.$cookies.set("smol-controls-mazes",`${this.controlsVisible}`);
+      }
 
-          if(this.running) {
-              this.toggleTask();
-          }
+      // are they clicking?
+      this.mouseIsDown = false;
+      this.shifting = false;
+      // Did they start long pressing whilst in the menu
+      this.pressStartedInMenu = false;
+
+      window.addEventListener('mouseup', () => {
+        //console.log("mouseup");
+        this.mouseup();
+      });
+      window.addEventListener('touchend', () => {
+        //console.log('touchend');
+        this.mouseup();
+      });
+      window.addEventListener('keydown', (event) => {
+        switch (event.key) {
+          case "Escape":
+            //console.log("Esc");
+            this.toggleControls();
+            break;
+          case 'c':
+            this.clearPath();
+            break;
+          case 'r':
+            this.newMaze();
+            break;
+          case " ":
+          case "Enter":
+            event.preventDefault();
+            //console.log("Enter");
+            this.toggleTask();
+            break;
+          case "Shift":
+            this.shifting = true;
+            break;
         }
-      },
-      toggleTask() {
-        this.running = !this.running;
+      });
+      window.addEventListener('keyup', (event) => {
+        switch (event.key) {
+          case "Shift":
+            this.shifting = false;
+            break;
+        }
+      });
+    },
+    postInit() {
+      this.initWatchers();
+      this.initControls();
+    },
+    newMaze() {
+      this.manager.postMessage({ msgType: "newMaze" });
+    },
+    clearPath() {
+      this.manager.postMessage({ msgType: "clearPath" });
+    },
+    startButton() {
+      this.toggleControls();
+      this.toggleTask();
+    },
+    toggleControls() {
+      if (this.interactive) {
+        this.controlsVisible = !this.controlsVisible;
+        //this.$cookies.set("smol-controls-mazes", `${this.controlsVisible}`);
+        this.saveSettings();
 
         if (this.running) {
-          this.controlsVisible = false;
-        }
-
-        this.manager.postMessage({ msgType: "toggleTask", state: this.running, fps: this.fps });
-      },
-      initResizeObserve() {
-        this.parentResizeObserver = new ResizeObserver(() => {
-          this.manager.postMessage({msgType: "resizeCanvas", width: this.canvas.parentNode.clientWidth, height: this.canvas.parentNode.clientHeight});
-        });
-
-        this.parentResizeObserver.observe(this.canvas.parentNode);
-      },
-      unwatch() {
-        if (this.parentResizeObserver) {
-          this.parentResizeObserver.disconnect();
-        }
-      },
-      terminateManager() {
-        if (this.manager) {
-          this.manager.postMessage({ msgType: "terminate" });
-        }
-      },
-      mousedown(event) {
-        //console.log("mousedown(event)");
-        if (event.buttons == 1) {
-          this.mouseIsDown = true;
-          //console.log("mousedown");
-
-          if(this.running) {
-            this.toggleTask();
-          }
-
-          this.updateCell(event);
-        }
-      },
-      updateCell(event) {
-        //console.log("updateCell(event)");
-        this.manager.postMessage({
-          msgType: "cellUpdate", 
-          x: event.clientX, 
-          y: event.clientY, 
-        });
-      },
-      // mouse move
-      mousemove(event) {
-        if (this.mouseIsDown) {
-          //console.log("mousemove(event) while mouseIsDown");
-
-          this.updateCell(event);
-        }
-      },
-      // mouse up
-      mouseup() {
-        //console.log("mouseup()");
-        this.mouseIsDown = false;
-        this.manager.postMessage({ msgType: 'clearLastUpdated' });
-        //console.log("mouseup");
-      },
-      // touch start
-      processTouchstart(event) {
-        //console.log("processTouchstart(event)");
-        event.preventDefault();
-
-        this.mouseIsDown = true;
-
-        if(this.running) {
           this.toggleTask();
         }
+      }
+    },
+    saveSettings() {
+      this.$cookies.set("smol-controls-mazes", {
+        controlsVisible: this.controlsVisible,
+        genType: this.genType,
+        pathfinder: this.pathfinder
+      });
+    },
+    toggleTask() {
+      this.running = !this.running;
 
+      if (this.running) {
+        this.controlsVisible = false;
+      }
+
+      this.manager.postMessage({ msgType: "toggleTask", state: this.running, fps: this.fps });
+    },
+    initWatchers() {
+      this.parentResizeObserver = new ResizeObserver(() => {
+        this.manager.postMessage({ msgType: "resizeCanvas", width: this.canvas.parentNode.clientWidth, height: this.canvas.parentNode.clientHeight });
+      });
+
+      this.parentResizeObserver.observe(this.canvas.parentNode);
+
+
+      this.genTypeWatcher = this.$watch('genType', () => {
+        this.manager.postMessage({ msgType: 'genType', genType: this.genType });
+        this.saveSettings();
+      })
+      this.pathfinderWatcher = this.$watch('pathfinder', () => {
+        this.manager.postMessage({ msgType: 'pathfinder', pathfinder: this.pathfinder });
+        this.saveSettings();
+      })
+    },
+    unwatch() {
+      if (this.parentResizeObserver) {
+        this.parentResizeObserver.disconnect();
+      }
+
+      if (this.genTypeWatcher) {
+        this.genTypeWatcher();
+        this.genTypeWatcher = null;
+      }
+
+      if (this.pathfinderWatcher) {
+        this.pathfinderWatcher();
+        this.pathfinderWatcher = null;
+      }
+    },
+    terminateManager() {
+      if (this.manager) {
+        this.manager.postMessage({ msgType: "terminate" });
+      }
+    },
+    mousedown(event) {
+      //console.log("mousedown(event)");
+      //if (event.buttons == 1) {
+      this.mouseIsDown = true;
+      //console.log("mousedown");
+
+      if (this.running) {
+        this.toggleTask();
+      }
+
+      this.updateCell(event);
+      //}
+    },
+    updateCell(event) {
+      //console.log("updateCell(event)");
+      this.manager.postMessage({
+        msgType: "cellUpdate",
+        x: event.clientX,
+        y: event.clientY,
+        buttons: this.shifting ? 2 : event.buttons
+        //buttons: event.buttons
+      });
+    },
+    // mouse move
+    mousemove(event) {
+      if (this.mouseIsDown) {
+        //console.log("mousemove(event) while mouseIsDown");
+
+        this.updateCell(event);
+      }
+    },
+    // mouse up
+    mouseup() {
+      //console.log("mouseup()");
+      this.mouseIsDown = false;
+      this.manager.postMessage({ msgType: 'clearLastUpdated' });
+      //console.log("mouseup");
+    },
+    // touch start
+    processTouchstart(event) {
+      //console.log("processTouchstart(event)");
+      event.preventDefault();
+
+      this.mouseIsDown = true;
+
+      if (this.running) {
+        this.toggleTask();
+      }
+
+      let touch = event.touches[0];
+
+      let mouseEvent = new MouseEvent('mousedown', {
+        clientX: touch.pageX,
+        clientY: touch.pageY,
+        buttons: 1
+      });
+
+      this.updateCell(mouseEvent);
+    },
+    // touch move
+    processTouchmove(event) {
+      //console.log("processTouchmove(event)");
+      event.preventDefault();
+
+      if (this.mouseIsDown) {
         let touch = event.touches[0];
 
-        let mouseEvent = new MouseEvent('mousedown', {
+        let mouseEvent = new MouseEvent("mousemove", {
           clientX: touch.pageX,
           clientY: touch.pageY,
           buttons: 1
         });
 
         this.updateCell(mouseEvent);
-      },
-      // touch move
-      processTouchmove(event) {
-        //console.log("processTouchmove(event)");
-        event.preventDefault();
-
-        if (this.mouseIsDown) {
-          let touch = event.touches[0];
-
-          let mouseEvent = new MouseEvent("mousemove", {
-            clientX: touch.pageX,
-            clientY: touch.pageY,
-            buttons: 1
-          });
-
-          this.updateCell(mouseEvent);
-        }
-      },
-      // Block the default right click behavior
-      /*contextmenu(event) {
-        event.preventDefault();
-      },*/
-    }
+      }
+    },
+    // Block the default right click behavior
+    contextmenu(event) {
+      event.preventDefault();
+    },
   }
+}
 </script>

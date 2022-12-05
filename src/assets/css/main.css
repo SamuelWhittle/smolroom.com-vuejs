@@ -37,6 +37,10 @@ router-link {
     gap: var(--gap, 1rem);
 }
 
+.flex-wrap {
+    flex-wrap: wrap;
+}
+
 .flex-justify-center {
     justify-content: center;
 }

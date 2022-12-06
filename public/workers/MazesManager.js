@@ -1,7 +1,9 @@
-importScripts('../classes/DataStructures.js', '../classes/MazeGen.js');
+importScripts('../classes/DataStructures.js', '../classes/MazeGen.js', '../classes/AStar.js');
 
-const { Maze } = maze_gen;
 const { Graph, getKey } = data_structures;
+const { Maze } = maze_gen;
+const { AStar } = a_star;
+
 
 let canvas, ctx;
 let cDiv;

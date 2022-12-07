@@ -88,8 +88,9 @@ function init() {
   userPath = {};
 
   initGraph();
-  newMaze();
+  initMaze();
   renderMaze();
+  //initPathfinder();
 }
 
 function initGraph() {
@@ -104,7 +105,7 @@ function initGraph() {
   }
 }
 
-function newMaze() {
+function initMaze() {
   const start = getKey(0, 0);
   const end = getKey(xTiles - 1, yTiles - 1);
 
@@ -152,6 +153,9 @@ function updateCell(x, y, buttons) {
   // when the user updates a node it gets pushed to the lastUpdated array
   // mouseup and touchend clear the lastUpdated array
 
+
+
+  if (buttons == 1) {
   if (lastUpdated.length > 0) {
     // if the user is trying to update the node they just updated, ignore.
       if (lastUpdated[lastUpdated.length - 1] === loc) return;
@@ -165,8 +169,6 @@ function updateCell(x, y, buttons) {
     if (!isNeighbor)
       return;
   }
-
-  if (buttons == 1) {
     if (drawState == undefined) {
       if (metadata.userPath)
         drawState = 0;
@@ -208,10 +210,8 @@ function updateCell(x, y, buttons) {
     if (drawState) {
       // add it to the userPath
       metadata.highlighted = true;
-      metadata.userPath = false;
       ctx.fillStyle = maze.highlightColor;
     } else {
-      //metadata.userPath = false;
       metadata.highlighted = false;
 
       if (metadata.userPath){

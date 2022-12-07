@@ -183,15 +183,18 @@ function draw() {
 
       // Draw the inital line
       ctx.lineWidth = lineWidth;
-      ctx.strokeStyle = `hsla(${color}, 100%, 50%, ${opacity})`
-      //ctx.strokeStyle = `hsl(${color}, 100%, 50%)`
+      //ctx.strokeStyle = `hsla(${color}, 100%, 50%, ${opacity})`
+      const gradient = ctx.createRadialGradient(x * cDiv, y * cDiv, Math.floor(length / 5), x * cDiv, y * cDiv, length);
+      gradient.addColorStop(0, `hsla(0, 0%, 0%, 0)`);
+      gradient.addColorStop(1, `hsla(${color}, 100%, 50%, ${opacity})`);
+      ctx.strokeStyle = gradient;
       ctx.beginPath();
       ctx.moveTo(x * cDiv, y * cDiv);
       ctx.lineTo(lineEndX, lineEndY);
       ctx.stroke();
 
       // Set accent color
-      ctx.fillStyle = `hsla(${color}, 100%, 100%, ${opacity})`
+      ctx.fillStyle = `hsla(${color}, 100%, 75%, ${opacity})`
       //ctx.fillStyle = `hsl(${color}, 100%, 100%)`
       // Draw accent
       ctx.beginPath();

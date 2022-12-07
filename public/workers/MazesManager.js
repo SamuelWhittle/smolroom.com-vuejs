@@ -11,6 +11,7 @@ let xTiles, yTiles;
 let wallThickness = 4;
 
 let graph, maze, gridType;
+let pathfinder;
 
 let lastUpdated = [];
 let drawState;
@@ -20,9 +21,10 @@ let interval;
 self.onmessage = event => {
   switch (event.data.msgType) {
     case "toggleTask":
-      console.log("toggleTask");
+      //console.log("toggleTask");
       //toggleTask(event.data.state, event.data.fps);
-      step();
+      //step();
+      instaSolve();
       break;
     case 'resizeCanvas':
       canvas.width = event.data.width;
@@ -90,7 +92,7 @@ function init() {
   initGraph();
   initMaze();
   renderMaze();
-  //initPathfinder();
+  initPathfinder();
 }
 
 function initGraph() {
@@ -138,39 +140,57 @@ function renderMaze() {
   }
 }
 
+function initPathfinder() {
+  pathfinder = new AStar(graph.nodes);
+}
+
+function instaSolve() {
+  //console.log('instaSolve');
+  pathfinder.solve(maze.start, maze.end);
+  switch (gridType) {
+    case 'hex':
+      console.log("hexagonal maze rendering has not been implemented yet.");
+      break;
+    case 'rect':
+    default:
+      pathfinder.renderRect(ctx, xTiles, yTiles, cDiv, wallThickness, maze.computerPathColor);
+  }
+}
+
 // user requested to toggle userPath state of a node
 function updateCell(x, y, buttons) {
+  //console.log('updateCell', x, y, buttons);
   // calulate X anf Y relative to the grid
   let cellX = Math.floor(x / cDiv);
   let cellY = Math.floor(y / cDiv);
+
+  if (cellX >= xTiles || cellY >= yTiles) return;
 
   // get the key of the node
   let loc = getKey(cellX, cellY);
 
   // get the metadata for the requested node
-  metadata = graph.nodes[loc].metadata;
+  renderInfo = graph.nodes[loc].metadata.render;
 
   // when the user updates a node it gets pushed to the lastUpdated array
   // mouseup and touchend clear the lastUpdated array
-
-
-
   if (buttons == 1) {
-  if (lastUpdated.length > 0) {
-    // if the user is trying to update the node they just updated, ignore.
+    if (lastUpdated.length > 0) {
+      // if the user is trying to update the node they just updated, ignore.
       if (lastUpdated[lastUpdated.length - 1] === loc) return;
 
-    // if the user is trying to toggle a node that is not a neighbor of any of the previously toggled neighbor, ignore.
-    let isNeighbor = false;
-    lastUpdated.forEach(key => {
-      if(graph.nodes[key].edges.indexOf(loc) != -1) isNeighbor = true;
-    });
+      // if the user is trying to toggle a node that is not a neighbor of any of the previously toggled neighbor, ignore.
+      let isNeighbor = false;
+      lastUpdated.forEach(key => {
+        if(graph.nodes[key].edges.indexOf(loc) != -1) isNeighbor = true;
+      });
 
-    if (!isNeighbor)
-      return;
-  }
+      if (!isNeighbor)
+        return;
+    }
+
     if (drawState == undefined) {
-      if (metadata.userPath)
+      if (renderInfo.userPath)
         drawState = 0;
       else 
         drawState = 1;
@@ -178,48 +198,48 @@ function updateCell(x, y, buttons) {
 
     if (drawState) {
       // add it to the userPath
-      metadata.userPath = true;
-      metadata.highlighted = false;
+      renderInfo.userPath = true;
+
       ctx.fillStyle = maze.userPathColor;
     } else {
-      metadata.userPath = false;
-      //metadata.highlighted = false;
+      renderInfo.userPath = false;
 
-
-      if (metadata.highlighted) {
+      if (renderInfo.highlighted) {
         ctx.fillStyle = maze.highlightedColor;
+      } else if (renderInfo.computerPath) {
+        ctx.fillStyle = maze.computerPathColor;
       } else {
-        if (metadata.isStart) {
+        if (renderInfo.isStart) {
           ctx.fillStyle = maze.startColor;
-        } else if (metadata.isEnd) {
+        } else if (renderInfo.isEnd) {
           ctx.fillStyle = maze.endColor;
         } else {
           ctx.fillStyle = maze.pathColor;
         }
       }
-
     }
   } else if (buttons == 2) {
     if (drawState == undefined) {
-      if (metadata.highlighted)
+      if (renderInfo.highlighted)
         drawState = 0;
       else 
         drawState = 1;
     }
-    
+
     if (drawState) {
-      // add it to the userPath
-      metadata.highlighted = true;
+      renderInfo.highlighted = true;
       ctx.fillStyle = maze.highlightColor;
     } else {
-      metadata.highlighted = false;
+      renderInfo.highlighted = false;
 
-      if (metadata.userPath){
+      if (renderInfo.userPath){
         ctx.fillStyle = maze.userPathColor;
+      } else if (renderInfo.computerPath) {
+        ctx.fillStyle = maze.computerPathColor;
       } else{
-        if (metadata.isStart) {
+        if (renderInfo.isStart) {
           ctx.fillStyle = maze.startColor;
-        } else if (metadata.isEnd) {
+        } else if (renderInfo.isEnd) {
           ctx.fillStyle = maze.endColor;
         } else {
           ctx.fillStyle = maze.pathColor;

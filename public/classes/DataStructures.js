@@ -35,6 +35,7 @@ let data_structures;
             weight: 0,
             render: {
               userPath: false,
+              computerPath: false,
               isStart: false,
               isEnd: false,
               highlighted: false

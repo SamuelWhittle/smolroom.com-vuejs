@@ -16,6 +16,7 @@ let maze_gen;
       this.pathColor = '#16161d';
       this.wallColor = '#888888';
       this.userPathColor = '#8888ff';
+      this.computerPathColor = '#000000';
       this.highlightColor = '#FF9955';
     }
 

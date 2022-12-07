@@ -5,6 +5,109 @@ let a_star;
   class AStar {
     constructor(nodes) {
       this.nodes = nodes;
+      this.solvedPath = [];
+    }
+
+    // Returns the distance between two nodes
+    _distance(node1, node2) {
+      const [x1, y1] = node1.metadata.position;
+      const [x2, y2] = node2.metadata.position;
+      return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+    }
+
+    // Returns the node with the smallest fScore in the openList
+    _getLowestScoreNode(openList, fScores) {
+      let lowestScore = Infinity;
+      let lowestNode = null;
+
+      for (const node of openList) {
+        const fScore = fScores.get(node);
+        if (fScore < lowestScore) {
+          lowestScore = fScore;
+          lowestNode = node;
+        }
+      }
+
+      return lowestNode;
+    }
+
+    // Returns the solved set of nodes using the A* algorithm
+    solve(startNodeKey, endNodeKey) {
+      const startNode = this.nodes[startNodeKey];
+      const endNode = this.nodes[endNodeKey];
+
+      // Return an empty array if the start or end node is not found
+      if (!startNode || !endNode) return [];
+
+      const openList = new Set([startNode]);
+      const closedList = new Set();
+      const cameFrom = new Map();
+
+      const gScores = new Map();
+      gScores.set(startNode, 0);
+
+      const fScores = new Map();
+      fScores.set(startNode, this._distance(startNode, endNode));
+
+      while (openList.size > 0) {
+        const currentNode = this._getLowestScoreNode(openList, fScores);
+
+        // Stop when we reach the end node
+        if (currentNode === endNode) {
+          break;
+        }
+
+        openList.delete(currentNode);
+        closedList.add(currentNode);
+
+        for (const neighborKey of currentNode.edges) {
+          const neighbor = this.nodes[neighborKey];
+          if (closedList.has(neighbor)) continue;
+          //if (closedList.has(neighbor)) return;
+
+          const tentativeGScore = gScores.get(currentNode) + this._distance(currentNode, neighbor);
+
+          if (!openList.has(neighbor)) {
+            openList.add(neighbor);
+          } else if (tentativeGScore >= gScores.get(neighbor)) {
+            continue;
+          }
+
+          cameFrom.set(neighbor, currentNode);
+          gScores.set(neighbor, tentativeGScore);
+          fScores.set(
+            neighbor,
+            tentativeGScore + this._distance(neighbor, endNode)
+          );
+        }
+      }
+
+      // Reconstruct the path by following the cameFrom map
+      const path = [endNode];
+      let currentNode = endNode;
+      while (currentNode !== startNode) {
+        currentNode = cameFrom.get(currentNode);
+        path.unshift(currentNode);
+      }
+
+      /*path.forEach(node => {
+        this.nodes[`${node.metadata.position[0]}.${node.metadata.position[1]}`].metadata.render.computerPath = true;
+      });*/
+
+      this.solvedPath = path;
+    }
+
+    renderRect(ctx, xTiles, yTiles, cDiv, wallThickness, color) {
+      ctx.fillStyle = color;
+
+      let fillPath = new Path2D();
+
+      this.solvedPath.forEach(node => {
+        fillPath.rect(node.metadata.position[0] * cDiv + wallThickness, node.metadata.position[1] * cDiv + wallThickness, 
+          cDiv - (wallThickness * 2), cDiv - (wallThickness * 2));
+      });
+
+      ctx.fill(fillPath);
     }
   }
 
@@ -12,6 +115,98 @@ let a_star;
 
   a_star = Object.assign(__exports);
 })();
+
+/* Class provided by chatGPT after asking it for an A* class that utilizes my Graph class
+
+class Pathfinder {
+  constructor(graph) {
+    this.graph = graph;
+  }
+
+  // Returns the distance between two nodes
+  _distance(node1, node2) {
+    const [x1, y1] = node1.metadata.position;
+    const [x2, y2] = node2.metadata.position;
+    return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+  }
+
+  // Returns the node with the smallest fScore in the openList
+  _getLowestScoreNode(openList, fScores) {
+    let lowestScore = Infinity;
+    let lowestNode = null;
+
+    for (const node of openList) {
+      const fScore = fScores.get(node);
+      if (fScore < lowestScore) {
+        lowestScore = fScore;
+        lowestNode = node;
+      }
+    }
+
+    return lowestNode;
+  }
+
+  // Returns the solved set of nodes using the A* algorithm
+  solve(startNodeKey, endNodeKey) {
+    const startNode = this.graph.nodes[startNodeKey];
+    const endNode = this.graph.nodes[endNodeKey];
+
+    // Return an empty array if the start or end node is not found
+    if (!startNode || !endNode) return [];
+
+    const openList = new Set([startNode]);
+    const closedList = new Set();
+    const cameFrom = new Map();
+
+    const gScores = new Map();
+    gScores.set(startNode, 0);
+
+    const fScores = new Map();
+    fScores.set(startNode, this._distance(startNode, endNode));
+
+    while (openList.size > 0) {
+      const currentNode = this._getLowestScoreNode(openList, fScores);
+
+      // Stop when we reach the end node
+      if (currentNode === endNode) {
+        break;
+      }
+
+      openList.delete(currentNode);
+      closedList.add(currentNode);
+
+      for (const neighbor of currentNode.neighbors) {
+        if (closedList.has(neighbor)) continue;
+
+        const tentativeGScore =
+          gScores.get(currentNode) + this._distance(currentNode, neighbor);
+
+        if (!openList.has(neighbor)) {
+          openList.add(neighbor);
+        } else if (tentativeGScore >= gScores.get(neighbor)) {
+          continue;
+        }
+
+        cameFrom.set(neighbor, currentNode);
+        gScores.set(neighbor, tentativeGScore);
+        fScores.set(
+          neighbor,
+          tentativeGScore + this._distance(neighbor, endNode)
+        );
+      }
+    }
+
+    // Reconstruct the path by following the cameFrom map
+    const path = [endNode];
+    let currentNode = endNode;
+    while (currentNode !== startNode) {
+      currentNode = cameFrom.get(currentNode);
+      path.unshift(currentNode);
+    }
+
+    return path;
+
+*/
 
 /*
 

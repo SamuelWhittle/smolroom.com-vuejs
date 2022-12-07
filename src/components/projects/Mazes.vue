@@ -13,11 +13,11 @@
         <p>Maze Gen Algorithm:</p>
         <div class="flex">
           <input type="radio" name="genType" id="backtracker" value="backtracker" checked="checked" v-model="genType">
-          <label for="backtracker">Backtracker</label>
+          <label for="backtracker"><u>B</u>acktracker</label>
         </div>
         <div class="flex">
           <input type="radio" name="genType" id="kruskal" value="kruskal" v-model="genType">
-          <label for="kruskal">Kruskal</label>
+          <label for="kruskal"><u>K</u>ruskal</label>
         </div>
       </div>
       <div class="flex flex-dir-column">
@@ -165,6 +165,12 @@ export default {
           case 'r':
             this.newMaze();
             break;
+          case 'k':
+            this.genType = 'kruskal';
+            break;
+          case 'b':
+            this.genType = 'backtracker';
+            break;
           case " ":
           case "Enter":
             event.preventDefault();
@@ -263,14 +269,15 @@ export default {
       }
     },
     mousedown(event) {
+      event.preventDefault();
       //console.log("mousedown(event)");
       //if (event.buttons == 1) {
       this.mouseIsDown = true;
       //console.log("mousedown");
 
-      if (this.running) {
+      /*if (this.running) {
         this.toggleTask();
-      }
+      }*/
 
       this.updateCell(event);
       //}

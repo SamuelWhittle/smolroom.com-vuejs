@@ -1,8 +1,7 @@
-importScripts('../classes/DataStructures.js', '../classes/MazeGen.js', '../classes/AStar.js');
+importScripts('../classes/DataStructures.js', '../classes/MazeGen.js');
 
 const { Graph, getKey } = data_structures;
 const { Maze } = maze_gen;
-const { AStar } = a_star;
 
 
 let canvas, ctx;
@@ -11,7 +10,7 @@ let xTiles, yTiles;
 let wallThickness = 4;
 
 let graph, maze, gridType;
-let pathfinder;
+let genType, pathfinder;
 
 let lastUpdated = [];
 let drawState;
@@ -38,6 +37,7 @@ self.onmessage = event => {
       canvas = event.data.canvas;
       cDiv = event.data.cDiv;
       genType = event.data.genType;
+      pathfinder = event.data.pathfinder;
       gridType = event.data.gridType;
 
       ctx = canvas.getContext('2d');
@@ -53,6 +53,8 @@ self.onmessage = event => {
       init();
       break;
     case "clearPath":
+      maze.resetRenderMetadata();
+      maze.hideSolved();
       renderMaze();
       break;
     case 'genType':
@@ -92,7 +94,6 @@ function init() {
   initGraph();
   initMaze();
   renderMaze();
-  initPathfinder();
 }
 
 function initGraph() {
@@ -136,24 +137,28 @@ function renderMaze() {
       break;
     case 'rect':
     default:
-      maze.renderRect(ctx, xTiles, yTiles, cDiv, wallThickness);
+      maze.renderRect(ctx, xTiles, yTiles, cDiv);
   }
 }
 
-function initPathfinder() {
-  pathfinder = new AStar(graph.nodes);
-}
-
 function instaSolve() {
-  //console.log('instaSolve');
-  pathfinder.solve(maze.start, maze.end);
+  switch (pathfinder) {
+    case '':
+      break;
+    case 'aStar':
+    default:
+      maze.aStarSolve(maze.start, maze.end);
+  }
+
+  maze.renderSolved = !maze.renderSolved;
+
   switch (gridType) {
     case 'hex':
       console.log("hexagonal maze rendering has not been implemented yet.");
       break;
     case 'rect':
     default:
-      pathfinder.renderRect(ctx, xTiles, yTiles, cDiv, wallThickness, maze.computerPathColor);
+      maze.renderSolvedPathRect(ctx, cDiv);
   }
 }
 
@@ -169,26 +174,30 @@ function updateCell(x, y, buttons) {
   // get the key of the node
   let loc = getKey(cellX, cellY);
 
+  // if the user is trying to update the node they just updated, ignore.
+  if (lastUpdated[lastUpdated.length - 1] === loc) return;
+
   // get the metadata for the requested node
-  renderInfo = graph.nodes[loc].metadata.render;
+  renderInfo = maze.nodes[loc].metadata.render;
 
-  // when the user updates a node it gets pushed to the lastUpdated array
-  // mouseup and touchend clear the lastUpdated array
+  // if it was a left click
   if (buttons == 1) {
+    // if there are nodes in the lastUpdated array
     if (lastUpdated.length > 0) {
-      // if the user is trying to update the node they just updated, ignore.
-      if (lastUpdated[lastUpdated.length - 1] === loc) return;
-
-      // if the user is trying to toggle a node that is not a neighbor of any of the previously toggled neighbor, ignore.
+      // if the user is trying to toggle a node that is not an edge of any of the previously toggled nodes, ignore.
+        // this only applies to nodes changed since the user started the current interaction
+        // lastUpdated will be cleared on control release.
       let isNeighbor = false;
       lastUpdated.forEach(key => {
-        if(graph.nodes[key].edges.indexOf(loc) != -1) isNeighbor = true;
+        if(maze.nodes[key].edges.indexOf(loc) != -1) isNeighbor = true;
       });
 
       if (!isNeighbor)
         return;
     }
 
+    // if the draw state for this control interaction has not yet been defined, use the userPath value of the current node to define it.
+      // this is cleared on control release
     if (drawState == undefined) {
       if (renderInfo.userPath)
         drawState = 0;
@@ -196,27 +205,16 @@ function updateCell(x, y, buttons) {
         drawState = 1;
     }
 
+    // if we are drawing, not erasing
     if (drawState) {
-      // add it to the userPath
+      // set userPath value of current node
       renderInfo.userPath = true;
-
-      ctx.fillStyle = maze.userPathColor;
+      renderInfo.highlighted = false;
     } else {
+      // we are erasing, not drawing
+      // set userPath value of the current node
       renderInfo.userPath = false;
-
-      if (renderInfo.highlighted) {
-        ctx.fillStyle = maze.highlightedColor;
-      } else if (renderInfo.computerPath) {
-        ctx.fillStyle = maze.computerPathColor;
-      } else {
-        if (renderInfo.isStart) {
-          ctx.fillStyle = maze.startColor;
-        } else if (renderInfo.isEnd) {
-          ctx.fillStyle = maze.endColor;
-        } else {
-          ctx.fillStyle = maze.pathColor;
-        }
-      }
+      renderInfo.highlighted = false;
     }
   } else if (buttons == 2) {
     if (drawState == undefined) {
@@ -228,23 +226,8 @@ function updateCell(x, y, buttons) {
 
     if (drawState) {
       renderInfo.highlighted = true;
-      ctx.fillStyle = maze.highlightColor;
     } else {
       renderInfo.highlighted = false;
-
-      if (renderInfo.userPath){
-        ctx.fillStyle = maze.userPathColor;
-      } else if (renderInfo.computerPath) {
-        ctx.fillStyle = maze.computerPathColor;
-      } else{
-        if (renderInfo.isStart) {
-          ctx.fillStyle = maze.startColor;
-        } else if (renderInfo.isEnd) {
-          ctx.fillStyle = maze.endColor;
-        } else {
-          ctx.fillStyle = maze.pathColor;
-        }
-      }
     }
   }
 
@@ -254,8 +237,7 @@ function updateCell(x, y, buttons) {
       break;
     case 'rect':
     default:
-      ctx.fillRect(cellX * cDiv + wallThickness, cellY * cDiv + wallThickness, 
-        cDiv - (wallThickness * 2), cDiv - (wallThickness * 2));
+      maze.renderNodeRect(loc, ctx, cDiv, wallThickness);
   }
 
   lastUpdated.push(loc);

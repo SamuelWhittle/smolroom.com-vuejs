@@ -8,15 +8,20 @@ let maze_gen;
   class Maze {
     constructor(nodes) {
       this.nodes = nodes;
+      this.solvedPath = [];
+      this.renderSolved = false;
+
       this.start = null;
       this.end = null;
       this.style = null; // rect or hex
+      this.wallThickness = 4;
+
       this.startColor = '#88ff88';
       this.endColor = '#ff8888';
       this.pathColor = '#16161d';
       this.wallColor = '#888888';
       this.userPathColor = '#8888ff';
-      this.computerPathColor = '#000000';
+      this.computerPathColor = '#b080b0';
       this.highlightColor = '#FF9955';
     }
 
@@ -25,7 +30,7 @@ let maze_gen;
 
       this.clearStart();
 
-      this.nodes[start].metadata.isStart = true;
+      this.nodes[start].metadata.render.isStart = true;
     }
 
     setEnd(end) {
@@ -33,19 +38,27 @@ let maze_gen;
 
       this.clearEnd();
 
-      this.nodes[end].metadata.isEnd = true;
+      this.nodes[end].metadata.render.isEnd = true;
     }
 
     clearStart() {
       Object.entries(this.nodes).forEach(([_, node]) => {
-        node.metadata.isStart = false;
+        node.metadata.render.isStart = false;
       });
     }
 
     clearEnd() {
       Object.entries(this.nodes).forEach(([_, node]) => {
-        node.metadata.isEnd = false;
+        node.metadata.render.isEnd = false;
       });
+    }
+
+    showSolved() {
+      this.renderSolved = true;
+    }
+
+    hideSolved() {
+      this.renderSolved = false;
     }
 
     initRectNodes() {
@@ -165,13 +178,14 @@ let maze_gen;
       }
     }
 
-    renderRect(ctx, xTiles, yTiles, cDiv, wallThickness) {
+    renderRect(ctx, xTiles, yTiles, cDiv) {
       ctx.fillStyle =this.wallColor;
-      ctx.fillRect(0, 0, xTiles * cDiv + (wallThickness / 2), yTiles * cDiv + (wallThickness / 2));
+      ctx.fillRect(0, 0, xTiles * cDiv + (this.wallThickness / 2), yTiles * cDiv + (this.wallThickness / 2));
 
       ctx.fillStyle = this.pathColor;
+
       ctx.strokeStyle = this.pathColor;
-      ctx.lineWidth = cDiv - wallThickness;
+      ctx.lineWidth = cDiv - this.wallThickness;
 
       let fillPath = new Path2D();
       let strokePath = new Path2D();
@@ -179,8 +193,8 @@ let maze_gen;
       for (const key in this.nodes) {
         const node = this.nodes[key];
 
-        fillPath.rect(node.metadata.position[0] * cDiv + (wallThickness / 2), node.metadata.position[1] * cDiv + (wallThickness / 2), 
-          cDiv - wallThickness, cDiv - wallThickness);
+        fillPath.rect(node.metadata.position[0] * cDiv + (this.wallThickness / 2), node.metadata.position[1] * cDiv + (this.wallThickness / 2), 
+          cDiv - this.wallThickness, cDiv - this.wallThickness);
 
         node.edges.forEach((key) => {
           strokePath.moveTo(node.metadata.position[0] * cDiv + (cDiv / 2), node.metadata.position[1] * cDiv + (cDiv / 2));
@@ -192,11 +206,147 @@ let maze_gen;
       ctx.stroke(strokePath);
 
       ctx.fillStyle = this.startColor;
-      ctx.fillRect(this.nodes[this.start].metadata.position[0] * cDiv + (wallThickness / 2), this.nodes[this.start].metadata.position[1] * cDiv + (wallThickness / 2),
-        cDiv - wallThickness, cDiv - wallThickness);
+      ctx.fillRect(this.nodes[this.start].metadata.position[0] * cDiv + (this.wallThickness / 2), this.nodes[this.start].metadata.position[1] * cDiv + (this.wallThickness / 2),
+        cDiv - this.wallThickness, cDiv - this.wallThickness);
       ctx.fillStyle = this.endColor;
-      ctx.fillRect(this.nodes[this.end].metadata.position[0] * cDiv + (wallThickness / 2), this.nodes[this.end].metadata.position[1] * cDiv + (wallThickness / 2),
-        cDiv - wallThickness, cDiv - wallThickness);
+      ctx.fillRect(this.nodes[this.end].metadata.position[0] * cDiv + (this.wallThickness / 2), this.nodes[this.end].metadata.position[1] * cDiv + (this.wallThickness / 2),
+        cDiv - this.wallThickness, cDiv - this.wallThickness);
+    }
+
+    resetRenderMetadata() {
+      for (const nodeKey in this.nodes) {
+        const node = this.nodes[nodeKey];
+
+        for (const renderKey in node.metadata.render) {
+          node.metadata.render[renderKey] = false;
+        }
+      }
+    }
+    
+    getNodeColor(key) {
+      const render = this.nodes[key].metadata.render;
+
+      if (render.highlighted) {
+        return this.highlightColor;
+      } else if (render.userPath) {
+        return this.userPathColor;
+      } else if (render.computerPath && this.renderSolved) {
+        return this.computerPathColor;
+      } else if (render.isStart) {
+        return this.startColor;
+      } else if (render.isEnd) {
+        return this.endColor;
+      } else {
+        return this.pathColor;
+      }
+    }
+
+    renderNodeRect(key, ctx, cDiv) {
+      ctx.fillStyle = this.getNodeColor(key);
+
+      const node = this.nodes[key];
+
+      ctx.fillRect(node.metadata.position[0] * cDiv + this.wallThickness, node.metadata.position[1] * cDiv + this.wallThickness, 
+        cDiv - (this.wallThickness * 2), cDiv - (this.wallThickness * 2));
+    }
+
+    // ########## PATHFINDING ##########
+
+    // Returns the distance between two nodes
+    _distance(node1, node2) {
+      const [x1, y1] = node1.metadata.position;
+      const [x2, y2] = node2.metadata.position;
+      return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+    }
+
+    // Returns the node with the smallest fScore in the openList
+    _getLowestScoreNode(openList, fScores) {
+      let lowestScore = Infinity;
+      let lowestNode = null;
+
+      for (const node of openList) {
+        const fScore = fScores.get(node);
+        if (fScore < lowestScore) {
+          lowestScore = fScore;
+          lowestNode = node;
+        }
+      }
+
+      return lowestNode;
+    }
+
+    // Returns the solved set of nodes using the A* algorithm
+    aStarSolve(startNodeKey, endNodeKey) {
+      const startNode = this.nodes[startNodeKey];
+      const endNode = this.nodes[endNodeKey];
+
+      endNode.metadata.render.computerPath = true;
+
+      // Return an empty array if the start or end node is not found
+      if (!startNode || !endNode) return [];
+
+      const openList = new Set([startNode]);
+      const closedList = new Set();
+      const cameFrom = new Map();
+
+      const gScores = new Map();
+      gScores.set(startNode, 0);
+
+      const fScores = new Map();
+      fScores.set(startNode, this._distance(startNode, endNode));
+
+      while (openList.size > 0) {
+        const currentNode = this._getLowestScoreNode(openList, fScores);
+
+        // Stop when we reach the end node
+        if (currentNode === endNode) {
+          break;
+        }
+
+        openList.delete(currentNode);
+        closedList.add(currentNode);
+
+        for (const neighborKey of currentNode.edges) {
+          const neighbor = this.nodes[neighborKey];
+          if (closedList.has(neighbor)) continue;
+
+          const tentativeGScore = gScores.get(currentNode) + this._distance(currentNode, neighbor);
+
+          if (!openList.has(neighbor)) {
+            openList.add(neighbor);
+          } else if (tentativeGScore >= gScores.get(neighbor)) {
+            continue;
+          }
+
+          cameFrom.set(neighbor, currentNode);
+          gScores.set(neighbor, tentativeGScore);
+          fScores.set(
+            neighbor,
+            tentativeGScore + this._distance(neighbor, endNode)
+          );
+        }
+      }
+
+      // Reconstruct the path by following the cameFrom map
+      const path = [endNode.metadata.key];
+      let currentNode = endNode;
+      while (currentNode !== startNode) {
+        currentNode = cameFrom.get(currentNode);
+        currentNode.metadata.render.computerPath = true;
+        path.unshift(currentNode.metadata.key);
+      }
+
+      /*path.forEach(key => {
+        this.nodes[key].metadata.render.computerPath = true;
+      });*/
+
+      this.solvedPath = path;
+    }
+
+    renderSolvedPathRect(ctx, cDiv) {
+      this.solvedPath.forEach(key => {
+        this.renderNodeRect(key, ctx, cDiv);
+      });
     }
   }
 

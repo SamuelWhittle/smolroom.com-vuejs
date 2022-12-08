@@ -32,6 +32,7 @@ let data_structures;
           const key = getKey(x, y);
           this.AddNode(key, [], {
             position: [x, y],
+            key: key,
             weight: 0,
             render: {
               userPath: false,

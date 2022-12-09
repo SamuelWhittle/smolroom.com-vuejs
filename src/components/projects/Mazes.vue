@@ -23,11 +23,12 @@
       <div class="flex flex-dir-column">
         <p>Pathfinding Algorithm:</p>
         <div class="flex">
-          <input type="radio" name="pathfinder" id="a-star" value="a-star" checked="checked" v-model="pathfinder">
+          <input type="radio" name="pathfinderType" id="a-star" value="a-star" checked="checked"
+            v-model="pathfinderType">
           <label for="a-star">A*</label>
         </div>
         <div class="flex">
-          <input type="radio" name="pathfinder" id="greedy" value="greedy" v-model="pathfinder">
+          <input type="radio" name="pathfinderType" id="greedy" value="greedy" v-model="pathfinderType">
           <label for="greedy">Greedy Search</label>
         </div>
       </div>
@@ -64,8 +65,8 @@ export default {
       initializing: false,
       message: "Initializing...",
       controlsVisible: false,
-      genType: "",
-      pathfinder: '',
+      genType: 'backtracker',
+      pathfinderType: 'a-star',
     }
   },
   watch: {
@@ -107,13 +108,14 @@ export default {
       this.manager.onmessage = (event) => {
         switch (event.data.msgType) {
           case 'clockIn':
-            //console.log("manager clocked in");
+            //console.log(this.genType, this.pathfinderType);
             this.manager.postMessage({
               msgType: "task",
               canvas: this.offscreenCanvas,
               cDiv: this.canvasDivisor,
               gridType: 'rect',
               genType: this.genType,
+              pathfinderType: this.pathfinderType,
               randomStart: this.randomStart,
             }, [this.offscreenCanvas]);
             break;
@@ -131,7 +133,7 @@ export default {
 
           this.controlsVisible = cookieSettings.controlsVisible;
           this.genType = cookieSettings.genType;
-          this.pathfinder = cookieSettings.pathfinder;
+          this.pathfinderType = cookieSettings.pathfinderType;
         } catch (err) {
           console.error(err);
         }
@@ -243,8 +245,8 @@ export default {
         this.manager.postMessage({ msgType: 'genType', genType: this.genType });
         this.saveSettings();
       })
-      this.pathfinderWatcher = this.$watch('pathfinder', () => {
-        this.manager.postMessage({ msgType: 'pathfinder', pathfinder: this.pathfinder });
+      this.pathfinderTypeWatcher = this.$watch('pathfinderType', () => {
+        this.manager.postMessage({ msgType: 'pathfinderType', pathfinderType: this.pathfinderType });
         this.saveSettings();
       })
     },
@@ -258,9 +260,9 @@ export default {
         this.genTypeWatcher = null;
       }
 
-      if (this.pathfinderWatcher) {
-        this.pathfinderWatcher();
-        this.pathfinderWatcher = null;
+      if (this.pathfinderTypeWatcher) {
+        this.pathfinderTypeWatcher();
+        this.pathfinderTypeWatcher = null;
       }
     },
     terminateManager() {

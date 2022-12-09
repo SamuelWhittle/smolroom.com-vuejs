@@ -1,16 +1,17 @@
-importScripts('../classes/DataStructures.js', '../classes/MazeGen.js');
+importScripts('../classes/MazeGen.js', '../classes/MazeRenderer.js', '../classes/AStar.js');
 
-const { Graph, getKey } = data_structures;
+//const { Graph, getKey } = data_structures;
 const { Maze } = maze_gen;
-
+const { MazeRenderer } = maze_renderer;
+const { AStar } = a_star;
 
 let canvas, ctx;
 let cDiv;
 let xTiles, yTiles;
-let wallThickness = 4;
 
-let graph, maze, gridType;
-let genType, pathfinder;
+let maze, gridType;
+let mazeRenderer, genType;
+let pathfinderType, pathfinder;
 
 let lastUpdated = [];
 let drawState;
@@ -29,7 +30,6 @@ self.onmessage = event => {
       canvas.width = event.data.width;
       canvas.height = event.data.height;
 
-      initGrid();
       init();
 
       break;
@@ -37,14 +37,13 @@ self.onmessage = event => {
       canvas = event.data.canvas;
       cDiv = event.data.cDiv;
       genType = event.data.genType;
-      pathfinder = event.data.pathfinder;
+      pathfinderType = event.data.pathfinderType;
       gridType = event.data.gridType;
 
       ctx = canvas.getContext('2d');
       ctx.imageSmoothingEnabled = false;
       ctx.lineWidth = 1;
 
-      initGrid();
       init();
 
       postMessage({ msgType: "ready" });
@@ -53,23 +52,22 @@ self.onmessage = event => {
       init();
       break;
     case "clearPath":
-      maze.resetRenderMetadata();
-      maze.hideSolved();
-      renderMaze();
+      mazeRenderer.resetRenderMetadata();
+      mazeRenderer.hideSolved();
+      mazeRenderer.renderMaze(ctx);
       break;
     case 'genType':
       genType = event.data.genType;
       init();
       break;
     case "cellUpdate":
-      updateCell(event.data.x, event.data.y, event.data.buttons);
+      mazeRenderer.updateNode(event.data.x, event.data.y, event.data.buttons);
       break;
     case "clearLastUpdated":
       lastUpdated = [];
       drawState = undefined;
       break;
     case "terminate":
-      //console.log("waiter terminated");
       self.close();
       break;
   }
@@ -77,170 +75,63 @@ self.onmessage = event => {
 
 postMessage({ msgType: "clockIn" });
 
-function initGrid() {
-  switch (gridType) {
-    case 'hex':
-      break;
-    case 'rect':
-    default:
-      xTiles = Math.floor(canvas.width / cDiv);
-      yTiles = Math.floor(canvas.height / cDiv);
-  }
-}
-
 function init() {
-  userPath = {};
-
-  initGraph();
-  initMaze();
-  renderMaze();
-}
-
-function initGraph() {
-  graph = new Graph();
-
-  switch (gridType) {
-    case 'hex':
-      console.log("hexagonal graph init has not yet been implemented.");
-    case 'rect':
-    default:
-      graph.fillRectNodes(xTiles, yTiles);
-  }
+    initMaze();
+    initMazeRenderer();
+    mazeRenderer.renderMaze(ctx);
+    initPathfinder();
 }
 
 function initMaze() {
-  const start = getKey(0, 0);
-  const end = getKey(xTiles - 1, yTiles - 1);
+    maze = new Maze();
+    maze.gridType = gridType;
 
-  maze = new Maze(graph.nodes);
+    switch (gridType) {
+        case 'hex':
+            console.log("hexagonal graph init has not yet been implemented.");
+        case 'rect':
+        default:
+            maze.xTiles = Math.floor(canvas.width / cDiv);
+            maze.yTiles = Math.floor(canvas.height / cDiv);
+    }
 
-  maze.setStart(start);
-  maze.setEnd(end);
+    maze.initNodes();
+    maze.initNodeNeighbors();
 
-  maze.initRectNodes();
+    maze.setStart('0.0');
+    maze.setEnd(`${maze.xTiles - 1}.${maze.yTiles - 1}`);
 
-  switch (genType) {
-    case 'kruskal':
-      maze.generateKruskal();
-      break;
-    case 'backtracker':
-    default:
-      maze.generateBacktracker(start);
-      maze.sprinkle(0.01);
-  }
+    switch (genType) {
+        case 'kruskal':
+            maze.generateKruskal();
+            break;
+        case 'backtracker':
+        default:
+            maze.generateBacktracker();
+            maze.sprinkle(0.01);
+    }
 }
 
-function renderMaze() {
-  switch (gridType) {
-    case 'hex':
-      console.log("hexagonal maze rendering has not been implemented yet.");
-      break;
-    case 'rect':
-    default:
-      maze.renderRect(ctx, xTiles, yTiles, cDiv);
-  }
+function initMazeRenderer() {
+    mazeRenderer = new MazeRenderer(maze);
+    mazeRenderer.cDiv = cDiv;
+}
+
+function initPathfinder() {
+    switch (pathfinderType) {
+        case 'a-star':
+        default:
+            pathfinder = new AStar(maze.nodes);
+    }
 }
 
 function instaSolve() {
-  switch (pathfinder) {
-    case '':
-      break;
-    case 'aStar':
-    default:
-      maze.aStarSolve(maze.start, maze.end);
-  }
+    pathfinder.solve(maze.start, maze.end);
+    maze.solvedPath = pathfinder.solvedPath;
 
-  maze.renderSolved = !maze.renderSolved;
+    mazeRenderer.renderSolved = !mazeRenderer.renderSolved;
 
-  switch (gridType) {
-    case 'hex':
-      console.log("hexagonal maze rendering has not been implemented yet.");
-      break;
-    case 'rect':
-    default:
-      maze.renderSolvedPathRect(ctx, cDiv);
-  }
-}
-
-// user requested to toggle userPath state of a node
-function updateCell(x, y, buttons) {
-  //console.log('updateCell', x, y, buttons);
-  // calulate X anf Y relative to the grid
-  let cellX = Math.floor(x / cDiv);
-  let cellY = Math.floor(y / cDiv);
-
-  if (cellX >= xTiles || cellY >= yTiles) return;
-
-  // get the key of the node
-  let loc = getKey(cellX, cellY);
-
-  // if the user is trying to update the node they just updated, ignore.
-  if (lastUpdated[lastUpdated.length - 1] === loc) return;
-
-  // get the metadata for the requested node
-  renderInfo = maze.nodes[loc].metadata.render;
-
-  // if it was a left click
-  if (buttons == 1) {
-    // if there are nodes in the lastUpdated array
-    if (lastUpdated.length > 0) {
-      // if the user is trying to toggle a node that is not an edge of any of the previously toggled nodes, ignore.
-        // this only applies to nodes changed since the user started the current interaction
-        // lastUpdated will be cleared on control release.
-      let isNeighbor = false;
-      lastUpdated.forEach(key => {
-        if(maze.nodes[key].edges.indexOf(loc) != -1) isNeighbor = true;
-      });
-
-      if (!isNeighbor)
-        return;
-    }
-
-    // if the draw state for this control interaction has not yet been defined, use the userPath value of the current node to define it.
-      // this is cleared on control release
-    if (drawState == undefined) {
-      if (renderInfo.userPath)
-        drawState = 0;
-      else 
-        drawState = 1;
-    }
-
-    // if we are drawing, not erasing
-    if (drawState) {
-      // set userPath value of current node
-      renderInfo.userPath = true;
-      renderInfo.highlighted = false;
-    } else {
-      // we are erasing, not drawing
-      // set userPath value of the current node
-      renderInfo.userPath = false;
-      renderInfo.highlighted = false;
-    }
-  } else if (buttons == 2) {
-    if (drawState == undefined) {
-      if (renderInfo.highlighted)
-        drawState = 0;
-      else 
-        drawState = 1;
-    }
-
-    if (drawState) {
-      renderInfo.highlighted = true;
-    } else {
-      renderInfo.highlighted = false;
-    }
-  }
-
-  switch (gridType) {
-    case 'hex':
-      console.log("hexagonal maze rendering has not been implemented yet.");
-      break;
-    case 'rect':
-    default:
-      maze.renderNodeRect(loc, ctx, cDiv, wallThickness);
-  }
-
-  lastUpdated.push(loc);
+    mazeRenderer.renderSolvedPath(ctx);
 }
 
 function step() {

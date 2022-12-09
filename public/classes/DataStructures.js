@@ -23,28 +23,6 @@ let data_structures;
         metadata: meta
       };
     }
-
-    fillRectNodes(xTiles, yTiles) {
-      const neighbors = [[0, -1], [0, 1], [-1, 0], [1, 0]];
-
-      for (let x = 0; x < xTiles; x++) {
-        for (let y = 0; y < yTiles; y++) {
-          const key = getKey(x, y);
-          this.AddNode(key, [], {
-            position: [x, y],
-            key: key,
-            weight: 0,
-            render: {
-              userPath: false,
-              computerPath: false,
-              isStart: false,
-              isEnd: false,
-              highlighted: false
-            }
-          });
-        }
-      }
-    }
   }
 
   __exports.Graph = Graph;

@@ -1,9 +1,9 @@
-let a_star;
+let path_finder;
 
 (() => {
   const __exports = {};
   
-  class AStar {
+  class Pathfinder {
     constructor(nodes) {
       this.nodes = nodes;
       this.solvedPath = [];
@@ -36,7 +36,7 @@ let a_star;
     }
 
     // Returns the solved set of nodes using the A* algorithm
-    solve(startNodeKey, endNodeKey) {
+    aStarSolve(startNodeKey, endNodeKey) {
       const startNode = this.nodes[startNodeKey];
       const endNode = this.nodes[endNodeKey];
 
@@ -100,7 +100,7 @@ let a_star;
     }
   }
 
-  __exports.AStar = AStar;
+  __exports.Pathfinder = Pathfinder;
 
-  a_star = Object.assign(__exports);
+  path_finder = Object.assign(__exports);
 })();

@@ -1,9 +1,9 @@
-importScripts('../classes/MazeGen.js', '../classes/MazeRenderer.js', '../classes/AStar.js');
+importScripts('../classes/MazeGen.js', '../classes/MazeRenderer.js', '../classes/Pathfinder.js');
 
 //const { Graph, getKey } = data_structures;
 const { Maze } = maze_gen;
 const { MazeRenderer } = maze_renderer;
-const { AStar } = a_star;
+const { Pathfinder } = path_finder;
 
 let canvas, ctx;
 let cDiv;
@@ -118,15 +118,11 @@ function initMazeRenderer() {
 }
 
 function initPathfinder() {
-    switch (pathfinderType) {
-        case 'a-star':
-        default:
-            pathfinder = new AStar(maze.nodes);
-    }
+  pathfinder = new Pathfinder(maze.nodes);
 }
 
 function instaSolve() {
-    pathfinder.solve(maze.start, maze.end);
+    pathfinder.aStarSolve(maze.start, maze.end);
     maze.solvedPath = pathfinder.solvedPath;
 
     mazeRenderer.renderSolved = !mazeRenderer.renderSolved;

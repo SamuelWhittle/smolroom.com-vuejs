@@ -23,14 +23,14 @@
       <div class="flex flex-dir-column">
         <p>Pathfinding Algorithm:</p>
         <div class="flex">
-          <input type="radio" name="pathfinderType" id="a-star" value="a-star" checked="checked"
+          <input type="radio" name="pathfinderType" id="a-star" value="a-star" checked="checked" active
             v-model="pathfinderType">
           <label for="a-star">A*</label>
         </div>
-        <div class="flex">
+        <!--<div class="flex">
           <input type="radio" name="pathfinderType" id="greedy" value="greedy" v-model="pathfinderType">
           <label for="greedy">Greedy Search</label>
-        </div>
+        </div>-->
       </div>
     </div>
   </div>
@@ -225,7 +225,7 @@ export default {
       this.$cookies.set("smol-controls-mazes", {
         controlsVisible: this.controlsVisible,
         genType: this.genType,
-        pathfinder: this.pathfinder
+        pathfinderType: this.pathfinderType
       });
     },
     toggleTask() {

@@ -1,7 +1,3 @@
-importScripts('../classes/DataStructures.js');
-
-const { DisjointSet, Graph } = data_structures;
-
 let maze_gen;
 
 (() => {
@@ -33,10 +29,13 @@ let maze_gen;
                 weight: 0,
                 render: {
                   userPath: false,
-                  computerPath: false,
+                  highlighted: false,
+                  compPath: false,
+                  compCurrent: false,
+                  compOpen: false,
+                  compClosed: false,
                   isStart: false,
                   isEnd: false,
-                  highlighted: false
                 }
               });
             }

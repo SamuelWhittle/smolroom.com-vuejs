@@ -66,6 +66,24 @@ let data_structures;
 
   __exports.DisjointSet = DisjointSet;
 
+  class PriorityQueue {
+    constructor(comparisonFunction) {
+      this.items = [];
+      this.comparisonFunction = comparisonFunction;
+    }
+
+    enqueue(item) {
+      this.items.push(item);
+      this.items.sort(this.comparisonFunction);
+    }
+
+    dequeue() {
+      return this.items.shift();
+    }
+  }
+
+  __exports.PriorityQueue = PriorityQueue;
+
   data_structures = Object.assign(__exports);
 
 })();

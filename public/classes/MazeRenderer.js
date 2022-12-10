@@ -10,15 +10,31 @@ let maze_renderer;
       this.style = null; // rect or hex
       this.wallThickness = 4;
       this.cDiv = null;
+      this.nodeWidth = null;
+      this.pathWidth = null;
       this.renderSolved = false;
 
+      // Generic maze and user colors
       this.startColor = '#88ff88';
       this.endColor = '#ff8888';
       this.pathColor = '#16161d';
       this.wallColor = '#888888';
       this.userPathColor = '#8888ff';
-      this.computerPathColor = '#b080b0';
       this.highlightColor = '#FF9955';
+
+      // computer yield colors
+      this.compCurrentColor = '#f0f';
+      this.compClosedColor = '#A000A0';
+      this.compOpenColor = '#0f0';
+      this.compPathColor = '#b080b0';
+
+    }
+
+    setSizes(cDiv, wallThickness) {
+      this.wallThickness = wallThickness;
+      this.cDiv = cDiv;
+      this.nodeWidth = this.cDiv - this.wallThickness;
+      this.pathWidth = this.cDiv - (this.wallThickness * 2);
     }
 
     showSolved() {
@@ -34,6 +50,7 @@ let maze_renderer;
         const node = this.maze.nodes[nodeKey];
 
         for (const renderKey in node.metadata.render) {
+          if (renderKey === "isStart" || renderKey === "isEnd") continue;
           node.metadata.render[renderKey] = false;
         }
       }
@@ -49,7 +66,7 @@ let maze_renderer;
           ctx.fillStyle = this.pathColor;
 
           ctx.strokeStyle = this.pathColor;
-          ctx.lineWidth = this.cDiv - this.wallThickness;
+          ctx.lineWidth = this.nodeWidth;
 
           let fillPath = new Path2D();
           let strokePath = new Path2D();
@@ -58,7 +75,7 @@ let maze_renderer;
             const node = this.maze.nodes[nodeKey];
 
             fillPath.rect(node.metadata.position[0] * this.cDiv + (this.wallThickness / 2), node.metadata.position[1] * this.cDiv + (this.wallThickness / 2), 
-              this.cDiv - this.wallThickness, this.cDiv - this.wallThickness);
+              this.nodeWidth, this.nodeWidth);
 
             node.edges.forEach((edgeKey) => {
               strokePath.moveTo(node.metadata.position[0] * this.cDiv + (this.cDiv / 2), node.metadata.position[1] * this.cDiv + (this.cDiv / 2));
@@ -71,10 +88,10 @@ let maze_renderer;
 
           ctx.fillStyle = this.startColor;
           ctx.fillRect(this.maze.nodes[this.maze.start].metadata.position[0] * this.cDiv + (this.wallThickness / 2), this.maze.nodes[this.maze.start].metadata.position[1] * this.cDiv + (this.wallThickness / 2),
-            this.cDiv - this.wallThickness, this.cDiv - this.wallThickness);
+            this.nodeWidth, this.nodeWidth);
           ctx.fillStyle = this.endColor;
           ctx.fillRect(this.maze.nodes[this.maze.end].metadata.position[0] * this.cDiv + (this.wallThickness / 2), this.maze.nodes[this.maze.end].metadata.position[1] * this.cDiv + (this.wallThickness / 2),
-            this.cDiv - this.wallThickness, this.cDiv - this.wallThickness);
+            this.nodeWidth, this.nodeWidth);
       }
     }
 
@@ -161,16 +178,31 @@ let maze_renderer;
       const render = this.maze.nodes[key].metadata.render;
 
       if (render.highlighted) {
+        console.log('highlighted');
         return this.highlightColor;
       } else if (render.userPath) {
+        console.log('userPath');
         return this.userPathColor;
-      } else if (render.computerPath && this.renderSolved) {
-        return this.computerPathColor;
+      } else if (render.compPath && this.renderSolved) {
+        console.log('compPath');
+        return this.compPathColor;
+      } else if (render.compCurrent) {
+        console.log('compCurrent');
+        return this.compCurrentColor;
+      } else if (render.compOpen) {
+        console.log('compOpen');
+        return this.compOpenColor;
+      } else if (render.compClosed) {
+        console.log('compClosed');
+        return this.compClosedColor;
       } else if (render.isStart) {
+        console.log('isStart');
         return this.startColor;
       } else if (render.isEnd) {
+        console.log('isEnd');
         return this.endColor;
       } else {
+        console.log('default');
         return this.pathColor;
       }
     }
@@ -184,7 +216,7 @@ let maze_renderer;
           const node = this.maze.nodes[key];
 
           ctx.fillRect(node.metadata.position[0] * this.cDiv + this.wallThickness, node.metadata.position[1] * this.cDiv + this.wallThickness, 
-            this.cDiv - (this.wallThickness * 2), this.cDiv - (this.wallThickness * 2));
+            this.pathWidth, this.pathWidth);
       }
     }
 
@@ -211,9 +243,31 @@ let maze_renderer;
         case 'rect':
         default:
           for (let i = 0; i < this.maze.solvedPath.length - 1; i++) {
-            this.renderNode(this.maze.solvedPath[i], ctx, this.cDiv);
+            this.maze.nodes[this.maze.solvedPath[i]].metadata.render.compPath = true;
+            this.renderNode(this.maze.solvedPath[i], ctx);
             //this.renderConnection(this.maze.solvedPath[i], this.maze.solvedPath[i+1], ctx);
           }
+          this.maze.nodes[this.maze.solvedPath[this.maze.solvedPath.length - 1]].metadata.render.compPath = true;
+          this.renderNode(this.maze.solvedPath[this.maze.solvedPath.length - 1], ctx);
+      }
+    }
+
+    renderYield(ctx, state) {
+      for (const key in state.closedSet) {
+        this.maze.nodes[key].metadata.render.compCurrent = false;
+        this.maze.nodes[key].metadata.render.compOpen = false;
+        this.maze.nodes[key].metadata.render.compClosed = true;
+        this.renderNode(key, ctx);
+      }
+
+      this.maze.nodes[state.currentKey].metadata.render.compCurrent = true;
+      this.renderNode(state.currentKey, ctx);
+      
+      for (const key in state.openSet) {
+        this.maze.nodes[key].metadata.render.compCurrent = false;
+        this.maze.nodes[key].metadata.render.compClosed = false;
+        this.maze.nodes[key].metadata.render.compOpen = true;
+        this.renderNode(key, ctx);
       }
     }
   }

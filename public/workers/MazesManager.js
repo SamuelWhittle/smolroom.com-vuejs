@@ -1,17 +1,17 @@
-importScripts('../classes/MazeGen.js', '../classes/MazeRenderer.js', '../classes/Pathfinder.js');
+importScripts('../classes/MazeGen.js', '../classes/MazeRenderer.js', '../classes/Pathfinder.js', '../classes/DataStructures.js');
 
-//const { Graph, getKey } = data_structures;
+const { DisjointSet, Graph, PriorityQueue } = data_structures;
 const { Maze } = maze_gen;
 const { MazeRenderer } = maze_renderer;
 const { Pathfinder } = path_finder;
 
 let canvas, ctx;
-let cDiv;
+let cDiv, wallThickness;
 let xTiles, yTiles;
 
 let maze, gridType;
 let mazeRenderer, genType;
-let pathfinderType, pathfinder;
+let pathfinderType, pathfinder, pathfinderIter;
 
 let lastUpdated = [];
 let drawState;
@@ -22,9 +22,8 @@ self.onmessage = event => {
   switch (event.data.msgType) {
     case "toggleTask":
       //console.log("toggleTask");
-      //toggleTask(event.data.state, event.data.fps);
+      toggleTask(event.data.state, event.data.fps);
       //step();
-      instaSolve();
       break;
     case 'resizeCanvas':
       canvas.width = event.data.width;
@@ -36,6 +35,7 @@ self.onmessage = event => {
     case 'task':
       canvas = event.data.canvas;
       cDiv = event.data.cDiv;
+      wallThickness = event.data.wallThickness;
       genType = event.data.genType;
       pathfinderType = event.data.pathfinderType;
       gridType = event.data.gridType;
@@ -54,6 +54,7 @@ self.onmessage = event => {
     case "clearPath":
       mazeRenderer.resetRenderMetadata();
       mazeRenderer.hideSolved();
+      pathfinderIter = pathfinder.getAStarSolveIter(maze.start, maze.end);
       mazeRenderer.renderMaze(ctx);
       break;
     case 'genType':
@@ -114,11 +115,12 @@ function initMaze() {
 
 function initMazeRenderer() {
     mazeRenderer = new MazeRenderer(maze);
-    mazeRenderer.cDiv = cDiv;
+    mazeRenderer.setSizes(cDiv, wallThickness);
 }
 
 function initPathfinder() {
   pathfinder = new Pathfinder(maze.nodes);
+  pathfinderIter = pathfinder.getAStarSolveIter(maze.start, maze.end);
 }
 
 function instaSolve() {
@@ -131,7 +133,19 @@ function instaSolve() {
 }
 
 function step() {
-
+  //console.log(pathfinderIter.next().value);
+  const state = pathfinderIter.next().value;
+  if (state === undefined) {
+    console.log('finished');
+    toggleTask(false);
+  } else if (!state.done) {
+    console.log('renderYield');
+    mazeRenderer.renderYield(ctx, state);
+  } else if (state.done) {
+    console.log('renderSolvedPath');
+    maze.solvedPath = state.solvedPath;
+    mazeRenderer.renderSolvedPath(ctx);
+  }
 }
 
 function toggleTask(state, fps) {

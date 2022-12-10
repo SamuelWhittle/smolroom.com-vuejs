@@ -113,6 +113,7 @@ export default {
               msgType: "task",
               canvas: this.offscreenCanvas,
               cDiv: this.canvasDivisor,
+              wallThickness: 4,
               gridType: 'rect',
               genType: this.genType,
               pathfinderType: this.pathfinderType,

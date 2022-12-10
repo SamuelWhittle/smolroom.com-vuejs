@@ -127,7 +127,7 @@ let path_finder;
 
       // Use a priority queue to keep track of the nodes that are still
       // being considered, with the lowest fScore at the front of the queue.
-      const openSetQueue = new PriorityQueue((a, b) => fScore.get(a) < fScore.get(b));
+      const openSetQueue = new PriorityQueue((a, b) => fScore.get(a) - fScore.get(b));
       openSetQueue.enqueue(startKey);
 
       // While there are still nodes in the open set...

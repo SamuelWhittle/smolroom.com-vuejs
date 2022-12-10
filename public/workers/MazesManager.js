@@ -109,7 +109,7 @@ function initMaze() {
         case 'backtracker':
         default:
             maze.generateBacktracker();
-            maze.sprinkle(0.01);
+            maze.sprinkle(0.10);
     }
 }
 
@@ -133,18 +133,20 @@ function instaSolve() {
 }
 
 function step() {
-  //console.log(pathfinderIter.next().value);
   const state = pathfinderIter.next().value;
+
   if (state === undefined) {
-    console.log('finished');
+    console.error('tried to step when the pathfinder iterator was already finished.');
+    postMessage({msgType: 'finishedTask'});
     toggleTask(false);
   } else if (!state.done) {
-    console.log('renderYield');
     mazeRenderer.renderYield(ctx, state);
   } else if (state.done) {
-    console.log('renderSolvedPath');
     maze.solvedPath = state.solvedPath;
     mazeRenderer.renderSolvedPath(ctx);
+
+    postMessage({msgType: 'finishedTask'});
+    toggleTask(false);
   }
 }
 

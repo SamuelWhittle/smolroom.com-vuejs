@@ -57,7 +57,7 @@ export default {
     },
     fps: {
       type: Number,
-      default: 24
+      default: 1000
     }
   },
   data() {
@@ -122,6 +122,9 @@ export default {
             break;
           case 'ready':
             this.initializing = false;
+            break;
+          case 'finishedTask':
+            this.running = false;
             break;
         }
       };

@@ -16,15 +16,15 @@ let maze_renderer;
 
       // Generic maze and user colors
       this.startColor = '#88ff88';
-      this.endColor = '#ff8888';
+      this.endColor = '#ff5050';
       this.pathColor = '#16161d';
-      this.wallColor = '#888888';
-      this.userPathColor = '#8888ff';
-      this.highlightColor = '#FF9955';
+      this.wallColor = '#999999';
+      this.userPathColor = '#5050ff';
+      this.highlightColor = '#FF9950';
 
       // computer yield colors
       this.compCurrentColor = '#f0f';
-      this.compClosedColor = '#A000A0';
+      this.compClosedColor = '#500050';
       this.compOpenColor = '#0f0';
       this.compPathColor = '#b080b0';
 
@@ -178,31 +178,31 @@ let maze_renderer;
       const render = this.maze.nodes[key].metadata.render;
 
       if (render.highlighted) {
-        console.log('highlighted');
+        //console.log('highlighted');
         return this.highlightColor;
       } else if (render.userPath) {
-        console.log('userPath');
+        //console.log('userPath');
         return this.userPathColor;
-      } else if (render.compPath && this.renderSolved) {
-        console.log('compPath');
+      } else if (render.compPath) {
+        //console.log('compPath');
         return this.compPathColor;
       } else if (render.compCurrent) {
-        console.log('compCurrent');
+        //console.log('compCurrent');
         return this.compCurrentColor;
       } else if (render.compOpen) {
-        console.log('compOpen');
+        //console.log('compOpen');
         return this.compOpenColor;
       } else if (render.compClosed) {
-        console.log('compClosed');
+        //console.log('compClosed');
         return this.compClosedColor;
       } else if (render.isStart) {
-        console.log('isStart');
+        //console.log('isStart');
         return this.startColor;
       } else if (render.isEnd) {
-        console.log('isEnd');
+        //console.log('isEnd');
         return this.endColor;
       } else {
-        console.log('default');
+        //console.log('default');
         return this.pathColor;
       }
     }
@@ -253,22 +253,27 @@ let maze_renderer;
     }
 
     renderYield(ctx, state) {
-      for (const key in state.closedSet) {
-        this.maze.nodes[key].metadata.render.compCurrent = false;
-        this.maze.nodes[key].metadata.render.compOpen = false;
-        this.maze.nodes[key].metadata.render.compClosed = true;
-        this.renderNode(key, ctx);
-      }
+      state.closedSet.forEach(key => {
+        const renderInfo = this.maze.nodes[key].metadata.render;
+        if (!renderInfo.compClosed || renderInfo.compCurrent || renderInfo.compOpen) {
+          renderInfo.compCurrent = false;
+          renderInfo.compOpen = false;
+          renderInfo.compClosed = true;
+          this.renderNode(key, ctx);
+        }
+      });
 
       this.maze.nodes[state.currentKey].metadata.render.compCurrent = true;
       this.renderNode(state.currentKey, ctx);
       
-      for (const key in state.openSet) {
-        this.maze.nodes[key].metadata.render.compCurrent = false;
-        this.maze.nodes[key].metadata.render.compClosed = false;
-        this.maze.nodes[key].metadata.render.compOpen = true;
-        this.renderNode(key, ctx);
-      }
+      state.openSet.forEach(key => {
+        const renderInfo = this.maze.nodes[key].metadata.render;
+        if (!renderInfo.compOpen) {
+          renderInfo.compCurrent = false;
+          renderInfo.compOpen = true;
+          this.renderNode(key, ctx);
+        }
+      });
     }
   }
 

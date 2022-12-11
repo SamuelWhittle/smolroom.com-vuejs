@@ -239,6 +239,7 @@ export default {
     },
     initWatchers() {
       this.parentResizeObserver = new ResizeObserver(() => {
+        console.log(this.canvas.parentNode);
         this.manager.postMessage({ msgType: "resizeCanvas", width: this.canvas.parentNode.clientWidth, height: this.canvas.parentNode.clientHeight });
       });
 

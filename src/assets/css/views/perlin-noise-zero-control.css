@@ -1,5 +1,5 @@
 .canvasContainer {
-    height: 70vh;
+    height: 70%;
     border: 1px solid black;
 }
 
@@ -18,7 +18,7 @@ input.slider {
 
 @media (max-width: 40rem) {
     .canvasContainer {
-        height: 60vh;
+        height: 60%;
     }
     
     .controls {
